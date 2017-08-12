@@ -1,0 +1,98 @@
+﻿<div ng-app="storageApp">
+
+    
+
+
+
+        @*<div class="col-md-2 col-md-offset-5 col-xs-2 col-xs-offset-5 affix">
+                <button type="button" class="btn btn-default btn-sm btn-block">Отдать</button>
+                <button type="button" class="btn btn-default btn-sm btn-block">Забрать</button>
+                <button type="button" class="btn btn-default btn-sm btn-block">Удалить</button>
+            </div>*@
+
+        
+
+
+        @*<nav class="navbar navbar-default navbar-fixed-bottom">
+            <div class="container-fluid">
+                <div class="row">
+                    <button type="button" class="btn btn-default navbar-btn col-md-4 col-xs-4">Выкинуть</button>
+                    <button type="button" class="btn btn-default navbar-btn col-md-4 col-xs-4">Забрать</button>
+                    <button type="button" class="btn btn-default navbar-btn col-md-4 col-xs-4">Отдать</button>
+                </div>
+            </div>
+        </nav>*@
+
+
+        <div class="container-fluid">
+
+            <div class="row">
+
+                <div class="col-md-6 col-xs-12">
+                    <div class="panel panel-default" ng-controller="myStorageController" ng-init="load(@ViewData["storageId"])">
+                        <div class="panel-heading">
+                            Мое хранилище
+                        </div>
+                        <div class="panel-body">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-9 col-xs-9 well-sm">Выбрано:</div>
+                                    <button type="button" class="btn btn-default col-md-3 col-xs-3">Отдать</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group">
+                            <a class="list-group-item" ng-repeat="item in items" ng-click="select(item.id)" ng-class="{ 'list-group-item-success' : isSelected(item.id) }">
+                                <h4 class="list-group-item-heading">{{item.type}}</h4>
+                                <p class="list-group-item-text">{{item.id + " " + item.name}}</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xs-12">
+                    <div class="panel panel-default" ng-controller="storageController" ng-init="loadInteractableFrom(@ViewData["storageId"])">
+                        <div class="panel-heading">
+                            Хранилище
+                            @*<div class="dropdown">
+                                <a data-toggle="dropdown" class="dropdown-toggle">Выберите хранилище<b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li ng-repeat="storage in storages"><a ng-click="load(storage.id)">{{storage.id}}</a></li>
+                                </ul>
+                            </div>*@
+                        </div>
+                        <div class="panel-body">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-6 col-xs-6 well-sm">Выбрано:</div>
+                                    <div class="col-md-6 col-xs-6">
+                                        <div class="btn-group btn-group-justified">
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-default" ng-class="{ 'disabled' : !isOwner }">Забрать</button>
+                                            </div>
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Выберите<span class="caret"></span></button>
+                                                <ul class="dropdown-menu">
+                                                    <li ng-repeat="storage in storages"><a ng-click="load(storage)">{{storage}}</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group">
+                            <a class="list-group-item" ng-repeat="item in items">
+                                <h4 class="list-group-item-heading">{{item.type}}</h4>
+                                <p class="list-group-item-text">{{item.id + " " + item.name}}</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+</div>

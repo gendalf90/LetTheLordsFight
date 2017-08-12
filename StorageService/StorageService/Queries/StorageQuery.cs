@@ -1,0 +1,51 @@
+﻿using Newtonsoft.Json;
+using StorageDomain.Entities;
+using StorageDomain.Services;
+using StorageService.Storages;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace StorageService.Queries
+{
+    class StorageQuery : IQuery
+    {
+        private readonly IStorageStore storageStore;
+        private readonly IUserValidationService userValidationService;
+        private readonly string storageId;
+
+        private StorageEntity restoredStorage;
+
+        public StorageQuery(IStorageStore storageStore, IUserValidationService userValidationService, string storageId)
+        {
+            this.storageStore = storageStore;
+            this.userValidationService = userValidationService;
+            this.storageId = storageId;
+        }
+
+        public async Task<string> AskAsync()
+        {
+            await ValidateQuery();
+            await RestoreStorage();
+            return GetJson();
+        }
+
+        private async Task ValidateQuery()
+        {
+            await userValidationService.CurrentUserShouldBeOwnerOfThisStorageAsync(storageId);
+        }
+
+        private async Task RestoreStorage()
+        {
+            restoredStorage = await storageStore.RestoreStorageToLastEventAsync(storageId);
+        }
+
+        private string GetJson()
+        {
+            var data = restoredStorage.GetRepositoryData();
+            var dto = new { Id = data.Id, Items = data.Items.ToDictionary(item => item.Name, item => item.Quantity) };
+            return JsonConvert.SerializeObject(dto);
+        }
+    }
+}
