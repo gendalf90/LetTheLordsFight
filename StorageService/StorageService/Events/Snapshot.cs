@@ -38,8 +38,11 @@ namespace StorageService.Events
         public async Task CreateToAllAsync()
         {
             var storagesIds = await GetAllStoragesIdsAsync();
-            var snapshotMakingTasks = storagesIds.Select(CreateForStorageIdAsync);
-            await Task.WhenAll(snapshotMakingTasks);
+
+            foreach(var storageId in storagesIds)
+            {
+                await CreateForStorageIdAsync(storageId);
+            }
         }
 
         private async Task<IEnumerable<string>> GetAllStoragesIdsAsync()
