@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using Newtonsoft.Json.Linq;
+using MapDomain.ValueObjects;
 
 namespace MapService.Repositories
 {

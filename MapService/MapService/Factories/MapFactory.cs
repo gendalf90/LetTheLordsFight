@@ -1,21 +1,21 @@
-﻿using MapDomain.Repositories;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MapDomain.ValueObject;
+using MapDomain.ValueObjects;
 using Microsoft.Extensions.Options;
 using MapService.Options;
 using MapDomain.Common;
 using System.Threading;
+using MapDomain.Factories;
 
-namespace MapService.Repositories
+namespace MapService.Factories
 {
-    public class MapRepository : IMapRepository
+    public class MapFactory : IMapFactory
     {
         private readonly Lazy<Map> map;
 
-        public MapRepository(IOptions<MapOptions> options)
+        public MapFactory(IOptions<MapOptions> options)
         {
             map = new Lazy<Map>(() => new Map(GetMapCreatingData(options.Value)), LazyThreadSafetyMode.PublicationOnly);
         }

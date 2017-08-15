@@ -1,5 +1,5 @@
 ﻿using MapDomain.Common;
-using MapDomain.ValueObject;
+using MapDomain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -19,8 +19,8 @@ namespace MapDomain.Entities
         {
             this.map = map;
             this.id = data.Id;
-            this.location = data.Location;
-            this.destination = data.Destination;
+            this.location = new Location(data.LocationX, data.LocationY);
+            this.destination = new Location(data.DestinationX, data.DestinationY);
             this.isVisible = data.IsVisible;
         }
 
@@ -115,7 +115,15 @@ namespace MapDomain.Entities
 
         public MapObjectRepositoryData GetRepositoryData()
         {
-            return new MapObjectRepositoryData { Id = id, Location = location, Destination = destination, IsVisible = isVisible };
+            return new MapObjectRepositoryData
+            {
+                Id = id,
+                LocationX = location.X,
+                LocationY = location.Y,
+                DestinationX = destination.X,
+                DestinationY = destination.Y,
+                IsVisible = isVisible
+            };
         }
     }
 }

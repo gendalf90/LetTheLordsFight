@@ -1,5 +1,4 @@
-﻿using MapDomain.ValueObject;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,9 +8,13 @@ namespace MapDomain.Common
     {
         public string Id { get; set; }
 
-        public Location Location { get; set; }
+        public float LocationX { get; set; }
 
-        public Location Destination { get; set; }
+        public float LocationY { get; set; }
+
+        public float DestinationX { get; set; }
+
+        public float DestinationY { get; set; }
 
         public bool IsVisible { get; set; }
     }

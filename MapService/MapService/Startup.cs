@@ -35,7 +35,6 @@ namespace MapService
         {
             services.AddMvc();
             services.AddOptions();
-            services.AddSingleton<IMapRepository, MapRepository>();
             services.AddSingleton<IQueryFactory, QueryFactory>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton(new HttpClient { BaseAddress = new Uri(Configuration["API_URL"]) });

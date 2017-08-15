@@ -12,6 +12,8 @@ namespace MapService.Controllers
         [HttpPost("{elapsedSeconds}")]
         public IActionResult Update(float elapsedSeconds)
         {
+            //parallel.foreach
+
             return Json(TimeSpan.FromSeconds(elapsedSeconds));
         }
     }

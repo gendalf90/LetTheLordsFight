@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MapDomain.ValueObject
+namespace MapDomain.ValueObjects
 {
     public enum SegmentType : byte
     {

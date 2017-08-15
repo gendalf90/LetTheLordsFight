@@ -4,54 +4,66 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MapDomain.Entities;
-using MongoDB.Driver;
 using MapDomain.Common;
-using MongoDB.Bson;
+using Cassandra.Data.Linq;
+using Cassandra;
+using MapDomain.Factories;
+using DomainMap = MapDomain.ValueObjects.Map;
 
 namespace MapService.Repositories
 {
     public class MapObjectsRepository : IMapObjectsRepository
     {
-        private readonly IMongoCollection<MapObjectMongoEntity> collection;
+        private readonly ISession session;
+        private readonly IMapFactory mapFactory;
 
-        public MapObjectsRepository(MongoClient client)
+        public MapObjectsRepository(ISession session, IMapFactory mapFactory)
         {
-            collection = client.GetDatabase("Map").GetCollection<MapObjectMongoEntity>("objects");
+            this.session = session;
+            this.mapFactory = mapFactory;
         }
 
-        public IEnumerable<MapObject> GetAllMovingObjects()
+        public async Task<IEnumerable<MapObject>> GetAllMovingObjectsAsync()
         {
-            throw new NotImplementedException();
+            var table = new Table<MapObjectRepositoryData>(session);
+            var map = mapFactory.GetMap();
+            var dataset = await table.Where(obj => obj.LocationX != obj.DestinationX || obj.LocationY != obj.DestinationY).ExecuteAsync();
+            return dataset.Select(data => new MapObject(data, map));
         }
 
-        public MapObject GetById(string id)
+        public async Task<MapObject> GetByIdAsync(string id)
         {
-            throw new NotImplementedException();
+            var table = new Table<MapObjectRepositoryData>(session);
+            var data = await table.First(obj => obj.Id == id).ExecuteAsync();
+            var map = mapFactory.GetMap();
+            return new MapObject(data, map);
         }
 
-        public void Save(IEnumerable<MapObject> objects)
+        public async Task SaveDestinationAsync(MapObject mapObj)
         {
-            throw new NotImplementedException();
+            var table = new Table<MapObjectRepositoryData>(session);
+            var data = mapObj.GetRepositoryData();
+            await table.Where(obj => obj.Id == data.Id)
+                       .Select(obj => new MapObjectRepositoryData { DestinationX = data.DestinationX, DestinationY = data.DestinationY })
+                       .Update()
+                       .ExecuteAsync();
         }
 
-        public void Save(MapObject @object)
+        public async Task SaveLocationAndVisibleAsync(IEnumerable<MapObject> objects)
         {
-            throw new NotImplementedException();
-        }
-    }
-
-    class MapObjectMongoEntity
-    {
-        public ObjectId Id { get; set; }
-
-        public void LoadFromRepositoryData(MapObjectRepositoryData repositoryData)
-        {
-            throw new NotImplementedException();
+            var requests = objects.Select(ToSaveLocationAndVisibleRequest);
+            await session.CreateBatch()
+                         .Append(requests)
+                         .ExecuteAsync();
         }
 
-        public MapObjectRepositoryData ConvertToRepositoryData()
+        private CqlUpdate ToSaveLocationAndVisibleRequest(MapObject mapObject)
         {
-            throw new NotImplementedException();
+            var table = new Table<MapObjectRepositoryData>(session);
+            var data = mapObject.GetRepositoryData();
+            return table.Where(obj => obj.Id == data.Id)
+                        .Select(obj => new MapObjectRepositoryData { LocationX = data.LocationX, LocationY = data.LocationY, IsVisible = data.IsVisible })
+                        .Update();
         }
     }
 }

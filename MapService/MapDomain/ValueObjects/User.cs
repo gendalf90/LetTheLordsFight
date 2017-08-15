@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MapDomain.Entities
+namespace MapDomain.ValueObjects
 {
     public class User
     {

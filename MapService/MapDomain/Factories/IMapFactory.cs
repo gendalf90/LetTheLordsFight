@@ -1,11 +1,11 @@
-﻿using MapDomain.ValueObject;
+﻿using MapDomain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MapDomain.Repositories
+namespace MapDomain.Factories
 {
-    public interface IMapRepository
+    public interface IMapFactory
     {
         Map GetMap();
     }

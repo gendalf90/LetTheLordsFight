@@ -1,21 +1,22 @@
 ﻿using MapDomain.Common;
 using MapDomain.Entities;
-using MapDomain.ValueObject;
+using MapDomain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MapDomain.Repositories
 {
     public interface IMapObjectsRepository
     {
-        IEnumerable<MapObject> GetAllMovingObjects();
+        Task<IEnumerable<MapObject>> GetAllMovingObjectsAsync();
 
-        MapObject GetById(string id);
+        Task<MapObject> GetByIdAsync(string id);
 
-        void SaveDestination(MapObject mapObj);
+        Task SaveDestinationAsync(MapObject mapObj);
 
-        void SaveLocationAndVisible(IEnumerable<MapObject> objects);
+        Task SaveLocationAndVisibleAsync(IEnumerable<MapObject> objects);
     }
 }

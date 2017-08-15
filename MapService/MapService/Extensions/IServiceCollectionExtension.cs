@@ -1,4 +1,6 @@
 ﻿using Cassandra;
+using Cassandra.Mapping;
+using MapDomain.Common;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -21,7 +23,8 @@ namespace MapService.Extensions
 
         public static IServiceCollection AddDomain(this IServiceCollection services)
         {
-            
+            MappingConfiguration.Global.Define(new Map<MapObjectRepositoryData>().TableName("objects").PartitionKey(data => data.Id));
+
         }
     }
 }

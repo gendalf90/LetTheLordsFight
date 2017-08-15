@@ -4,21 +4,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using MapDomain.Factories;
 
 namespace MapService.Queries
 {
     public class MapQuery : IQuery
     {
-        private readonly IMapRepository repository;
+        private readonly IMapFactory factory;
 
-        public MapQuery(IMapRepository repository)
+        public MapQuery(IMapFactory factory)
         {
-            this.repository = repository;
+            this.factory = factory;
         }
 
         public Task<string> GetJsonAsync()
         {
-            var map = repository.GetMap();
+            var map = factory.GetMap();
             var result = new { Segments = new { Width = map.SegmentsWidth, Height = map.SegmentsHeight } };
             var json = JsonConvert.SerializeObject(result);
             return Task.FromResult(json);

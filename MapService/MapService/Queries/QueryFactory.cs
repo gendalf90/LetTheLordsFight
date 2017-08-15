@@ -1,4 +1,5 @@
 ﻿using Cassandra;
+using MapDomain.Factories;
 using MapDomain.Repositories;
 using MapDomain.Services;
 using System;
@@ -11,19 +12,19 @@ namespace MapService.Queries
     public class QueryFactory : IQueryFactory
     {
         private readonly IUserValidationService userValidationService;
-        private readonly IMapRepository mapRepository;
+        private readonly IMapFactory mapFactory;
         private readonly ISession session;
 
-        public QueryFactory(ISession session, IMapRepository mapRepository, IUserValidationService userValidationService)
+        public QueryFactory(ISession session, IMapFactory mapFactory, IUserValidationService userValidationService)
         {
             this.userValidationService = userValidationService;
-            this.mapRepository = mapRepository;
+            this.mapFactory = mapFactory;
             this.session = session;
         }
 
         public IQuery CreateMapQuery()
         {
-            return new MapQuery(mapRepository);
+            return new MapQuery(mapFactory);
         }
 
         public IQuery CreateObjectQuery(string id)
@@ -33,12 +34,12 @@ namespace MapService.Queries
 
         public IQuery CreateSegmentQuery(int i, int j)
         {
-            return new SegmentQuery(session, mapRepository, i, j);
+            return new SegmentQuery(session, mapFactory, i, j);
         }
 
         public IQuery CreateSegmentQuery(float x, float y)
         {
-            return new SegmentQuery(session, mapRepository, x, y);
+            return new SegmentQuery(session, mapFactory, x, y);
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using Cassandra;
 using MapDomain.Repositories;
-using MapDomain.ValueObject;
+using MapDomain.ValueObjects;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using MapDomain.Factories;
 
 namespace MapService.Queries
 {
@@ -19,24 +20,24 @@ namespace MapService.Queries
         private SimpleStatement statement;
         private RowSet objectsRows;
 
-        public SegmentQuery(ISession session, IMapRepository repository, int i, int j)
+        public SegmentQuery(ISession session, IMapFactory factory, int i, int j)
         {
             this.session = session;
 
             getStrategy = () =>
             {
-                var map = repository.GetMap();
+                var map = factory.GetMap();
                 return map[i, j];
             };
         }
 
-        public SegmentQuery(ISession session, IMapRepository repository, float x, float y)
+        public SegmentQuery(ISession session, IMapFactory factory, float x, float y)
         {
             this.session = session;
 
             getStrategy = () =>
             {
-                var map = repository.GetMap();
+                var map = factory.GetMap();
                 return map[x, y];
             };
         }
