@@ -6,34 +6,47 @@ using Microsoft.AspNetCore.Mvc;
 using MapService.Common;
 using MapDomain.Exceptions;
 using MapService.Queries;
+using MapService.Commands;
 
 namespace MapService.Controllers
 {
     [Route("api/v1/map/objects")]
-    public class ObjectsController : Controller
+    class ObjectsController : Controller
     {
         private readonly IQueryFactory queryFactory;
+        private readonly ICommandFactory commandFactory;
 
-        public ObjectsController(IQueryFactory queryFactory)
+        public ObjectsController(IQueryFactory queryFactory, ICommandFactory commandFactory)
         {
             this.queryFactory = queryFactory;
+            this.commandFactory = commandFactory;
         }
 
         [HttpPost]
-        public IActionResult AddObject([FromBody] MapObjectCreateData createData)
+        public async Task<IActionResult> AddObjectAsync([FromBody] MapObjectCreateData createData)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            return Created(Url.Action("GetObject", new { id = 2 }), new { Id = 2,
-                                                                          X = createData.Position.X,
-                                                                          Y = createData.Position.Y });
+            var id = Guid.NewGuid().ToString("N");
+            var command = commandFactory.GetAddMapObjectCommand(id, createData);
+
+            try
+            {
+                await command.ExecuteAsync();
+            }
+            catch
+            {
+
+            }
+
+            return Created(Url.Action("GetObjectAsync", new { id = id }), null);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetObject(string id)
+        public async Task<IActionResult> GetObjectAsync(string id)
         {
             var query = queryFactory.CreateObjectQuery(id);
 
@@ -49,11 +62,22 @@ namespace MapService.Controllers
         }
 
         [HttpPatch("{id}")]
-        public IActionResult UpdateObject(string id, [FromBody] MapObjectUpdateData updateData)
+        public async Task<IActionResult> UpdateObject(string id, [FromBody] MapObjectUpdateData updateData)
         {
             if(!ModelState.IsValid)
             {
                 return BadRequest();
+            }
+
+            var command = commandFactory.GetUpdateMapObjectCommand(id, updateData);
+
+            try
+            {
+                await command.ExecuteAsync();
+            }
+            catch
+            {
+
             }
 
             return Ok();

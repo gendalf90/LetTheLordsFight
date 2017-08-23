@@ -12,7 +12,7 @@ namespace MapService.Controllers
         [HttpPost("{elapsedSeconds}")]
         public IActionResult Update(float elapsedSeconds)
         {
-            //parallel.foreach
+            //linq.asparallel.forall on bucket
 
             return Json(TimeSpan.FromSeconds(elapsedSeconds));
         }

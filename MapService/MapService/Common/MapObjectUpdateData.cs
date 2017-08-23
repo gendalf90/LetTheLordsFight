@@ -13,9 +13,9 @@ namespace MapService.Common
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (Destination != null && (!Destination.X.HasValue || !Destination.Y.HasValue))
+            if (Destination == null || !Destination.X.HasValue || !Destination.Y.HasValue)
             {
-                yield return new ValidationResult($"{nameof(Destination.X)} and {nameof(Destination.Y)} must be filled");
+                yield return new ValidationResult($"{nameof(Destination)} must be filled");
             }
         }
     }

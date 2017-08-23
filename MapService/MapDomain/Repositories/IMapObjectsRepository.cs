@@ -11,6 +11,8 @@ namespace MapDomain.Repositories
 {
     public interface IMapObjectsRepository
     {
+        Task AddAsync(MapObject obj);
+
         Task<IEnumerable<MapObject>> GetAllMovingObjectsAsync();
 
         Task<MapObject> GetByIdAsync(string id);

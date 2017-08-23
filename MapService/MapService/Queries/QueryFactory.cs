@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MapService.Queries
 {
-    public class QueryFactory : IQueryFactory
+    class QueryFactory : IQueryFactory
     {
         private readonly IUserValidationService userValidationService;
         private readonly IMapFactory mapFactory;

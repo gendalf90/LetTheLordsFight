@@ -8,7 +8,6 @@ using MapDomain.Common;
 using Cassandra.Data.Linq;
 using Cassandra;
 using MapDomain.Factories;
-using DomainMap = MapDomain.ValueObjects.Map;
 
 namespace MapService.Repositories
 {
@@ -21,6 +20,13 @@ namespace MapService.Repositories
         {
             this.session = session;
             this.mapFactory = mapFactory;
+        }
+
+        public async Task AddAsync(MapObject obj)
+        {
+            var data = obj.GetRepositoryData();
+            var table = new Table<MapObjectRepositoryData>(session);
+            await table.Insert(data).ExecuteAsync();
         }
 
         public async Task<IEnumerable<MapObject>> GetAllMovingObjectsAsync()

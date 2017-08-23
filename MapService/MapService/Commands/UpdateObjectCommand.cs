@@ -1,6 +1,4 @@
-﻿using MapDomain.Common;
-using MapDomain.Entities;
-using MapDomain.Factories;
+﻿using MapDomain.Entities;
 using MapDomain.Repositories;
 using MapDomain.Services;
 using MapDomain.ValueObjects;
@@ -12,52 +10,48 @@ using System.Threading.Tasks;
 
 namespace MapService.Commands
 {
-    class AddObjectCommand : ICommand
+    class UpdateObjectCommand : ICommand
     {
         private readonly IUserValidationService userValidationService;
         private readonly IMapObjectsRepository mapObjectsRepository;
-        private readonly IMapFactory mapFactory;
 
         private string id;
-        private MapObjectCreateData createData;
+        private MapObjectUpdateData updateData;
         private MapObject mapObject;
 
-        public AddObjectCommand(IUserValidationService userValidationService, 
-                                IMapObjectsRepository mapObjectsRepository,
-                                IMapFactory mapFactory,
-                                MapObjectCreateData createData,
-                                string id)
+        public UpdateObjectCommand(IUserValidationService userValidationService,
+                                   IMapObjectsRepository mapObjectsRepository,
+                                   MapObjectUpdateData updateData,
+                                   string id)
         {
             this.userValidationService = userValidationService;
             this.mapObjectsRepository = mapObjectsRepository;
-            this.mapFactory = mapFactory;
+            this.updateData = updateData;
             this.id = id;
-            this.createData = createData;
         }
-        
+
         public async Task ExecuteAsync()
         {
             Validate();
-            CreateMapObject();
-            SetMapObjectPosition();
+            await LoadMapObjectAsync();
+            UpdateMapObjectDestination();
             await SaveMapObjectAsync();
         }
 
         private void Validate()
         {
-            userValidationService.CurrentCanCreateMapObject();
+            userValidationService.CurrentCanChangeDestinationForThisMapObject(id);
         }
 
-        private void CreateMapObject()
+        private async Task LoadMapObjectAsync()
         {
-            var map = mapFactory.GetMap();
-            mapObject = new MapObject(id, map);
+            mapObject = await mapObjectsRepository.GetByIdAsync(id);
         }
 
-        private void SetMapObjectPosition()
+        private void UpdateMapObjectDestination()
         {
-            var location = ToLocation(createData.Location);
-            mapObject.SetPosition(location);
+            var destination = ToLocation(updateData.Destination);
+            mapObject.GoTo(destination);
         }
 
         private Location ToLocation(MapPosition position)
@@ -67,7 +61,7 @@ namespace MapService.Commands
 
         private async Task SaveMapObjectAsync()
         {
-            await mapObjectsRepository.AddAsync(mapObject);
+            await mapObjectsRepository.SaveDestinationAsync(mapObject);
         }
     }
 }

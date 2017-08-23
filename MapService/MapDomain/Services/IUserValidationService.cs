@@ -6,8 +6,10 @@ namespace MapDomain.Services
 {
     public interface IUserValidationService
     {
-        void CurrentUserShouldBeSystemOrAdmin();
+        void CurrentCanCreateMapObject();
 
-        void CurrentUserShouldBeOwnerOfThisMapObject(string mapObjectId);
+        void CurrentCanChangeDestinationForThisMapObject(string mapObjectId);
+
+        void CurrentCanViewThisMapObject(string mapObjectId);
     }
 }

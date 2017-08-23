@@ -104,7 +104,7 @@ namespace MapService.Queries
             {
                 var result = new
                 {
-                    Id = row.GetValue<Guid>("id").ToString("N"),
+                    Id = row.GetValue<string>("id"),
                     Position = new
                     {
                         X = row.GetValue<float>("locationX"),

@@ -15,17 +15,32 @@ namespace MapDomain.Services
             this.userRepository = userRepository;
         }
 
-        public void CurrentUserShouldBeOwnerOfThisMapObject(string mapObjectId)
+        public void CurrentCanCreateMapObject()
+        {
+            CurrentUserShouldBeSystemOrAdmin();
+        }
+
+        public void CurrentCanChangeDestinationForThisMapObject(string mapObjectId)
+        {
+            CurrentUserShouldBeOwnerOfThisMapObjectOrSystemOrAdmin(mapObjectId);
+        }
+
+        public void CurrentCanViewThisMapObject(string mapObjectId)
+        {
+            CurrentUserShouldBeOwnerOfThisMapObjectOrSystemOrAdmin(mapObjectId);
+        }
+
+        private void CurrentUserShouldBeOwnerOfThisMapObjectOrSystemOrAdmin(string mapObjectId)
         {
             var currentUser = userRepository.GetCurrent();
 
-            if(!currentUser.IsOwnerOf(mapObjectId))
+            if (!currentUser.IsOwnerOf(mapObjectId) && !currentUser.IsOwnerOf(mapObjectId))
             {
                 throw new NoPermissionException();
             }
         }
 
-        public void CurrentUserShouldBeSystemOrAdmin()
+        private void CurrentUserShouldBeSystemOrAdmin()
         {
             var currentUser = userRepository.GetCurrent();
 

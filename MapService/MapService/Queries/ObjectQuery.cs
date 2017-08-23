@@ -34,7 +34,7 @@ namespace MapService.Queries
 
         private void Validate()
         {
-            validation.CurrentUserShouldBeOwnerOfThisMapObject(id);
+            validation.CurrentCanViewThisMapObject(id);
         }
 
         private void CreateStatement()
@@ -42,8 +42,7 @@ namespace MapService.Queries
             var query = @"select id, locationX, locationY, visible
                           from objects
                           where id = ?";
-            var guid = new Guid(id);
-            statement = new SimpleStatement(query, guid);
+            statement = new SimpleStatement(query, id);
         }
 
         private async Task LoadObjectRowAsync()
@@ -56,7 +55,7 @@ namespace MapService.Queries
         {
             var result = new
             {
-                Id = row.GetValue<Guid>("id").ToString("N"),
+                Id = row.GetValue<string>("id"),
                 Position = new
                 {
                     X = row.GetValue<float>("locationX"),

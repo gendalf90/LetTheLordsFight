@@ -24,6 +24,12 @@ namespace MapDomain.Entities
             this.isVisible = data.IsVisible;
         }
 
+        public MapObject(string id, Map map)
+        {
+            this.id = id;
+            this.map = map;
+        }
+
         public void SetPosition(Location location)
         {
             ValidateLocation(location);
