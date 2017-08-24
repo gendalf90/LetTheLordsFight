@@ -33,5 +33,10 @@ namespace MapService.Commands
         {
             return new UpdateObjectCommand(userValidationService, mapObjectsRepository, data, id);
         }
+
+        public ICommand GetUpdateMapCommand(TimeSpan elapsed)
+        {
+            return new UpdateMapCommand(userValidationService, mapObjectsRepository, elapsed);
+        }
     }
 }

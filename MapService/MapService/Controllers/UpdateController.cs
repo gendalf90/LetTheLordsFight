@@ -3,18 +3,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using MapService.Commands;
 
 namespace MapService.Controllers
 {
     [Route("api/v1/map/elapsed")]
-    public class UpdateController : Controller
+    class UpdateController : Controller
     {
-        [HttpPost("{elapsedSeconds}")]
-        public IActionResult Update(float elapsedSeconds)
-        {
-            //linq.asparallel.forall on bucket
+        private readonly ICommandFactory commandFactory;
 
-            return Json(TimeSpan.FromSeconds(elapsedSeconds));
+        public UpdateController(ICommandFactory commandFactory)
+        {
+            this.commandFactory = commandFactory;
+        }
+
+        [HttpPost("{elapsedSeconds:float}")]
+        public async Task<IActionResult> UpdateMapAsync(float elapsedSeconds)
+        {
+            var command = commandFactory.GetUpdateMapCommand(TimeSpan.FromSeconds(elapsedSeconds));
+
+            try
+            {
+                await command.ExecuteAsync();
+            }
+            catch
+            {
+
+            }
+
+            return Ok();
         }
     }
 }

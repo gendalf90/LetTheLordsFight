@@ -30,6 +30,11 @@ namespace MapDomain.Services
             CurrentUserShouldBeOwnerOfThisMapObjectOrSystemOrAdmin(mapObjectId);
         }
 
+        public void CurrentCanUpdateMap()
+        {
+            CurrentUserShouldBeSystemOrAdmin();
+        }
+
         private void CurrentUserShouldBeOwnerOfThisMapObjectOrSystemOrAdmin(string mapObjectId)
         {
             var currentUser = userRepository.GetCurrent();

@@ -11,5 +11,7 @@ namespace MapService.Commands
         ICommand GetAddMapObjectCommand(string id, MapObjectCreateData data);
 
         ICommand GetUpdateMapObjectCommand(string id, MapObjectUpdateData data);
+
+        ICommand GetUpdateMapCommand(TimeSpan elapsed);
     }
 }

@@ -11,5 +11,7 @@ namespace MapDomain.Services
         void CurrentCanChangeDestinationForThisMapObject(string mapObjectId);
 
         void CurrentCanViewThisMapObject(string mapObjectId);
+
+        void CurrentCanUpdateMap();
     }
 }
