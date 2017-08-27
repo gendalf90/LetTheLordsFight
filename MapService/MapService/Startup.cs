@@ -13,6 +13,7 @@ using MapDomain.Repositories;
 using MapService.Repositories;
 using MapService.Queries;
 using System.Net.Http;
+using MapService.Extensions;
 
 namespace MapService
 {
@@ -35,11 +36,11 @@ namespace MapService
         {
             services.AddMvc();
             services.AddOptions();
-            services.AddSingleton<IQueryFactory, QueryFactory>();
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddSingleton(new HttpClient { BaseAddress = new Uri(Configuration["API_URL"]) });
 
-            services.Configure<MapOptions>(Configuration);
+            services.AddCassandra(Configuration)
+                    .AddDomain(Configuration)
+                    .AddCommands()
+                    .AddQueries();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -47,6 +48,7 @@ namespace MapService
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            app.UseTokens(Configuration);
             app.UseMvc();
         }
     }

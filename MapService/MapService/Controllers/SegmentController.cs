@@ -10,7 +10,7 @@ using MapDomain.Exceptions;
 namespace MapService.Controllers
 {
     [Route("api/v1/map/segment")]
-    public class SegmentController : Controller
+    class SegmentController : Controller
     {
         private readonly IQueryFactory queryFactory;
 

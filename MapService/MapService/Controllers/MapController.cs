@@ -8,7 +8,7 @@ using MapService.Queries;
 namespace MapService.Controllers
 {
     [Route("api/v1/map")]
-    public class MapController : Controller
+    class MapController : Controller
     {
         private readonly IQueryFactory queryFactory;
 
@@ -21,8 +21,16 @@ namespace MapService.Controllers
         public async Task<IActionResult> GetMap()
         {
             var query = queryFactory.CreateMapQuery();
-            var result = await query.GetJsonAsync();
-            return Json(result);
+
+            try
+            {
+                var result = await query.GetJsonAsync();
+                return Json(result);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
         }
     }
 }
