@@ -6,6 +6,7 @@ using StorageService.Extensions;
 using StorageService.Options;
 using StorageService.Time;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ namespace StorageService.Events
         private readonly ITime time;
         private readonly TimeSpan makeSnapshotForOlderThan;
         private readonly int startSnapshotMakingLimit;
+        private IList<WriteModel<BsonDocument>> writeModels;
 
         public Snapshot(IEventVisitorFactory visitorsFactory, 
                         IEventReaderCreator readerCreator, 
@@ -37,34 +39,27 @@ namespace StorageService.Events
 
         public async Task CreateToAllAsync()
         {
-            var storagesIds = await GetAllStoragesIdsAsync();
-
-            foreach(var storageId in storagesIds)
-            {
-                await CreateForStorageIdAsync(storageId);
-            }
+            InitializeWriteModelsList();
+            await UpdateStoragesIdsAsync();
+            await WriteStoragesChangesAsync();
         }
 
-        private async Task<IEnumerable<string>> GetAllStoragesIdsAsync()
+        private void InitializeWriteModelsList()
         {
-            var ids = await eventsCollection.GetAll()
-                                            .Project(document => document["_id"])
-                                            .ToListAsync();
-            return ids.Select(id => id.AsString);
+            writeModels = new List<WriteModel<BsonDocument>>();
         }
 
-        private async Task CreateForStorageIdAsync(string storageId)
+        private async Task UpdateStoragesIdsAsync()
         {
-            var container = await LoadContainerAsync(storageId);
+            await eventsCollection.GetAll().ForEachAsync(UpdateStorageAsync);
+        }
 
-            if(container == null)
-            {
-                return;
-            }
-
+        private async Task UpdateStorageAsync(BsonDocument container)
+        {
+            var storageId = container["_id"].AsString;
             var oldEventsDocuments = GetOldEventDocuments(container);
 
-            if(oldEventsDocuments.Length < startSnapshotMakingLimit)
+            if (oldEventsDocuments.Length < startSnapshotMakingLimit)
             {
                 return;
             }
@@ -73,14 +68,8 @@ namespace StorageService.Events
             var storage = await RestoreStorageAsync(events);
             var snapshotEvent = CreateSnapshotEvent(storage);
             var snapshotEventDocument = await ToDocumentAsync(snapshotEvent);
-            await InsertEventToPositionByStorageIdAsync(storageId, snapshotEventDocument, oldEventsDocuments.Length);
-            await DeleteEventsFromStorageIdAsync(storageId, oldEventsDocuments);
-        }
-
-        private async Task<BsonDocument> LoadContainerAsync(string storageId)
-        {
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", storageId);
-            return await eventsCollection.Find(filter).FirstOrDefaultAsync();
+            InsertEventToPositionByStorageId(storageId, snapshotEventDocument, oldEventsDocuments.Length);
+            DeleteEventsFromStorageId(storageId, oldEventsDocuments);
         }
 
         private BsonValue[] GetOldEventDocuments(BsonDocument container)
@@ -130,18 +119,25 @@ namespace StorageService.Events
             return BsonDocument.Parse(jsonList.Single());
         }
 
-        private async Task InsertEventToPositionByStorageIdAsync(string id, BsonValue e, int pos)
+        private void InsertEventToPositionByStorageId(string id, BsonValue e, int pos)
         {
             var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
             var insert = Builders<BsonDocument>.Update.PushEach("Events", new[] { e }, null, pos);
-            await eventsCollection.UpdateOneAsync(filter, insert);
+            var model = new UpdateOneModel<BsonDocument>(filter, insert);
+            writeModels.Add(model);
         }
 
-        private async Task DeleteEventsFromStorageIdAsync(string id, BsonValue[] events)
+        private void DeleteEventsFromStorageId(string id, BsonValue[] events)
         {
             var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
             var delete = Builders<BsonDocument>.Update.PullAll("Events", events);
-            await eventsCollection.UpdateOneAsync(filter, delete);
+            var model = new UpdateOneModel<BsonDocument>(filter, delete);
+            writeModels.Add(model);
+        }
+
+        private async Task WriteStoragesChangesAsync()
+        {
+            await eventsCollection.BulkWriteAsync(writeModels);
         }
     }
 }
