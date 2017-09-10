@@ -22,7 +22,7 @@ namespace UsersService.Controllers
 
             //claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
 
-            var jwt = new JwtSecurityToken(signingCredentials: jwtSettings.Sign,
+            var jwt = new JwtSecurityToken(//signingCredentials: jwtSettings.Sign,
                                            //issuer: jwtSettings.Issuer,
                                            //audience: jwtSettings.Audience,
                                            //expires: DateTime.UtcNow.Add(jwtSettings.ValidTime),

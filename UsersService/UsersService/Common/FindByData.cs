@@ -10,30 +10,24 @@ namespace UsersService.Common
     {
         public string StorageId { get; set; }
 
-        public bool IsStorageIdFilled { get => !string.IsNullOrEmpty(StorageId); }
-
         public string MapObjectId { get; set; }
-
-        public bool IsMapObjectIdFilled { get => !string.IsNullOrEmpty(MapObjectId); }
 
         public string Login { get; set; }
 
-        public bool IsLoginFilled { get => !string.IsNullOrEmpty(Login); }
-
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            var filledResults = new[]
+            var fields = new object[]
             {
-                IsStorageIdFilled,
-                IsMapObjectIdFilled,
-                IsLoginFilled
+                StorageId,
+                MapObjectId,
+                Login
             };
 
-            var filledCount = filledResults.Count(result => result);
+            var presentCount = fields.Count(field => field != null);
 
-            if(filledCount != 1)
+            if(presentCount != 1)
             {
-                yield return new ValidationResult($"Finding parameter must be single");
+                yield return new ValidationResult($"Parameter must be single");
             }
         }
     }

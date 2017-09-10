@@ -10,6 +10,8 @@ namespace UsersService.Common
     {
         public string Login { get; set; }
 
+        public string Password { get; set; }
+
         public string StorageId { get; set; }
 
         public string MapObjectId { get; set; }
