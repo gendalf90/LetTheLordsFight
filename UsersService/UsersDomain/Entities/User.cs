@@ -40,7 +40,7 @@ namespace UsersDomain.Entities
 
         public bool IsCredentialsValid(Login login, Password password)
         {
-            return new Login(this.login).Equals(login) && new Password(this.password).Equals(password);
+            return this.login == login.ToString() && this.password == password.ToString();
         }
 
         public bool IsSystemOrAdmim
