@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
 using StorageService.Extensions;
 
@@ -48,6 +49,8 @@ namespace StorageService
                     .AddDomain()
                     .AddCommands()
                     .AddQueries();
+
+            //services.AddSingleton<ISystemClock, SystemClock>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

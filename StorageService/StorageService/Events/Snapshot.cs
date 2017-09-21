@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using StorageDomain.Entities;
@@ -18,7 +19,7 @@ namespace StorageService.Events
         private readonly IEventVisitorFactory visitorsFactory;
         private readonly IEventReaderCreator readerCreator;
         private readonly IMongoCollection<BsonDocument> eventsCollection;
-        private readonly ITime time;
+        private readonly ISystemClock time;
         private readonly TimeSpan makeSnapshotForOlderThan;
         private readonly int startSnapshotMakingLimit;
         private IList<WriteModel<BsonDocument>> writeModels;
@@ -26,7 +27,7 @@ namespace StorageService.Events
         public Snapshot(IEventVisitorFactory visitorsFactory, 
                         IEventReaderCreator readerCreator, 
                         IMongoDatabase database,
-                        ITime time,
+                        ISystemClock time,
                         IOptions<EventsOptions> options)
         {
             this.visitorsFactory = visitorsFactory;
@@ -80,7 +81,7 @@ namespace StorageService.Events
 
         private bool IsEventOld(BsonValue e)
         {
-            return time.GetCurrentUtc() - e["Time"].ToUniversalTime() > makeSnapshotForOlderThan;
+            return time.UtcNow - e["Time"].ToUniversalTime() > makeSnapshotForOlderThan;
         }
 
         private IEnumerable<Event> GetEvents(IEnumerable<BsonValue> documents)

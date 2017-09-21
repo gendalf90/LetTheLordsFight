@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using Microsoft.Extensions.Internal;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using StorageService.Extensions;
 using StorageService.Time;
@@ -15,12 +16,12 @@ namespace StorageService.Events
         private readonly IEventVisitorFactory visitorsFactory;
         private readonly IEventReaderCreator readerCreator;
         private readonly IMongoCollection<BsonDocument> eventsCollection;
-        private readonly ITime time;
+        private readonly ISystemClock time;
 
         public EventStore(IEventVisitorFactory visitorsFactory, 
                           IEventReaderCreator readerCreator, 
-                          IMongoDatabase storageDatabase, 
-                          ITime time)
+                          IMongoDatabase storageDatabase,
+                          ISystemClock time)
         {
             this.time = time;
             this.visitorsFactory = visitorsFactory;
@@ -62,7 +63,7 @@ namespace StorageService.Events
 
         private void SetCurrentTime(BsonDocument document)
         {
-            document["Time"] = time.GetCurrentUtc();
+            document["Time"] = time.UtcNow.DateTime;
         }
     }
 }
