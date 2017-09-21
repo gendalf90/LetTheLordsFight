@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace UsersDomain.Common
+namespace UsersDomain.ValueTypes
 {
-    public enum UserType
+    public enum Role
     {
         Simple,
-        System,
-        Admin
+        System
     }
 }

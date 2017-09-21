@@ -10,10 +10,6 @@ namespace UsersDomain.Common
 
         string Password { get; set; }
 
-        string Type { get; set; }
-
-        string StorageId { get; set; }
-
-        string MapObjectId { get; set; }
+        IEnumerable<string> Roles { get; set; }
     }
 }

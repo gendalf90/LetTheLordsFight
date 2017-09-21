@@ -51,11 +51,19 @@ namespace Tests.Unit
             Assert.Throws<PasswordInvalidException>(() => new Password(value));
         }
 
+        [Fact]
+        public void Create_HasColon_ThrowException()
+        {
+            var withColonPassword = "(90asdf:90qwer)";
+
+            Assert.Throws<PasswordInvalidException>(() => new Password(withColonPassword));
+        }
+
         [Theory]
         [InlineData("asd__123")]
         [InlineData("000as+df000")]
         [InlineData("<password&1234>")]
-        public void Create_Valid_SholdCreate(string value)
+        public void Create_Valid_ShouldCreate(string value)
         {
             var created = new Password(value);
 

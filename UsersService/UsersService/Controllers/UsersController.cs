@@ -6,55 +6,59 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using UsersService.Common;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 
 namespace UsersService.Controllers
 {
     [Route("api/v1/users")]
     public class UsersController : Controller
     {
-        [Authorize(ActiveAuthenticationSchemes = "Basic")]
+        [Authorize(AuthenticationSchemes = "Basic")]
         [HttpPost("current/token")]
-        public ActionResult CreateToken()
+        public IActionResult CreateToken()
         {
-            var handler = new JwtSecurityTokenHandler();
-
-            var claims = User.Claims.ToList();
-
-            //claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
-
-            var jwt = new JwtSecurityToken(//signingCredentials: jwtSettings.Sign,
-                                           //issuer: jwtSettings.Issuer,
-                                           //audience: jwtSettings.Audience,
-                                           //expires: DateTime.UtcNow.Add(jwtSettings.ValidTime),
-                                           claims: claims);
-
-            return Json(new { Token = handler.WriteToken(jwt)/*, Expires = jwtSettings.ValidTime.TotalSeconds */});
+            return Ok();
         }
 
-        [Authorize(ActiveAuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet("current")]
-        public IActionResult GetUser()
+        public IActionResult GetCurrent()
         {
             return NotFound();
         }
 
-        [Authorize(ActiveAuthenticationSchemes = "Bearer")]
-        [HttpGet]
-        public IActionResult GetUserByParameter([FromQuery] FindByData parameters)
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "system")]
+        [HttpGet("{login}")]
+        public IActionResult GetByLogin(string login)
         {
-            if(!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-            
-
-
             return NotFound();
         }
 
-        [Authorize(ActiveAuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpGet("{login}/roles")]
+        public IActionResult GetRoles(string login)
+        {
+            return NotFound();
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpPost("{login}/roles/{role}")]
+        public IActionResult AddRole(string login, string role)
+        {
+            return NotFound();
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpDelete("{login}/roles/{role}")]
+        public IActionResult DeleteRole(string login, string role)
+        {
+            return NotFound();
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "system")]
         [HttpPost]
-        public IActionResult CreateUser([FromBody] UserData data)
+        public IActionResult CreateUser([FromBody] CreateUserData data)
         {
             if (!ModelState.IsValid)
             {

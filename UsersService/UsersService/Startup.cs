@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using UsersService.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using UsersService.BasicAuth;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace UsersService
 {
@@ -44,6 +44,7 @@ namespace UsersService
 
                 settings.Sign = new SigningCredentials(GetSecurityKey(), SecurityAlgorithms.HmacSha256);
             });
+            
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -51,24 +52,24 @@ namespace UsersService
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseBasicAuthentication();
+            //app.UseBasicAuthentication();
 
             //var jwtSettings = Configuration.GetSection("Jwt");
 
-            app.UseJwtBearerAuthentication(new JwtBearerOptions
-            {
-                TokenValidationParameters = new TokenValidationParameters
-                {
-                    //ValidIssuer = jwtSettings["Issuer"],
-                    ValidateIssuer = false,
-                    //ValidAudience = jwtSettings["Audience"],
-                    ValidateAudience = false,
-                    IssuerSigningKey = GetSecurityKey(),
-                    ValidateIssuerSigningKey = true,
-                    //RequireExpirationTime = true,
-                    //ValidateLifetime = true
-                }
-            });
+            //app.UseJwtBearerAuthentication(new JwtBearerOptions
+            //{
+            //    TokenValidationParameters = new TokenValidationParameters
+            //    {
+            //        //ValidIssuer = jwtSettings["Issuer"],
+            //        ValidateIssuer = false,
+            //        //ValidAudience = jwtSettings["Audience"],
+            //        ValidateAudience = false,
+            //        IssuerSigningKey = GetSecurityKey(),
+            //        ValidateIssuerSigningKey = true,
+            //        //RequireExpirationTime = true,
+            //        //ValidateLifetime = true
+            //    }
+            //});
 
             app.UseMvc();
         }

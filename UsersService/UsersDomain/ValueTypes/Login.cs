@@ -3,33 +3,41 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net.Mail;
 using UsersDomain.Exceptions;
+using System.Text.RegularExpressions;
 
 namespace UsersDomain.ValueTypes
 {
     public class Login : IEquatable<Login>
     {
-        private MailAddress mailAddress;
+        private const int MaxLength = 256;
+
+        private readonly Regex pattern = new Regex(@"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        private readonly string address;
 
         public Login(string value)
         {
-            TryCreateMailAddress(value);
+            address = value;
+            Validate();
         }
 
-        private void TryCreateMailAddress(string address)
+        private void Validate()
         {
-            try
-            {
-                mailAddress = new MailAddress(address);
-            }
-            catch
+            if (IsNullOrEmpty || IsTooLong || IsNotMatchThePattern)
             {
                 throw new LoginInvalidException();
             }
         }
 
+        private bool IsNullOrEmpty { get => string.IsNullOrEmpty(address); }
+
+        private bool IsTooLong { get => address.Length > MaxLength; }
+
+        private bool IsNotMatchThePattern { get => !pattern.IsMatch(address); }
+
         public override string ToString()
         {
-            return mailAddress.Address;
+            return address;
         }
 
         public override bool Equals(object obj)
@@ -39,12 +47,12 @@ namespace UsersDomain.ValueTypes
 
         public override int GetHashCode()
         {
-            return mailAddress.Address.GetHashCode();
+            return address.GetHashCode();
         }
 
         public bool Equals(Login other)
         {
-            return mailAddress.Address.ToUpper() == other?.mailAddress?.Address?.ToUpper();
+            return address.Equals(other?.address, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

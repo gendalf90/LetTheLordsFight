@@ -13,6 +13,7 @@ namespace Tests.Unit
         [InlineData("yandex@yandex.ru")]
         [InlineData("google@gmail.com")]
         [InlineData("foo-bar.baz@example.com")]
+        [InlineData("asdfasdfasdfassdfasdfsdfadfasdfasdfasdfasdfasdfasdfasddasdfasdfasdfasdfddddasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfsadfasdfasdfasdfasdfasdfasdfsadfasdfasdfasdfasdfafdadfasdfasdfafasdfasdfasdfas@aasdfadfasdfasdfaasdfasdfasdfaasdfsddsfsdfs.ru")]
         public void Create_IsValid_ShouldCreate(string login)
         {
             var created = new Login(login);
@@ -23,8 +24,11 @@ namespace Tests.Unit
         [Theory]
         [InlineData("asdf")]
         [InlineData("qwer.com")]
+        [InlineData("qwer@com")]
+        [InlineData("asdf:qwer@mail.ru")]
         [InlineData("")]
         [InlineData(null)]
+        [InlineData("asdfasdfasdfassdfasdfsdfadfasdfasdfasdfasdfasdfasdfasddasdfasdfasdfasdfddddasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfsadfasdfasdfasdfasdfasdfasdfsadfasdfasdfasdfasdfafdadfasdfasdfafasdfasdfasdfas@aasdfadfasdfasdfaasdfasdfasdfaasdfsddsfsdfsa.ru")]
         public void Create_IsInvalid_ShouldThrowException(string login)
         {
             Assert.Throws<LoginInvalidException>(() => new Login(login));

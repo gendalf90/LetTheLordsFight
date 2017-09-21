@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UsersDomain.Common;
 using UsersDomain.Exceptions;
@@ -11,23 +12,20 @@ namespace UsersDomain.Entities
     {
         private string login;
         private string password;
-        private string type;
-        private string storageId;
-        private string mapObjectId;
+        private HashSet<Role> roles;
 
         public User(Login login, Password password)
         {
             this.login = login.ToString();
             this.password = password.ToString();
+            roles = new HashSet<Role>();
         }
 
         public User(IUserRepositoryData data)
         {
             login = data.Login;
             password = data.Password;
-            type = data.Type;
-            storageId = data.StorageId;
-            mapObjectId = data.MapObjectId;
+            roles = data.Roles.Select(Enum.Parse<Role>).ToHashSet();
         }
 
         public string Login
@@ -43,41 +41,21 @@ namespace UsersDomain.Entities
             return this.login == login.ToString() && this.password == password.ToString();
         }
 
-        public bool IsSystemOrAdmim
+        public void AddRole(Role role)
         {
-            get => type == UserType.Admin.ToString() || type == UserType.System.ToString();
+            roles.Add(role);
         }
 
-        public void ChangeType(UserType type)
+        public void RemoveRole(Role role)
         {
-            this.type = type.ToString();
-        }
-
-        public void ChangeStorage(string id)
-        {
-            storageId = id;
-        }
-
-        public void ChangeMapObject(string id)
-        {
-            mapObjectId = id;
-        }
-
-        public void FillPresentData(IUserPresentData presentData)
-        {
-            presentData.Login = login;
-            presentData.Type = type;
-            presentData.MapObjectId = mapObjectId;
-            presentData.StorageId = storageId;
+            roles.Remove(role);
         }
 
         public void FillRepositoryData(IUserRepositoryData repositoryData)
         {
             repositoryData.Login = login;
             repositoryData.Password = password;
-            repositoryData.Type = type;
-            repositoryData.StorageId = storageId;
-            repositoryData.MapObjectId = mapObjectId;
+            repositoryData.Roles = roles.Select(role => role.ToString());
         }
     }
 }

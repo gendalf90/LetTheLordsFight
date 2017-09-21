@@ -21,7 +21,7 @@ namespace UsersDomain.ValueTypes
 
         private void Validate()
         {
-            if(IsEmpty || LengthIsNotInRange || HasNoDigits || HasNoLetters || HasNoSpecial)
+            if (IsEmpty || LengthIsNotInRange || HasNoDigits || HasNoLetters || HasNoSpecial || HasColon)
             {
                 throw new PasswordInvalidException();
             }
@@ -36,6 +36,8 @@ namespace UsersDomain.ValueTypes
         private bool HasNoLetters { get => !password.Any(char.IsLetter); }
 
         private bool HasNoSpecial { get => password.All(char.IsLetterOrDigit); }
+
+        private bool HasColon { get => password.Contains(':'); }
 
         public override string ToString()
         {
