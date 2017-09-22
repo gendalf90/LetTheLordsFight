@@ -23,13 +23,18 @@ namespace UsersService.Users
         {
             get
             {
-                return Roles.Select(role => role.Value);
+                return Roles?.Select(role => role.Value);
             }
             set
             {
                 if (value == null)
                 {
                     Roles = null;
+                }
+                else if(Roles != null)
+                {
+                    var existed = Roles.ToDictionary(role => role.Value, role => role);
+                    Roles = value.Select(role => existed.ContainsKey(role) ? existed[role] : new RoleData { Value = role });
                 }
                 else
                 {

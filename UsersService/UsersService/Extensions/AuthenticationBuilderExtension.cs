@@ -6,9 +6,9 @@ namespace UsersService.Extensions
 {
     public static class AuthenticationBuilderExtension
     {
-        public static AuthenticationBuilder AddBasic(this AuthenticationBuilder builder, Action<BasicAuthenticationOptions> configureOptions)
+        public static AuthenticationBuilder AddBasic(this AuthenticationBuilder builder)
         {
-            return builder.AddScheme<BasicAuthenticationOptions, BasicAuthenticationHandler>(BasicDefaults.AuthenticationScheme, BasicDefaults.AuthenticationScheme, configureOptions);
+            return builder.AddScheme<BasicAuthenticationOptions, BasicAuthenticationHandler>(BasicDefaults.AuthenticationScheme, BasicDefaults.AuthenticationScheme, options => { });
         }
     }
 }
