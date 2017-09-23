@@ -18,7 +18,7 @@ namespace Tests.Unit
             var baseRepositoryData = new Mock<IUserRepositoryData>()
                                             .SetupProperty(data => data.Login, "asdf@qwer.ru")
                                             .SetupProperty(data => data.Password, "1234_qwer")
-                                            .SetupProperty(data => data.Roles, new [] { "Simple" })
+                                            .SetupProperty(data => data.Roles, new [] { "User" })
                                             .Object;
             var resultRepositoryData = new Mock<IUserRepositoryData>()
                                             .SetupAllProperties()
@@ -50,22 +50,34 @@ namespace Tests.Unit
         }
 
         [Fact]
-        public void ChangeRoles_RepositoryDataRolesAreExpected()
+        public void CreateSystem_FromLoginAndPassword_RepositoryDataRolesIsExpected()
         {
             var login = new Login(TestLogin);
             var password = new Password(TestPassword);
-            var user = new User(login, password);
             var resultRepositoryData = new Mock<IUserRepositoryData>()
                                             .SetupAllProperties()
                                             .Object;
 
-            user.AddRole(Role.Simple);
-            user.AddRole(Role.Simple);
-            user.AddRole(Role.System);
-            user.RemoveRole(Role.Simple);
+            var user = User.CreateSystem(login, password);
             user.FillRepositoryData(resultRepositoryData);
 
-            Assert.Single(resultRepositoryData.Roles, "System");
+            Assert.Contains(Role.User.ToString(), resultRepositoryData.Roles);
+            Assert.Contains(Role.System.ToString(), resultRepositoryData.Roles);
+        }
+
+        [Fact]
+        public void CreateUser_FromLoginAndPassword_RepositoryDataRolesIsExpected()
+        {
+            var login = new Login(TestLogin);
+            var password = new Password(TestPassword);
+            var resultRepositoryData = new Mock<IUserRepositoryData>()
+                                            .SetupAllProperties()
+                                            .Object;
+
+            var user = User.CreateUser(login, password);
+            user.FillRepositoryData(resultRepositoryData);
+
+            Assert.Contains(Role.User.ToString(), resultRepositoryData.Roles);
         }
 
         [Fact]

@@ -32,7 +32,7 @@ namespace UsersDomain.Entities
         {
             get
             {
-                return login.ToString();
+                return login;
             }
         }
 
@@ -41,21 +41,26 @@ namespace UsersDomain.Entities
             return this.login == login.ToString() && this.password == password.ToString();
         }
 
-        public void AddRole(Role role)
-        {
-            roles.Add(role);
-        }
-
-        public void RemoveRole(Role role)
-        {
-            roles.Remove(role);
-        }
-
         public void FillRepositoryData(IUserRepositoryData repositoryData)
         {
             repositoryData.Login = login;
             repositoryData.Password = password;
             repositoryData.Roles = roles.Select(role => role.ToString());
+        }
+
+        public static User CreateSystem(Login login, Password password)
+        {
+            var result = new User(login, password);
+            result.roles.Add(Role.User);
+            result.roles.Add(Role.System);
+            return result;
+        }
+
+        public static User CreateUser(Login login, Password password)
+        {
+            var result = new User(login, password);
+            result.roles.Add(Role.User);
+            return result;
         }
     }
 }

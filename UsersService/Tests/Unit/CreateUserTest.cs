@@ -19,21 +19,24 @@ namespace Tests.Unit
         private const string TestPassword = "1q2w3e4r!";
 
         [Fact]
-        public async Task CreateFromCommand_ValidCreateData_UserAddedToStore()
+        public async Task CreateFromCommand_ValidCreateData_UserOfEachTypeAddedToStore()
         {
-            var addedToStoreUserRepositoryData = new Mock<IUserRepositoryData>().SetupAllProperties().Object;
+            var addedToStoreUsers = new List<User>();
+            var allUserTypes = (UserType[])Enum.GetValues(typeof(UserType));
             var store = new Mock<IUsersStore>();
             store.Setup(s => s.SaveAsync(It.IsAny<User>()))
-                 .Callback<User>(r => r.FillRepositoryData(addedToStoreUserRepositoryData))
+                 .Callback<User>(addedToStoreUsers.Add)
                  .Returns(Task.CompletedTask);
-            var data = new CreateUserData { Login = TestLogin, Password = TestPassword };
-            var command = new CreateUserCommand(store.Object, data);
 
-            await command.ExecuteAsync();
+            foreach(var userType in allUserTypes)
+            {
+                var data = new CreateUserData { Login = TestLogin, Password = TestPassword, Type = userType };
+                var command = new CreateUserCommand(store.Object, data);
+                await command.ExecuteAsync();
+            }
 
-            Assert.Equal(addedToStoreUserRepositoryData.Login, TestLogin);
-            Assert.Equal(addedToStoreUserRepositoryData.Password, TestPassword);
-            Assert.Empty(addedToStoreUserRepositoryData.Roles);
+            Assert.Equal(addedToStoreUsers.Count, allUserTypes.Length);
+            Assert.DoesNotContain(addedToStoreUsers, user => user.Login != TestLogin);
         }
     }
 }

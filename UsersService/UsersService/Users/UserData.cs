@@ -34,7 +34,7 @@ namespace UsersService.Users
                 else if(Roles != null)
                 {
                     var existed = Roles.ToDictionary(role => role.Value, role => role);
-                    Roles = value.Select(role => existed.ContainsKey(role) ? existed[role] : new RoleData { Value = role });
+                    Roles = value.Select(role => existed.TryGetValue(role, out RoleData data) ? data : new RoleData { Value = role });
                 }
                 else
                 {

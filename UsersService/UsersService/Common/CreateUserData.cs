@@ -13,5 +13,8 @@ namespace UsersService.Common
 
         [Required]
         public string Password { get; set; }
+
+        [Required]
+        public UserType? Type { get; set; }
     }
 }

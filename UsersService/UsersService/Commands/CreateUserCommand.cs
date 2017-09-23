@@ -14,7 +14,9 @@ namespace UsersService.Commands
         private readonly IUsersStore store;
         private readonly CreateUserData data;
 
-        private User newUser;
+        private Login login;
+        private Password password;
+        private User user;
 
         public CreateUserCommand(IUsersStore store, CreateUserData data)
         {
@@ -24,20 +26,46 @@ namespace UsersService.Commands
 
         public async Task ExecuteAsync()
         {
-            CreateNewUser();
+            CreateCredentials();
+            CreateUserTypeIfNeeded();
+            CreateSystemTypeIfNeeded();
+            ErrorIfUserNotCreated();
             await AddNewUserToStoreAsync();
         }
 
-        private void CreateNewUser()
+        private void CreateCredentials()
         {
-            var login = new Login(data.Login);
-            var password = new Password(data.Password);
-            newUser = new User(login, password);
+            login = new Login(data.Login);
+            password = new Password(data.Password);
+        }
+
+        private void CreateUserTypeIfNeeded()
+        {
+            if(data.Type == UserType.User)
+            {
+                user = User.CreateUser(login, password);
+            }
+        }
+
+        private void CreateSystemTypeIfNeeded()
+        {
+            if(data.Type == UserType.System)
+            {
+                user = User.CreateSystem(login, password);
+            }
+        }
+
+        private void ErrorIfUserNotCreated()
+        {
+            if (user == null)
+            {
+                throw new ArgumentException();
+            }
         }
 
         private async Task AddNewUserToStoreAsync()
         {
-            await store.SaveAsync(newUser);
+            await store.SaveAsync(user);
         }
     }
 }

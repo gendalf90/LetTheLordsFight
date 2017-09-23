@@ -9,7 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UsersService.Commands;
 using UsersService.Options;
+using UsersService.Queries;
 using UsersService.Users;
 
 namespace UsersService.Extensions
@@ -24,7 +26,14 @@ namespace UsersService.Extensions
 
         public static IServiceCollection AddQueries(this IServiceCollection services)
         {
-            return services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            return services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
+                           .AddTransient<IQueryFactory, QueryFactory>();
+        }
+
+        public static IServiceCollection AddCommands(this IServiceCollection services)
+        {
+            return services.AddTransient<IUsersStore, UsersStore>()
+                           .AddTransient<ICommandFactory, CommandFactory>();
         }
 
         public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)

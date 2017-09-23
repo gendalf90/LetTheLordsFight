@@ -8,66 +8,76 @@ using System.IdentityModel.Tokens.Jwt;
 using UsersService.Common;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using UsersService.Commands;
+using UsersService.Queries;
+using UsersDomain.Exceptions;
 
 namespace UsersService.Controllers
 {
     [Route("api/v1/users")]
-    public class UsersController : Controller
+    class UsersController : Controller
     {
-        [Authorize(AuthenticationSchemes = "Basic")]
-        [HttpPost("current/token")]
-        public IActionResult CreateToken()
+        private readonly ICommandFactory commands;
+        private readonly IQueryFactory queries;
+
+        public UsersController(ICommandFactory commands, IQueryFactory queries)
         {
-            return Ok();
+            this.commands = commands;
+            this.queries = queries;
+        }
+
+        [Authorize(AuthenticationSchemes = "Basic")]
+        [HttpGet("current/token")]
+        public async Task<IActionResult> GetTokenAsync()
+        {
+            var query = queries.CreateTokenQuery();
+            var result = await query.AskAsync();
+            return Json(result);
         }
 
         [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet("current")]
-        public IActionResult GetCurrent()
+        public async Task<IActionResult> GetCurrentAsync()
         {
-            return NotFound();
+            var query = queries.CreateCurrentQuery();
+            var result = await query.AskAsync();
+            return Json(result);
         }
 
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "system")]
         [HttpGet("{login}")]
-        public IActionResult GetByLogin(string login)
+        public async Task<IActionResult> GetByLoginAsync(string login)
         {
-            return NotFound();
-        }
-
-        [Authorize(AuthenticationSchemes = "Bearer")]
-        [HttpGet("{login}/roles")]
-        public IActionResult GetRoles(string login)
-        {
-            return NotFound();
-        }
-
-        [Authorize(AuthenticationSchemes = "Bearer")]
-        [HttpPost("{login}/roles/{role}")]
-        public IActionResult AddRole(string login, string role)
-        {
-            return NotFound();
-        }
-
-        [Authorize(AuthenticationSchemes = "Bearer")]
-        [HttpDelete("{login}/roles/{role}")]
-        public IActionResult DeleteRole(string login, string role)
-        {
-            return NotFound();
+            var query = queries.CreateLoginQuery(login);
+            var result = await query.AskAsync();
+            return Json(result);
         }
 
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "system")]
         [HttpPost]
-        public IActionResult CreateUser([FromBody] CreateUserData data)
+        public async Task<IActionResult> CreateUserAsync([FromBody] CreateUserData data)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
-            
+            var command = commands.GetCreateUserCommand(data);
 
-            return NotFound();
+            try
+            {
+                await command.ExecuteAsync();
+            }
+            catch(LoginInvalidException)
+            {
+                return BadRequest(new { Login = new[] { "Validation error" } });
+            }
+            catch(PasswordInvalidException)
+            {
+                return BadRequest(new { Password = new[] { "Validation error" } });
+            }
+                
+            return Ok();
         }
     }
 }

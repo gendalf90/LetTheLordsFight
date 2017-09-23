@@ -10,7 +10,7 @@ namespace UsersService.Queries
 {
     class GetCurrentQuery : IQuery
     {
-        private IHttpContextAccessor context;
+        private readonly IHttpContextAccessor context;
 
         public GetCurrentQuery(IHttpContextAccessor context)
         {

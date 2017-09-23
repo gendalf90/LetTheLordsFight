@@ -6,7 +6,7 @@ namespace UsersDomain.ValueTypes
 {
     public enum Role
     {
-        Simple,
+        User,
         System
     }
 }

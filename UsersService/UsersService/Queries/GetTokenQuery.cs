@@ -14,8 +14,8 @@ namespace UsersService.Queries
 {
     public class GetTokenQuery : IQuery
     {
-        private IHttpContextAccessor context;
-        private IOptions<JwtOptions> options;
+        private readonly IHttpContextAccessor context;
+        private readonly IOptions<JwtOptions> options;
 
         public GetTokenQuery(IOptions<JwtOptions> options, IHttpContextAccessor context)
         {
