@@ -6,17 +6,16 @@ namespace MapDomain.ValueObjects
 {
     public class User
     {
-        private readonly string mapObjectId;
-        private readonly string type;
+        private readonly string login;
 
-        public User(string type, string mapObjectId)
+        public User(string login, bool isSystem)
         {
-            this.type = type;
-            this.mapObjectId = mapObjectId;
+            this.login = login;
+            IsSystem = isSystem;
         }
 
-        public bool IsAdminOrSystem { get => type == "System" || type == "Admin"; }
+        public bool IsSystem { get; private set; }
 
-        public bool IsOwnerOf(string mapObjectId) => this.mapObjectId == mapObjectId;
+        public bool IsOwnerOf(string mapObjectId) => login == mapObjectId;
     }
 }

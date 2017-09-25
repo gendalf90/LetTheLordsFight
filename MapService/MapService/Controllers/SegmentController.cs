@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using MapService.Queries;
 using MapDomain.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MapService.Controllers
 {
+    [Authorize]
     [Route("api/v1/map/segment")]
     class SegmentController : Controller
     {
@@ -26,8 +28,7 @@ namespace MapService.Controllers
 
             try
             {
-                var result = await query.GetJsonAsync();
-                return Json(result);
+                return Json(await query.GetJsonAsync());
             }
             catch(NotFoundException)
             {
@@ -42,8 +43,7 @@ namespace MapService.Controllers
 
             try
             {
-                var result = await query.GetJsonAsync();
-                return Json(result);
+                return Json(await query.GetJsonAsync());
             }
             catch (NotFoundException)
             {

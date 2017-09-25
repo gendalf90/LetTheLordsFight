@@ -8,8 +8,10 @@ namespace MapService.Common
 {
     public class MapPosition
     {
+        [Required]
         public float? X { get; set; }
 
+        [Required]
         public float? Y { get; set; }
     }
 }

@@ -62,7 +62,7 @@ namespace MapService.Commands
 
         private Location ToLocation(MapPosition position)
         {
-            return new Location(position.X.GetValueOrDefault(), position.Y.GetValueOrDefault());
+            return new Location(position.X.Value, position.Y.Value);
         }
 
         private async Task SaveMapObjectAsync()

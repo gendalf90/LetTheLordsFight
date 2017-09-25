@@ -7,48 +7,39 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Http;
-using MapService.Options;
-using MapDomain.Repositories;
-using MapService.Repositories;
-using MapService.Queries;
-using System.Net.Http;
+using Microsoft.Extensions.Options;
 using MapService.Extensions;
 
 namespace MapService
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
-        {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: false)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddJsonFile("map.json", optional: false)
-                .AddEnvironmentVariables();
-            Configuration = builder.Build();
-        }
+        private readonly IConfiguration configuration;
 
-        public IConfigurationRoot Configuration { get; }
+        public Startup(IConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
-            services.AddOptions();
-
-            services.AddCassandra(Configuration)
-                    .AddDomain(Configuration)
+            services.AddCassandra(configuration)
+                    .AddDomain(configuration)
+                    .AddAuthentication(configuration)
                     .AddCommands()
-                    .AddQueries();
+                    .AddQueries()
+                    .AddOptions()
+                    .AddMvc();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
 
-            app.UseTokens(Configuration);
+            app.UseAuthentication();
             app.UseMvc();
         }
     }

@@ -12,9 +12,11 @@ using MapService.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace MapService.Extensions
@@ -44,7 +46,7 @@ namespace MapService.Extensions
             services.Configure<MapOptions>(configuration);
 
             return services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
-                           .AddTransient<IMapFactory, MapFactory>()
+                           .AddSingleton<IMapFactory, MapFactory>()
                            .AddTransient<IMapObjectsRepository, MapObjectsRepository>()
                            .AddTransient<IUsersRepository, UsersRepository>()
                            .AddTransient<IUserValidationService, UserValidationService>();
@@ -58,6 +60,33 @@ namespace MapService.Extensions
         public static IServiceCollection AddQueries(this IServiceCollection services)
         {
             return services.AddTransient<IQueryFactory, QueryFactory>();
+        }
+
+        public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
+        {
+            var tokenSigningKey = CreateTokenSigningKey(configuration);
+
+            services.AddAuthentication().AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = false,
+                    RequireExpirationTime = false,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = tokenSigningKey
+                };
+            });
+
+            return services;
+        }
+
+        private static SecurityKey CreateTokenSigningKey(IConfiguration configuration)
+        {
+            var sign = configuration["TOKEN_SIGNING_KEY"];
+            var bytes = Encoding.ASCII.GetBytes(sign);
+            return new SymmetricSecurityKey(bytes);
         }
     }
 }

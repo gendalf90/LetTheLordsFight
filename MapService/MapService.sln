@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapService", "MapService\MapService.csproj", "{D29DCF46-E605-43E5-981D-5085CABD6981}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapDomain", "MapDomain\MapDomain.csproj", "{0789AF3B-D903-42D0-88E7-CC9A8FEF9A24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapDomain", "MapDomain\MapDomain.csproj", "{0789AF3B-D903-42D0-88E7-CC9A8FEF9A24}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapService", "MapService\MapService.csproj", "{2906F897-B109-4868-BEA5-4D20C8ADD35C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,16 +13,19 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D29DCF46-E605-43E5-981D-5085CABD6981}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D29DCF46-E605-43E5-981D-5085CABD6981}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D29DCF46-E605-43E5-981D-5085CABD6981}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D29DCF46-E605-43E5-981D-5085CABD6981}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0789AF3B-D903-42D0-88E7-CC9A8FEF9A24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0789AF3B-D903-42D0-88E7-CC9A8FEF9A24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0789AF3B-D903-42D0-88E7-CC9A8FEF9A24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0789AF3B-D903-42D0-88E7-CC9A8FEF9A24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2906F897-B109-4868-BEA5-4D20C8ADD35C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2906F897-B109-4868-BEA5-4D20C8ADD35C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2906F897-B109-4868-BEA5-4D20C8ADD35C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2906F897-B109-4868-BEA5-4D20C8ADD35C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1BAD8859-8006-46DE-A44B-DAC8FDA7EDA5}
 	EndGlobalSection
 EndGlobal

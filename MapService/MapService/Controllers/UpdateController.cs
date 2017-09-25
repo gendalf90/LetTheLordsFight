@@ -4,9 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MapService.Commands;
+using MapDomain.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MapService.Controllers
 {
+    [Authorize]
     [Route("api/v1/map/elapsed")]
     class UpdateController : Controller
     {
@@ -26,9 +29,9 @@ namespace MapService.Controllers
             {
                 await command.ExecuteAsync();
             }
-            catch
+            catch (NoPermissionException)
             {
-
+                return Forbid();
             }
 
             return Ok();

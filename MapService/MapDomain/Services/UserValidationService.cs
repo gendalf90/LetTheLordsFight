@@ -17,39 +17,39 @@ namespace MapDomain.Services
 
         public void CurrentCanCreateMapObject()
         {
-            CurrentUserShouldBeSystemOrAdmin();
+            CurrentUserShouldBeSystem();
         }
 
         public void CurrentCanChangeDestinationForThisMapObject(string mapObjectId)
         {
-            CurrentUserShouldBeOwnerOfThisMapObjectOrSystemOrAdmin(mapObjectId);
+            CurrentUserShouldBeOwnerOfThisMapObjectOrSystem(mapObjectId);
         }
 
         public void CurrentCanViewThisMapObject(string mapObjectId)
         {
-            CurrentUserShouldBeOwnerOfThisMapObjectOrSystemOrAdmin(mapObjectId);
+            CurrentUserShouldBeOwnerOfThisMapObjectOrSystem(mapObjectId);
         }
 
         public void CurrentCanUpdateMap()
         {
-            CurrentUserShouldBeSystemOrAdmin();
+            CurrentUserShouldBeSystem();
         }
 
-        private void CurrentUserShouldBeOwnerOfThisMapObjectOrSystemOrAdmin(string mapObjectId)
+        private void CurrentUserShouldBeOwnerOfThisMapObjectOrSystem(string mapObjectId)
         {
             var currentUser = userRepository.GetCurrent();
 
-            if (!currentUser.IsOwnerOf(mapObjectId) && !currentUser.IsOwnerOf(mapObjectId))
+            if (!currentUser.IsOwnerOf(mapObjectId) || !currentUser.IsSystem)
             {
                 throw new NoPermissionException();
             }
         }
 
-        private void CurrentUserShouldBeSystemOrAdmin()
+        private void CurrentUserShouldBeSystem()
         {
             var currentUser = userRepository.GetCurrent();
 
-            if (!currentUser.IsAdminOrSystem)
+            if (!currentUser.IsSystem)
             {
                 throw new NoPermissionException();
             }

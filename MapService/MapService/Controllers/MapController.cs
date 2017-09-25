@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MapService.Queries;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MapService.Controllers
 {
+    [Authorize]
     [Route("api/v1/map")]
     class MapController : Controller
     {
@@ -21,16 +23,8 @@ namespace MapService.Controllers
         public async Task<IActionResult> GetMap()
         {
             var query = queryFactory.CreateMapQuery();
-
-            try
-            {
-                var result = await query.GetJsonAsync();
-                return Json(result);
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
+            var result = await query.GetJsonAsync();
+            return Json(result);
         }
     }
 }

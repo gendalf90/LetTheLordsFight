@@ -6,16 +6,9 @@ using System.Threading.Tasks;
 
 namespace MapService.Common
 {
-    public class MapObjectCreateData : IValidatableObject
+    public class MapObjectCreateData
     {
+        [Required]
         public MapPosition Location { get; set; }
-
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (Location == null || !Location.X.HasValue || !Location.Y.HasValue)
-            {
-                yield return new ValidationResult($"{nameof(Location)} must be filled");
-            }
-        }
     }
 }

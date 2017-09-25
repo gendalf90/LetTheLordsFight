@@ -23,16 +23,10 @@ namespace MapService.Repositories
 
         public User GetCurrent()
         {
-            var userDataClaim = contextAccessor.HttpContext.User.FindFirst(ClaimTypes.UserData);
-            return GetFromJson(userDataClaim.Value);
-        }
-
-        private User GetFromJson(string json)
-        {
-            var data = JObject.Parse(json);
-            var type = data.Value<string>("type");
-            var mapObjectId = data.Value<string>("mapObjectId");
-            return new User(type, mapObjectId);
+            var user = contextAccessor.HttpContext.User;
+            var isSystem = user.IsInRole("System");
+            var login = user.Identity.Name;
+            return new User(login, isSystem);
         }
     }
 }

@@ -7,9 +7,11 @@ using MapService.Common;
 using MapDomain.Exceptions;
 using MapService.Queries;
 using MapService.Commands;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MapService.Controllers
 {
+    [Authorize]
     [Route("api/v1/map/objects")]
     class ObjectsController : Controller
     {
@@ -22,27 +24,26 @@ namespace MapService.Controllers
             this.commandFactory = commandFactory;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddObjectAsync([FromBody] MapObjectCreateData createData)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> AddObjectAsync(string id, [FromBody] MapObjectCreateData createData)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            var id = Guid.NewGuid().ToString("N");
             var command = commandFactory.GetAddMapObjectCommand(id, createData);
 
             try
             {
                 await command.ExecuteAsync();
             }
-            catch
+            catch(NoPermissionException)
             {
-
+                return Forbid();
             }
 
-            return Created(Url.Action("GetObjectAsync", new { id = id }), null);
+            return Ok();
         }
 
         [HttpGet("{id}")]
@@ -52,12 +53,15 @@ namespace MapService.Controllers
 
             try
             {
-                var result = await query.GetJsonAsync();
-                return Json(result);
+                return Json(await query.GetJsonAsync());
             }
             catch(NoPermissionException)
             {
                 return Forbid();
+            }
+            catch (InvalidOperationException e) when (e.Message == "Sequence contains no elements")
+            {
+                return NotFound();
             }
         }
 
@@ -75,9 +79,13 @@ namespace MapService.Controllers
             {
                 await command.ExecuteAsync();
             }
-            catch
+            catch (NoPermissionException)
             {
-
+                return Forbid();
+            }
+            catch (InvalidOperationException e) when (e.Message == "Sequence contains no elements")
+            {
+                return NotFound();
             }
 
             return Ok();
