@@ -8,7 +8,7 @@ namespace StorageService.Events
 {
     interface IEventVisitorFactory
     {
-        IEventVisitor CreateApplyVisitor(ICollection<StorageEntity> source);
+        IEventVisitor CreateApplyVisitor(ICollection<Storage> source);
 
         IEventVisitor CreateToJsonVisitor(ICollection<string> source);
 

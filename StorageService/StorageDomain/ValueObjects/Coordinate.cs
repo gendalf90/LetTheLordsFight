@@ -27,7 +27,7 @@ namespace StorageDomain.ValueObjects
 
         public bool Equals(Coordinate other)
         {
-            return other == null ? false : other.x == x && other.y == y;
+            return other?.x == x && other?.y == y;
         }
     }
 }

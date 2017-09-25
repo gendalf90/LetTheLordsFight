@@ -5,7 +5,6 @@ using MongoDB.Driver;
 using StorageDomain.Entities;
 using StorageService.Extensions;
 using StorageService.Options;
-using StorageService.Time;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -91,9 +90,9 @@ namespace StorageService.Events
                             .Select(reader.ReadFromJson);
         }
 
-        private async Task<StorageEntity> RestoreStorageAsync(IEnumerable<Event> events)
+        private async Task<Storage> RestoreStorageAsync(IEnumerable<Event> events)
         {
-            var storages = new List<StorageEntity>(1);
+            var storages = new List<Storage>(1);
             var applyVisitor = visitorsFactory.CreateApplyVisitor(storages);
 
             foreach (var e in events)
@@ -104,7 +103,7 @@ namespace StorageService.Events
             return storages.Single();
         }
 
-        private Event CreateSnapshotEvent(StorageEntity storage)
+        private Event CreateSnapshotEvent(Storage storage)
         {
             var id = Guid.NewGuid().ToBase64String();
             var storageData = storage.GetRepositoryData();

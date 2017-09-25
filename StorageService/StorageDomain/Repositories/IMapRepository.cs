@@ -8,6 +8,6 @@ namespace StorageDomain.Repositories
 {
     public interface IMapRepository
     {
-        Task<Coordinate> GetStorageCoordinateAsync(string storageId);
+        Task<Coordinate> GetCoordinateAsync(string id);
     }
 }

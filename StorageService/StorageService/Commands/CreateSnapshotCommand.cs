@@ -26,13 +26,13 @@ namespace StorageService.Commands
 
         public async Task ExecuteAsync()
         {
-            await ValidateAsync();
+            Validate();
             await CreateToAllAsync();
         }
 
-        private async Task ValidateAsync()
+        private void Validate()
         {
-            await userValidationService.CurrentUserShouldBeSystemOrAdminAsync();
+            userValidationService.CurrentUserShouldBeSystem();
         }
 
         private async Task CreateToAllAsync()

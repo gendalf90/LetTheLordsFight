@@ -10,6 +10,7 @@ using StorageDomain.ValueObjects;
 using StorageService.Queries;
 using Microsoft.AspNetCore.Authorization;
 using StorageService.Extensions;
+using StorageDomain.Exceptions;
 
 namespace StorageService.Controllers
 {
@@ -26,53 +27,41 @@ namespace StorageService.Controllers
             this.queryFactory = queryFactory;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddStorageAsync()
+        [HttpPut("{id}")]
+        public async Task<IActionResult> AddStorageAsync(string id)
         {
-            var id = Guid.NewGuid().ToBase64String();
             var command = commandFactory.GetCreateStorageCommand(id);
 
             try
             {
                 await command.ExecuteAsync();
             }
-            catch
+            catch (NotAuthorizedException)
             {
-
+                return Forbid();
             }
 
-            return Created($"api/v1/storage/{id}", null);
+            return Ok();
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetStorageAsync(string id)
         {
-            //if(id == 1)
-            //{
-            //    return Json(new { Id = 1, Items = new Dictionary<string, int> { ["Wood"] = 1,
-            //                                                                    ["Iron"] = 1} });
-            //}
-
             var query = queryFactory.CreateStorageQuery(id);
 
             try
             {
-                var result = await query.AskAsync();
-                return Json(result);
+                return Json(await query.AskAsync());
             }
-            catch
+            catch (NotAuthorizedException)
             {
-
+                return Forbid();
             }
-
-            return NotFound();
+            catch(InvalidOperationException e) when (e.Message == "Sequence contains no elements")
+            {
+                return NotFound();
+            }
         }
-
-        //[HttpDelete("{id}")]
-        //public IActionResult RemoveStorage(int id)
-        //{
-        //    return Ok();
-        //}
 
         [HttpPost("{storageId}/item/{itemName}/quantity/{itemCount}/increase")]
         public async Task<IActionResult> IncreaseItemAsync(SingleTransactionData transaction)
@@ -88,9 +77,13 @@ namespace StorageService.Controllers
             {
                 await command.ExecuteAsync();
             }
-            catch
+            catch(NotAuthorizedException)
             {
-
+                return Forbid();
+            }
+            catch (ValidationException)
+            {
+                return BadRequest();
             }
 
             return Ok();
@@ -110,9 +103,13 @@ namespace StorageService.Controllers
             {
                 await command.ExecuteAsync();
             }
-            catch
+            catch (NotAuthorizedException)
             {
-                
+                return Forbid();
+            }
+            catch (ValidationException)
+            {
+                return BadRequest();
             }
 
             return Ok();
@@ -132,9 +129,13 @@ namespace StorageService.Controllers
             {
                 await command.ExecuteAsync();
             }
-            catch
+            catch (NotAuthorizedException)
             {
-
+                return Forbid();
+            }
+            catch (ValidationException)
+            {
+                return BadRequest();
             }
 
             return Ok();
@@ -149,9 +150,9 @@ namespace StorageService.Controllers
             {
                 await createSnapshotCommand.ExecuteAsync();
             }
-            catch
+            catch (NotAuthorizedException)
             {
-
+                return Forbid();
             }
 
             return Ok();

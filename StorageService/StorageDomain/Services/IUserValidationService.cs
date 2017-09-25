@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace StorageDomain.Services
 {
     public interface IUserValidationService
     {
-        Task CurrentUserShouldBeSystemOrAdminAsync();
+        void CurrentUserShouldBeOwnerOfThisStorageOrSystem(string storageId);
 
-        Task CurrentUserShouldBeOwnerOfThisStorageAsync(string storageId);
+        void CurrentUserShouldBeSystem();
     }
 }

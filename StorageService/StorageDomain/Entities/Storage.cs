@@ -4,22 +4,23 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using StorageDomain.Common;
+using StorageDomain.Exceptions;
 
 namespace StorageDomain.Entities
 {
-    public class StorageEntity
+    public class Storage
     {
         private Dictionary<string, Item> items;
 
         private SingleTransaction currentTransaction;
 
-        public StorageEntity(string id)
+        public Storage(string id)
         {
             Id = id;
             items = new Dictionary<string, Item>();
         }
 
-        public StorageEntity(StorageRepositoryData repositoryData)
+        public Storage(StorageRepositoryData repositoryData)
         {
             Id = repositoryData.Id;
             items = repositoryData.Items.ToDictionary(item => item.Name, item => item);
@@ -29,7 +30,7 @@ namespace StorageDomain.Entities
 
         public StorageRepositoryData GetRepositoryData()
         {
-            return new StorageRepositoryData(Id, items.Values.ToList());
+            return new StorageRepositoryData { Id = Id, Items = items.Values.ToList() };
         }
 
         public bool IsTransactionPossible(SingleTransaction transaction)
@@ -77,7 +78,7 @@ namespace StorageDomain.Entities
         {
             if(!IsTransactionPossible(transaction))
             {
-                throw new Exception();
+                throw new ValidationException();
             }
 
             if(transaction.Type == SingleTransactionType.Increase)

@@ -15,7 +15,7 @@ namespace StorageService.Queries
         private readonly IUserValidationService userValidationService;
         private readonly string storageId;
 
-        private StorageEntity restoredStorage;
+        private Storage restoredStorage;
 
         public StorageQuery(IStorageStore storageStore, IUserValidationService userValidationService, string storageId)
         {
@@ -26,14 +26,14 @@ namespace StorageService.Queries
 
         public async Task<string> AskAsync()
         {
-            await ValidateQuery();
+            ValidateQuery();
             await RestoreStorage();
             return GetJson();
         }
 
-        private async Task ValidateQuery()
+        private void ValidateQuery()
         {
-            await userValidationService.CurrentUserShouldBeOwnerOfThisStorageAsync(storageId);
+            userValidationService.CurrentUserShouldBeOwnerOfThisStorageOrSystem(storageId);
         }
 
         private async Task RestoreStorage()

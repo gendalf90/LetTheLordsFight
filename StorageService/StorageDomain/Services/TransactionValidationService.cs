@@ -1,4 +1,5 @@
 ﻿using StorageDomain.Entities;
+using StorageDomain.Exceptions;
 using StorageDomain.Repositories;
 using StorageDomain.ValueObjects;
 using System;
@@ -10,33 +11,36 @@ namespace StorageDomain.Services
 {
     public class TransactionValidationService : ITransactionValidationService
     {
-        private readonly IUsersRepository userRepository;
-        private readonly IMapRepository mapRepository;
+        private readonly IUserService userService;
+        private readonly IDistanceService distanceService;
 
         private SingleTransaction sourceTransaction;
-        private UserEntity currentUser;
-        private Coordinate sourceCoordinate;
-        private Coordinate destinationCoordinate;
 
-        public TransactionValidationService(IUsersRepository userRepository, IMapRepository mapRepository)
+        public TransactionValidationService(IUserService userService, IDistanceService distanceService)
         {
-            this.userRepository = userRepository;
-            this.mapRepository = mapRepository;
+            this.userService = userService;
+            this.distanceService = distanceService;
         }
 
-        public async Task ValidateAsync(SingleTransaction transaction)
+        public Task ValidateAsync(SingleTransaction transaction)
         {
-            await InitializeAsync(transaction);
+            Initialize(transaction);
 
-            if((!IsCurrentUserSourceStorageOwner || SourceTransactionIsIncrease) && !IsCurrentUserSystemOrAdmin)
+            if(SourceTransactionIsIncrease && IsCurrentUserNotSystem)
             {
-                throw new Exception();
+                throw new NotAuthorizedException();
             }
+
+            if(SourceTransactionIsDecrease && IsCurrentUserNotSourceStorageOwnerOrSystem)
+            {
+                throw new NotAuthorizedException();
+            }
+
+            return Task.CompletedTask;
         }
 
-        private async Task InitializeAsync(SingleTransaction transaction)
+        private void Initialize(SingleTransaction transaction)
         {
-            currentUser = await userRepository.GetCurrentAsync();
             sourceTransaction = transaction;
         }
 
@@ -44,41 +48,36 @@ namespace StorageDomain.Services
         {
             await InitializeAsync(transaction);
 
-            if((!IsCurrentUserSourceStorageOwner || !IsSourceStorageAndDestinationStorageAtOnePoint) && !IsCurrentUserSystemOrAdmin)
+            if(IsCurrentUserNotSourceStorageOwnerOrSystem || !AreSourceAndDestinationStoragesAtOnePoint)
             {
-                throw new Exception();
+                throw new NotAuthorizedException();
+            }
+
+            if(!AreSourceAndDestinationStoragesAtOnePoint)
+            {
+                throw new ValidationException();
             }
         }
 
         private async Task InitializeAsync(DualTransaction transaction)
         {
-            currentUser = await userRepository.GetCurrentAsync();
             sourceTransaction = transaction.Decrease;
-            sourceCoordinate = await mapRepository.GetStorageCoordinateAsync(transaction.Decrease.StorageId);
-            destinationCoordinate = await mapRepository.GetStorageCoordinateAsync(transaction.Increase.StorageId);
+            AreSourceAndDestinationStoragesAtOnePoint = await distanceService.IsDistanceBeetwenStoragesSufficientForTransactionAsync(transaction.Decrease.StorageId, transaction.Increase.StorageId);
         }
 
-        private bool IsCurrentUserSourceStorageOwner
+        private bool IsCurrentUserNotSourceStorageOwnerOrSystem
         {
             get
             {
-                return currentUser.IsOwnerOf(sourceTransaction.StorageId);
+                return !userService.IsCurrentUserOwnerOfThisStorageOrSystem(sourceTransaction.StorageId);
             }
         }
 
-        private bool IsCurrentUserSystemOrAdmin
+        private bool IsCurrentUserNotSystem
         {
             get
             {
-                return currentUser.IsAdminOrSystem;
-            }
-        }
-
-        private bool IsSourceStorageAndDestinationStorageAtOnePoint
-        {
-            get
-            {
-                return sourceCoordinate.Equals(destinationCoordinate);
+                return !userService.IsCurrentUserSystem();
             }
         }
 
@@ -89,5 +88,15 @@ namespace StorageDomain.Services
                 return sourceTransaction.Type == SingleTransactionType.Increase;
             }
         }
+
+        private bool SourceTransactionIsDecrease
+        {
+            get
+            {
+                return sourceTransaction.Type == SingleTransactionType.Decrease;
+            }
+        }
+
+        private bool AreSourceAndDestinationStoragesAtOnePoint { get; set; }
     }
 }

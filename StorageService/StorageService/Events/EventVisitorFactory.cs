@@ -9,7 +9,7 @@ namespace StorageService.Events
 {
     class EventVisitorFactory : IEventVisitorFactory
     {
-        public IEventVisitor CreateApplyVisitor(ICollection<StorageEntity> source)
+        public IEventVisitor CreateApplyVisitor(ICollection<Storage> source)
         {
             return new ApplyVisitor(source);
         }

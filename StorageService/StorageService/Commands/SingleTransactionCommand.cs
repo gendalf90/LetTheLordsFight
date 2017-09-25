@@ -21,7 +21,7 @@ namespace StorageService.Commands
         private ITransactionValidationService transactionValidationService;
         private SingleTransaction transaction;
         private Event transactionEvent;
-        private StorageEntity storage;
+        private Storage storage;
 
         public SingleTransactionCommand(
             IStorageStore storageStore, 
@@ -39,13 +39,13 @@ namespace StorageService.Commands
 
         private SingleTransaction CreateTransaction(SingleTransactionType type, SingleTransactionData data)
         {
-            var item = new Item(data.ItemName, data.ItemCount);
+            var item = new Item(data.ItemName, data.ItemCount.Value);
             return new SingleTransaction(data.StorageId, type, item);
         }
 
         private Event CreateEvent(SingleTransactionType type, SingleTransactionData data)
         {
-            return new SingleTransactionEvent(Guid.NewGuid().ToBase64String(), type, data.StorageId, data.ItemName, data.ItemCount);
+            return new SingleTransactionEvent(Guid.NewGuid().ToBase64String(), type, data.StorageId, data.ItemName, data.ItemCount.Value);
         }
 
         public async Task ExecuteAsync()
@@ -53,7 +53,7 @@ namespace StorageService.Commands
             await ValidateTransactionAsync();
             await SaveTransactionAsync();
             await RestoreStorageAsync();
-            ThrowErrorIfTransactionFailed();
+            TryApplyTransaction();
         }
 
         private async Task ValidateTransactionAsync()
@@ -71,12 +71,9 @@ namespace StorageService.Commands
             storage = await storageStore.RestoreStorageToThisExclusiveEventIdAsync(transactionEvent.Id, transaction.StorageId);
         }
 
-        private void ThrowErrorIfTransactionFailed()
+        private void TryApplyTransaction()
         {
-            if(!storage.IsTransactionPossible(transaction))
-            {
-                throw new Exception();
-            }
+            storage.ApplyTransaction(transaction);
         }
     }
 }

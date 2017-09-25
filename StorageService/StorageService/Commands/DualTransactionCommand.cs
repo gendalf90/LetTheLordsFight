@@ -11,6 +11,7 @@ using StorageService.Events;
 using StorageDomain.Entities;
 using StorageService.Extensions;
 using StorageService.Storages;
+using StorageDomain.Exceptions;
 
 namespace StorageService.Commands
 {
@@ -24,8 +25,8 @@ namespace StorageService.Commands
         private Event increaseTransactionEvent;
         private Event decreaseTransactionEvent;
         private Event rollbackEvent;
-        private StorageEntity fromStorage;
-        private StorageEntity toStorage;
+        private Storage fromStorage;
+        private Storage toStorage;
 
         public DualTransactionCommand(
             IStorageStore storageStore,
@@ -41,7 +42,7 @@ namespace StorageService.Commands
 
         private void InitializeTransaction()
         {
-            var item = new Item(data.ItemName, data.ItemCount);
+            var item = new Item(data.ItemName, data.ItemCount.Value);
             transaction = new DualTransaction(data.FromStorageId, data.ToStorageId, item);
         }
 
@@ -51,17 +52,17 @@ namespace StorageService.Commands
                                                                   SingleTransactionType.Decrease, 
                                                                   data.FromStorageId, 
                                                                   data.ItemName, 
-                                                                  data.ItemCount);
+                                                                  data.ItemCount.Value);
             increaseTransactionEvent = new SingleTransactionEvent(Guid.NewGuid().ToBase64String(), 
                                                                   SingleTransactionType.Increase, 
                                                                   data.ToStorageId, 
                                                                   data.ItemName, 
-                                                                  data.ItemCount);
+                                                                  data.ItemCount.Value);
             rollbackEvent = new SingleTransactionEvent(Guid.NewGuid().ToBase64String(),
                                                        SingleTransactionType.Increase,
                                                        data.FromStorageId,
                                                        data.ItemName,
-                                                       data.ItemCount);
+                                                       data.ItemCount.Value);
         }
 
         public async Task ExecuteAsync()
@@ -71,7 +72,7 @@ namespace StorageService.Commands
             await ValidateTransactionAsync();
             await SaveDecreaseTransactionAsync();
             await RestoreFromStorageAsync();
-            await DoIncreaseTransactionIfDecreaseSuccessOrThrowErrorAsync();
+            await DoIncreaseTransactionIfDecreaseSuccessAsync();
             await RestoreToStorageAsync();
             await RollbackDecreaseTransactionIfIncreaseFailedAndThrowErrorAsync();
         }
@@ -91,16 +92,10 @@ namespace StorageService.Commands
             fromStorage = await storageStore.RestoreStorageToThisExclusiveEventIdAsync(decreaseTransactionEvent.Id, transaction.Decrease.StorageId);
         }
 
-        private async Task DoIncreaseTransactionIfDecreaseSuccessOrThrowErrorAsync()
+        private async Task DoIncreaseTransactionIfDecreaseSuccessAsync()
         {
-            if (fromStorage.IsTransactionPossible(transaction.Decrease))
-            {
-                await eventStore.AddAsync(increaseTransactionEvent);
-            }
-            else
-            {
-                throw new Exception();
-            }
+            fromStorage.ApplyTransaction(transaction.Decrease);
+            await eventStore.AddAsync(increaseTransactionEvent);
         }
 
         private async Task RestoreToStorageAsync()
@@ -110,13 +105,15 @@ namespace StorageService.Commands
 
         private async Task RollbackDecreaseTransactionIfIncreaseFailedAndThrowErrorAsync()
         {
-            if(toStorage.IsTransactionPossible(transaction.Increase))
+            try
             {
-                return;
+                toStorage.ApplyTransaction(transaction.Increase);
             }
-
-            await eventStore.AddAsync(rollbackEvent);
-            throw new Exception();
+            catch(ValidationException)
+            {
+                await eventStore.AddAsync(rollbackEvent);
+                throw;
+            }
         }
     }
 }

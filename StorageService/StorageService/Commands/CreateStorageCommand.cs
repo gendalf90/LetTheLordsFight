@@ -11,7 +11,7 @@ namespace StorageService.Commands
     {
         private readonly IEventStore eventStore;
         private readonly IUserValidationService userValidationService;
-        private readonly CreateEvent createStorageEvent;
+        private readonly Event createStorageEvent;
 
         public CreateStorageCommand(
             IEventStore eventStore,
@@ -23,20 +23,20 @@ namespace StorageService.Commands
             this.createStorageEvent = CreateEvent(newStorageId);
         }
 
-        private CreateEvent CreateEvent(string newStorageId)
+        private Event CreateEvent(string newStorageId)
         {
             return new CreateEvent(Guid.NewGuid().ToBase64String(), newStorageId);
         }
         
         public async Task ExecuteAsync()
         {
-            await ValidateAsync();
+            Validate();
             await SaveTransactionAsync();
         }
 
-        private async Task ValidateAsync()
+        private void Validate()
         {
-            await userValidationService.CurrentUserShouldBeSystemOrAdminAsync();
+            userValidationService.CurrentUserShouldBeSystem();
         }
 
         private async Task SaveTransactionAsync()

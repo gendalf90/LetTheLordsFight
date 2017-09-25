@@ -3,30 +3,16 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StorageService.Common
 {
-    public class SingleTransactionData : IValidatableObject
+    public class SingleTransactionData
     {
+        [Required]
         public string StorageId { get; set; }
 
+        [Required]
         public string ItemName { get; set; }
 
-        public int ItemCount { get; set; }
-
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if(string.IsNullOrEmpty(StorageId))
-            {
-                yield return new ValidationResult($"{nameof(StorageId)} is empty");
-            }
-
-            if (string.IsNullOrWhiteSpace(ItemName))
-            {
-                yield return new ValidationResult($"{nameof(ItemName)} is empty");
-            }
-
-            if(ItemCount <= 0)
-            {
-                yield return new ValidationResult($"{nameof(ItemCount)} must be greater than 0");
-            }
-        }
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "ItemCount must be greater than 0")]
+        public int? ItemCount { get; set; }
     }
 }

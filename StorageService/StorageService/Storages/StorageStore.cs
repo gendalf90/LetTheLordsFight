@@ -19,7 +19,7 @@ namespace StorageService.Storages
             this.visitorsFactory = visitorsFactory;
         }
 
-        public async Task<StorageEntity> RestoreStorageToThisExclusiveEventIdAsync(string eventId, string storageId)
+        public async Task<Storage> RestoreStorageToThisExclusiveEventIdAsync(string eventId, string storageId)
         {
             var allEvents = await eventStore.GetByStorageIdAsync(storageId);
 
@@ -32,15 +32,15 @@ namespace StorageService.Storages
             return await RestoreSingleStorageFromEvents(eventsToRestore);
         }
 
-        public async Task<StorageEntity> RestoreStorageToLastEventAsync(string storageId)
+        public async Task<Storage> RestoreStorageToLastEventAsync(string storageId)
         {
             var events = await eventStore.GetByStorageIdAsync(storageId);
             return await RestoreSingleStorageFromEvents(events);
         }
 
-        private async Task<StorageEntity> RestoreSingleStorageFromEvents(IEnumerable<Event> events)
+        private async Task<Storage> RestoreSingleStorageFromEvents(IEnumerable<Event> events)
         {
-            var restored = new List<StorageEntity>(1);
+            var restored = new List<Storage>(1);
             var applyVisitor = visitorsFactory.CreateApplyVisitor(restored);
 
             foreach (var e in events)

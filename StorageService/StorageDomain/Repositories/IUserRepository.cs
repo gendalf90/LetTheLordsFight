@@ -5,6 +5,6 @@ namespace StorageDomain.Repositories
 {
     public interface IUsersRepository
     {
-        Task<UserEntity> GetCurrentAsync();
+        User GetCurrent();
     }
 }

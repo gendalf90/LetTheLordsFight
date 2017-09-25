@@ -1,37 +1,32 @@
-﻿using StorageDomain.Repositories;
+﻿using StorageDomain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace StorageDomain.Services
 {
     public class UserValidationService : IUserValidationService
     {
-        private readonly IUsersRepository userRepository;
+        private readonly IUserService userService;
 
-        public UserValidationService(IUsersRepository userRepository)
+        public UserValidationService(IUserService userService)
         {
-            this.userRepository = userRepository;
+            this.userService = userService;
         }
 
-        public async Task CurrentUserShouldBeSystemOrAdminAsync()
+        public void CurrentUserShouldBeOwnerOfThisStorageOrSystem(string storageId)
         {
-            var currentUser = await userRepository.GetCurrentAsync();
-
-            if(!currentUser.IsAdminOrSystem)
+            if(!userService.IsCurrentUserOwnerOfThisStorageOrSystem(storageId))
             {
-                throw new Exception();
+                throw new NotAuthorizedException();
             }
         }
 
-        public async Task CurrentUserShouldBeOwnerOfThisStorageAsync(string storageId)
+        public void CurrentUserShouldBeSystem()
         {
-            var currentUser = await userRepository.GetCurrentAsync();
-
-            if (!currentUser.IsOwnerOf(storageId))
+            if(!userService.IsCurrentUserSystem())
             {
-                throw new Exception();
+                throw new NotAuthorizedException();
             }
         }
     }

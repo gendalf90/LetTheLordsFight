@@ -13,21 +13,23 @@ using System.Net.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace StorageService.Repositories
+namespace StorageService.Services
 {
     class UserRepository : IUsersRepository
     {
-        private readonly IUsersService usersService;
+        private readonly IHttpContextAccessor contextAccessor;
 
-        public UserRepository(IUsersService usersService)
+        public UserRepository(IHttpContextAccessor contextAccessor)
         {
-            this.usersService = usersService;
+            this.contextAccessor = contextAccessor;
         }
 
-        public async Task<UserEntity> GetCurrentAsync()
+        public User GetCurrent()
         {
-            var dto = await usersService.GetCurrentAsync();
-            return new UserEntity(dto.Type, dto.StorageId);
+            var user = contextAccessor.HttpContext.User;
+            var isSystem = user.IsInRole("System");
+            var login = user.Identity.Name;
+            return new User(login, isSystem);
         }
     }
 }

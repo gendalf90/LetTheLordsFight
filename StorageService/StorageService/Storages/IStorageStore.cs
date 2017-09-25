@@ -8,8 +8,8 @@ namespace StorageService.Storages
 {
     interface IStorageStore
     {
-        Task<StorageEntity> RestoreStorageToThisExclusiveEventIdAsync(string eventId, string storageId);
+        Task<Storage> RestoreStorageToThisExclusiveEventIdAsync(string eventId, string storageId);
 
-        Task<StorageEntity> RestoreStorageToLastEventAsync(string storageId);
+        Task<Storage> RestoreStorageToLastEventAsync(string storageId);
     }
 }

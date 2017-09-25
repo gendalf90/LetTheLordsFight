@@ -10,9 +10,9 @@ namespace StorageService.Events
 {
     class ApplyVisitor : IEventVisitor
     {
-        private ICollection<StorageEntity> source;
+        private ICollection<Storage> source;
 
-        public ApplyVisitor(ICollection<StorageEntity> source)  //меняем состояние сущностей и все, ничего не возвращаем
+        public ApplyVisitor(ICollection<Storage> source)  //меняем состояние сущностей и все, ничего не возвращаем
         {
             this.source = source;
         }
@@ -44,7 +44,7 @@ namespace StorageService.Events
                 return;
             }
 
-            source.Add(new StorageEntity(e.StorageId));
+            source.Add(new Storage(e.StorageId));
             await Task.CompletedTask;
         }
 
@@ -58,8 +58,8 @@ namespace StorageService.Events
             }
 
             var items = e.Items.Select(pair => new Item(pair.Key, pair.Value));
-            var storageData = new StorageRepositoryData(e.StorageId, items);
-            source.Add(new StorageEntity(storageData));
+            var storageData = new StorageRepositoryData { Id = e.StorageId, Items = items };
+            source.Add(new Storage(storageData));
             await Task.CompletedTask;
         }
     }
