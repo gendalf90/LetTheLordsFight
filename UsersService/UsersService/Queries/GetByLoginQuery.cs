@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using UsersService.Users;
 using Microsoft.EntityFrameworkCore;
-using MySQL.Data.EntityFrameworkCore.Extensions;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 

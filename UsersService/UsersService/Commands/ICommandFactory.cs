@@ -6,7 +6,7 @@ using UsersService.Common;
 
 namespace UsersService.Commands
 {
-    interface ICommandFactory
+    public interface ICommandFactory
     {
         ICommand GetCreateUserCommand(CreateUserData data);
     }

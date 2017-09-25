@@ -17,7 +17,7 @@ namespace UsersService.Users
 
         public string Password { get; set; }
 
-        public IEnumerable<RoleData> Roles { get; set; }
+        public ICollection<RoleData> Roles { get; set; }
 
         IEnumerable<string> IUserRepositoryData.Roles
         {
@@ -34,11 +34,11 @@ namespace UsersService.Users
                 else if(Roles != null)
                 {
                     var existed = Roles.ToDictionary(role => role.Value, role => role);
-                    Roles = value.Select(role => existed.TryGetValue(role, out RoleData data) ? data : new RoleData { Value = role });
+                    Roles = value.Select(role => existed.TryGetValue(role, out RoleData data) ? data : new RoleData { Value = role }).ToList();
                 }
                 else
                 {
-                    Roles = value.Select(role => new RoleData { Value = role });
+                    Roles = value.Select(role => new RoleData { Value = role }).ToList();
                 }
             }
         }

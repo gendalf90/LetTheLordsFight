@@ -89,7 +89,9 @@ namespace UsersService.Authentication.Basic
 
         private async Task LoadUserAsync()
         {
-            user = await context.Users.SingleOrDefaultAsync(data => data.Login == credentials[0] && data.Password == credentials[1]);
+            var login = credentials[0];
+            var password = credentials[1];
+            user = await context.Users.Include(data => data.Roles).SingleOrDefaultAsync(data => data.Login == login && data.Password == password);
         }
 
         private bool HasNoUser

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace UsersService.Commands
 {
-    interface ICommand
+    public interface ICommand
     {
         Task ExecuteAsync();
     }

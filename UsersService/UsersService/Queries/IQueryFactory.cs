@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace UsersService.Queries
 {
-    interface IQueryFactory
+    public interface IQueryFactory
     {
         IQuery CreateLoginQuery(string login);
 

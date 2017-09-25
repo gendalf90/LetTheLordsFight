@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using MySQL.Data.EntityFrameworkCore.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +20,7 @@ namespace UsersService.Extensions
         public static IServiceCollection AddMySql(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
             var connectionString = configuration["MYSQL_CONNECTION_STRING"];
-            return serviceCollection.AddDbContext<UsersContext>(options => options.UseMySQL(connectionString));
+            return serviceCollection.AddDbContext<UsersContext>(options => options.UseMySql(connectionString));
         }
 
         public static IServiceCollection AddQueries(this IServiceCollection services)

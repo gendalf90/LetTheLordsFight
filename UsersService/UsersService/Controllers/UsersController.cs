@@ -15,7 +15,7 @@ using UsersDomain.Exceptions;
 namespace UsersService.Controllers
 {
     [Route("api/v1/users")]
-    class UsersController : Controller
+    public class UsersController : Controller
     {
         private readonly ICommandFactory commands;
         private readonly IQueryFactory queries;
@@ -32,7 +32,7 @@ namespace UsersService.Controllers
         {
             var query = queries.CreateTokenQuery();
             var result = await query.AskAsync();
-            return Json(result);
+            return Ok(result);
         }
 
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -41,19 +41,19 @@ namespace UsersService.Controllers
         {
             var query = queries.CreateCurrentQuery();
             var result = await query.AskAsync();
-            return Json(result);
+            return Ok(result);
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer", Roles = "system")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "System")]
         [HttpGet("{login}")]
         public async Task<IActionResult> GetByLoginAsync(string login)
         {
             var query = queries.CreateLoginQuery(login);
             var result = await query.AskAsync();
-            return Json(result);
+            return Ok(result);
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer", Roles = "system")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "System")]
         [HttpPost]
         public async Task<IActionResult> CreateUserAsync([FromBody] CreateUserData data)
         {
