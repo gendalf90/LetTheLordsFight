@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,41 +18,42 @@ namespace StorageService.Events
 
         public async Task VisitAsync(SingleTransactionEvent e)
         {
-            source.Add(ToJson(e));
-            await Task.CompletedTask;
+            var result = CreateBase(e);
+            result["Type"] = "SingleTransaction";
+            result["TransactionType"] = e.TransactionType.ToString();
+            result["ItemCount"] = e.ItemCount;
+            result["ItemName"] = e.ItemName;
+            await SaveResultAsync(result);
         }
 
         public async Task VisitAsync(CreateEvent e)
         {
-            source.Add(ToJson(e));
-            await Task.CompletedTask;
+            var result = CreateBase(e);
+            result["Type"] = "Create";
+            await SaveResultAsync(result);
         }
 
         public async Task VisitAsync(SnapshotEvent e)
         {
-            source.Add(ToJson(e));
-            await Task.CompletedTask;
+            var result = CreateBase(e);
+            result["Type"] = "Snapshot";
+            result["Items"] = JObject.FromObject(e.Items);
+            await SaveResultAsync(result);
         }
 
-        private string ToJson<T>(T e) where T : Event
+        private JObject CreateBase(Event e)
         {
-            var document = e.ToBsonDocument();
-            document["Type"] = nameof(T);
-            return document.ToJson();
-        }
-
-        private string ToJson(SnapshotEvent e)
-        {
-            var itemsElements = e.Items.Select(pair => new BsonElement(pair.Key, pair.Value));
-            var items = new BsonDocument(itemsElements);
-            var document = new BsonDocument
+            return new JObject
             {
                 ["_id"] = e.Id,
-                ["Type"] = nameof(SnapshotEvent),
-                [nameof(e.StorageId)] = e.StorageId,
-                [nameof(e.Items)] = items
+                ["StorageId"] = e.StorageId
             };
-            return document.ToJson();
+        }
+
+        private async Task SaveResultAsync(JObject result)
+        {
+            source.Add(result.ToString());
+            await Task.CompletedTask;
         }
     }
 }

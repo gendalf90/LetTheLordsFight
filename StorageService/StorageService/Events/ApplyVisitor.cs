@@ -50,7 +50,7 @@ namespace StorageService.Events
 
         public async Task VisitAsync(SnapshotEvent e)
         {
-            var storage = source.FirstOrDefault(entity => entity.Id == e.StorageId);
+            var storage = source.SingleOrDefault(entity => entity.Id == e.StorageId);
 
             if (storage != null)
             {

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace StorageService.Queries
 {
-    interface IQueryFactory
+    public interface IQueryFactory
     {
         IQuery CreateStorageQuery(string storageId);
     }

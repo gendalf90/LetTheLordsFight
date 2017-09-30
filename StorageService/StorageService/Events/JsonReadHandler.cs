@@ -4,7 +4,7 @@ using System;
 
 namespace StorageService.Events
 {
-    abstract class BsonReadHandler<T> : IEventReader where T: Event
+    abstract class JsonReadHandler : IEventReader
     {
         protected IEventReader successor;
 
@@ -15,13 +15,11 @@ namespace StorageService.Events
 
         public Event ReadFromJson(string json)
         {
-            var document = BsonDocument.Parse(json);
-
-            if (document.TryGetValue("Type", out var value) && value == nameof(T))
+            if(TryParse(json, out Event result))
             {
-                return ToEventFromBsonDocument(document);
+                return result;
             }
-            else if (successor != null)
+            else if(successor != null)
             {
                 return successor.ReadFromJson(json);
             }
@@ -31,6 +29,6 @@ namespace StorageService.Events
             }
         }
 
-        protected abstract T ToEventFromBsonDocument(BsonDocument document);
+        protected abstract bool TryParse(string json, out Event e);
     }
 }

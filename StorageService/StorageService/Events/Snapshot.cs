@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using StorageDomain.Entities;
 using StorageService.Extensions;
@@ -72,21 +73,28 @@ namespace StorageService.Events
             DeleteEventsFromStorageId(storageId, oldEventsDocuments);
         }
 
-        private BsonValue[] GetOldEventDocuments(BsonDocument container)
+        private BsonDocument[] GetOldEventDocuments(BsonDocument container)
         {
-            var events = container["Events"].AsBsonArray;
-            return events.TakeWhile(IsEventOld).ToArray();
+            return container["Events"].AsBsonArray.Cast<BsonDocument>()
+                                                  .TakeWhile(IsEventOld)
+                                                  .ToArray();
         }
 
-        private bool IsEventOld(BsonValue e)
+        private bool IsEventOld(BsonDocument e)
         {
-            return time.UtcNow - e["Time"].ToUniversalTime() > makeSnapshotForOlderThan;
+            if(e.TryGetValue("Time", out BsonValue eventTime))
+            {
+                return time.UtcNow - eventTime.ToUniversalTime() > makeSnapshotForOlderThan;
+            }
+
+            return false;
         }
 
-        private IEnumerable<Event> GetEvents(IEnumerable<BsonValue> documents)
+        private IEnumerable<Event> GetEvents(IEnumerable<BsonDocument> documents)
         {
             var reader = readerCreator.Create();
-            return documents.Select(document => document.ToJson())
+            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+            return documents.Select(document => document.ToJson(settings))
                             .Select(reader.ReadFromJson);
         }
 
@@ -111,7 +119,7 @@ namespace StorageService.Events
             return new SnapshotEvent(id, storageData.Id, items);
         }
 
-        private async Task<BsonValue> ToDocumentAsync(Event e)
+        private async Task<BsonDocument> ToDocumentAsync(Event e)
         {
             var jsonList = new List<string>(1);
             var toJsonVisitor = visitorsFactory.CreateToJsonVisitor(jsonList);
@@ -119,7 +127,7 @@ namespace StorageService.Events
             return BsonDocument.Parse(jsonList.Single());
         }
 
-        private void InsertEventToPositionByStorageId(string id, BsonValue e, int pos)
+        private void InsertEventToPositionByStorageId(string id, BsonDocument e, int pos)
         {
             var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
             var insert = Builders<BsonDocument>.Update.PushEach("Events", new[] { e }, null, pos);
@@ -127,7 +135,7 @@ namespace StorageService.Events
             writeModels.Add(model);
         }
 
-        private void DeleteEventsFromStorageId(string id, BsonValue[] events)
+        private void DeleteEventsFromStorageId(string id, BsonDocument[] events)
         {
             var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
             var delete = Builders<BsonDocument>.Update.PullAll("Events", events);

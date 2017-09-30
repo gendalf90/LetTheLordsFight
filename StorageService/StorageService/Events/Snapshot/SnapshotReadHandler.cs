@@ -3,18 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using Newtonsoft.Json.Linq;
 
 namespace StorageService.Events
 {
-    class SnapshotReadHandler : BsonReadHandler<SnapshotEvent>
+    class SnapshotReadHandler : JsonReadHandler
     {
-        protected override SnapshotEvent ToEventFromBsonDocument(BsonDocument document)
+        protected override bool TryParse(string json, out Event result)
         {
-            var id = document["_id"].AsString;
-            var storageId = document["StorageId"].AsString;
-            var items = document["Items"].AsBsonDocument;
+            result = null;
+            var obj = JObject.Parse(json);
 
-            return new SnapshotEvent(id, storageId, items.ToDictionary(element => element.Name, element => element.Value.AsInt32));
+            if (obj.Value<string>("Type") != "Snapshot")
+            {
+                return false;
+            }
+
+            var id = obj.Value<string>("_id");
+            var storageId = obj.Value<string>("StorageId");
+            var items = obj["Items"].ToObject<Dictionary<string, int>>();
+
+            result = new SnapshotEvent(id, storageId, items);
+            return true;
         }
     }
 }

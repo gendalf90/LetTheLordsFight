@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json.Linq;
 using StorageDomain.ValueObjects;
 using System;
 using System.Collections.Generic;
@@ -9,26 +10,30 @@ using System.Threading.Tasks;
 
 namespace StorageService.Events
 {
-    class SingleTransactionReadHandler : BsonReadHandler<SingleTransactionEvent>
+    class SingleTransactionReadHandler : JsonReadHandler
     {
-        [BsonIgnoreExtraElements]
-        class EventDto
+        protected override bool TryParse(string json, out Event result)
         {
-            public string Id { get; set; }
+            result = null;
+            var obj = JObject.Parse(json);
 
-            public SingleTransactionType TransactionType { get; set; }
+            if (obj.Value<string>("Type") != "SingleTransaction")
+            {
+                return false;
+            }
 
-            public string StorageId { get; set; }
+            var id = obj.Value<string>("_id");
+            var storageId = obj.Value<string>("StorageId");
+            var itemName = obj.Value<string>("ItemName");
+            var itemCount = obj.Value<int>("ItemCount");
+            var transactionType = obj.Value<string>("TransactionType");
 
-            public string ItemName { get; set; }
-
-            public int ItemCount { get; set; }
-        }
-
-        protected override SingleTransactionEvent ToEventFromBsonDocument(BsonDocument document)
-        {
-            var dto = BsonSerializer.Deserialize<EventDto>(document);
-            return new SingleTransactionEvent(dto.Id, dto.TransactionType, dto.StorageId, dto.ItemName, dto.ItemCount);
+            result = new SingleTransactionEvent(id,
+                                                Enum.Parse<SingleTransactionType>(transactionType),
+                                                storageId,
+                                                itemName,
+                                                itemCount);
+            return true;
         }
     }
 }

@@ -33,8 +33,6 @@ namespace StorageService
                     .AddQueries()
                     .AddOptions()
                     .AddMvc();
-
-            //services.AddSingleton<ISystemClock, SystemClock>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

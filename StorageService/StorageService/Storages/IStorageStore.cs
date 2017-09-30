@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StorageService.Storages
 {
-    interface IStorageStore
+    public interface IStorageStore
     {
         Task<Storage> RestoreStorageToThisExclusiveEventIdAsync(string eventId, string storageId);
 

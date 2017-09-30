@@ -16,7 +16,7 @@ namespace StorageService.Controllers
 {
     [Authorize]
     [Route("api/v1/storage")]
-    class StorageController : Controller
+    public class StorageController : Controller
     {
         private readonly ICommandFactory commandFactory;
         private readonly IQueryFactory queryFactory;
@@ -51,7 +51,7 @@ namespace StorageService.Controllers
 
             try
             {
-                return Json(await query.AskAsync());
+                return Ok(await query.AskAsync());
             }
             catch (NotAuthorizedException)
             {

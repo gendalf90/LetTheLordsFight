@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace StorageService.Queries
 {
-    class StorageQuery : IQuery
+    public class StorageQuery : IQuery
     {
         private readonly IStorageStore storageStore;
         private readonly IUserValidationService userValidationService;

@@ -48,7 +48,7 @@ namespace StorageDomain.Services
         {
             await InitializeAsync(transaction);
 
-            if(IsCurrentUserNotSourceStorageOwnerOrSystem || !AreSourceAndDestinationStoragesAtOnePoint)
+            if(IsCurrentUserNotSourceStorageOwnerOrSystem)
             {
                 throw new NotAuthorizedException();
             }

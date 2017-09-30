@@ -2,7 +2,7 @@
 
 namespace StorageService.Queries
 {
-    interface IQuery
+    public interface IQuery
     {
         Task<string> AskAsync();
     }

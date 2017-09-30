@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace StorageService.Commands
 {
-    interface ICommandFactory
+    public interface ICommandFactory
     {
         ICommand GetSingleTransactionCommand(SingleTransactionType type, SingleTransactionData data);
 

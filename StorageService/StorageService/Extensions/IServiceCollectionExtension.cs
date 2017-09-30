@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Internal;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using StorageDomain.Repositories;
@@ -33,6 +35,8 @@ namespace StorageService.Extensions
                 options.MakeSnapshotForOlderThan = TimeSpan.FromSeconds(configuration.GetValue<int>("Events:IsOldSeconds"));
                 options.StartSnapshotMakingLimit = configuration.GetValue<int>("Events:MakeSnapshotLimit");
             });
+
+            services.AddSingleton<ISystemClock, SystemClock>();
 
             return services.AddTransient<IEventVisitorFactory, EventVisitorFactory>()
                            .AddTransient<IEventReaderCreator, EventReaderCreator>()
@@ -69,7 +73,8 @@ namespace StorageService.Extensions
                            .AddTransient<IUserValidationService, UserValidationService>()
                            .AddTransient<ITransactionValidationService, TransactionValidationService>()
                            .AddTransient<IUsersRepository, UserRepository>()
-                           .AddTransient<IMapRepository, MapRepository>();
+                           .AddTransient<IMapRepository, MapRepository>()
+                           .AddTransient<IDistanceService, DistanceService>();
         }
 
         public static IServiceCollection AddCommands(this IServiceCollection services)
@@ -86,18 +91,19 @@ namespace StorageService.Extensions
         {
             var tokenSigningKey = CreateTokenSigningKey(configuration);
 
-            services.AddAuthentication().AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = false,
-                    RequireExpirationTime = false,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = tokenSigningKey
-                };
-            });
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddJwtBearer(options =>
+                    {
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuer = false,
+                            ValidateAudience = false,
+                            ValidateLifetime = false,
+                            RequireExpirationTime = false,
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = tokenSigningKey
+                        };
+                    });
 
             return services;
         }

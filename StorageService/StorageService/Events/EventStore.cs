@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Internal;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using StorageService.Extensions;
 using System;
@@ -39,7 +40,8 @@ namespace StorageService.Events
         private IEnumerable<Event> FromDocuments(IEnumerable<BsonValue> documents)
         {
             var reader = readerCreator.Create();
-            return documents.Select(document => document.ToJson())
+            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+            return documents.Select(document => document.ToJson(settings))
                             .Select(reader.ReadFromJson);
         }
 
