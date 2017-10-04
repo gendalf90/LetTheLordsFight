@@ -11,7 +11,7 @@ namespace MapService.Controllers
 {
     [Authorize]
     [Route("api/v1/map/elapsed")]
-    class UpdateController : Controller
+    public class UpdateController : Controller
     {
         private readonly ICommandFactory commandFactory;
 

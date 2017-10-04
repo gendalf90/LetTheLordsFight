@@ -1,6 +1,8 @@
-﻿using Cassandra;
-using MapDomain.Services;
+﻿using MapDomain.Services;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +12,17 @@ namespace MapService.Queries
 {
     public class ObjectQuery : IQuery
     {
-        private readonly ISession session;
+        private readonly IMongoCollection<BsonDocument> objects;
         private readonly IUserValidationService validation;
         private readonly string id;
 
-        private SimpleStatement statement;
-        private Row row;
+        private BsonDocument objectBson;
+        private JObject objectJson;
 
-        public ObjectQuery(ISession session, IUserValidationService validation, string id)
+        public ObjectQuery(IMongoDatabase mapDatabase, IUserValidationService validation, string id)
         {
-            this.session = session;
+            objects = mapDatabase.GetCollection<BsonDocument>("objects");
+
             this.validation = validation;
             this.id = id;
         }
@@ -27,8 +30,8 @@ namespace MapService.Queries
         public async Task<string> GetJsonAsync()
         {
             Validate();
-            CreateStatement();
-            await LoadObjectRowAsync();
+            await LoadDataAsync();
+            ConvertDataToJson();
             return GetResult();
         }
 
@@ -37,33 +40,34 @@ namespace MapService.Queries
             validation.CurrentCanViewThisMapObject(id);
         }
 
-        private void CreateStatement()
+        private async Task LoadDataAsync()
         {
-            var query = @"select id, locationX, locationY, visible
-                          from objects
-                          where id = ?";
-            statement = new SimpleStatement(query, id);
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
+            var projection = Builders<BsonDocument>.Projection.Include("LocationX")
+                                                              .Include("LocationY")
+                                                              .Include("IsVisible");
+            objectBson = await objects.Find(filter)
+                                      .Project(projection)
+                                      .FirstAsync();
         }
 
-        private async Task LoadObjectRowAsync()
+        private void ConvertDataToJson()
         {
-            var rows = await session.ExecuteAsync(statement);
-            row = rows.First();
+            objectJson = new JObject
+            {
+                ["Id"] = objectBson["_id"].AsString,
+                ["Location"] = new JObject
+                {
+                    {"X", objectBson["LocationX"].AsDouble },
+                    {"Y", objectBson["LocationY"].AsDouble }
+                },
+                ["Visible"] = objectBson["IsVisible"].AsBoolean
+            };
         }
 
         private string GetResult()
         {
-            var result = new
-            {
-                Id = row.GetValue<string>("id"),
-                Position = new
-                {
-                    X = row.GetValue<float>("locationX"),
-                    Y = row.GetValue<float>("locationY")
-                },
-                Visible = row.GetValue<bool>("visible")
-            };
-            return JsonConvert.SerializeObject(result);
+            return objectJson.ToString();
         }
     }
 }

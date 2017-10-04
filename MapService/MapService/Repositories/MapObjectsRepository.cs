@@ -5,71 +5,102 @@ using System.Linq;
 using System.Threading.Tasks;
 using MapDomain.Entities;
 using MapDomain.Common;
-using Cassandra.Data.Linq;
-using Cassandra;
 using MapDomain.Factories;
+using MongoDB.Driver;
 
 namespace MapService.Repositories
 {
     public class MapObjectsRepository : IMapObjectsRepository
     {
-        private readonly ISession session;
+        private readonly IMongoCollection<MapObjectModel> objects;
         private readonly IMapFactory mapFactory;
 
-        public MapObjectsRepository(ISession session, IMapFactory mapFactory)
+        public MapObjectsRepository(IMongoDatabase mapDatabase, IMapFactory mapFactory)
         {
-            this.session = session;
+            this.objects = mapDatabase.GetCollection<MapObjectModel>("objects");
             this.mapFactory = mapFactory;
         }
 
         public async Task AddAsync(MapObject obj)
         {
-            var data = obj.GetRepositoryData();
-            var table = new Table<MapObjectRepositoryData>(session);
-            await table.Insert(data).ExecuteAsync();
+            var data = ToModel(obj);
+            await objects.InsertOneAsync(data);
         }
 
         public async Task<IEnumerable<MapObject>> GetAllMovingObjectsAsync()
         {
-            var table = new Table<MapObjectRepositoryData>(session);
             var map = mapFactory.GetMap();
-            var dataset = await table.Where(obj => obj.LocationX != obj.DestinationX || obj.LocationY != obj.DestinationY).ExecuteAsync();
-            return dataset.Select(data => new MapObject(data, map));
+            var models = await objects.Find(data => data.IsMoving).ToListAsync();
+            return models.Select(model => new MapObject(model, map)).ToList();
         }
 
         public async Task<MapObject> GetByIdAsync(string id)
         {
-            var table = new Table<MapObjectRepositoryData>(session);
-            var data = await table.First(obj => obj.Id == id).ExecuteAsync();
             var map = mapFactory.GetMap();
-            return new MapObject(data, map);
+            var model = await objects.Find(data => data.Id == id).FirstAsync();
+            return new MapObject(model, map);
         }
 
-        public async Task SaveDestinationAsync(MapObject mapObj)
+        public async Task UpdateDestinationAsync(MapObject mapObj)
         {
-            var table = new Table<MapObjectRepositoryData>(session);
-            var data = mapObj.GetRepositoryData();
-            await table.Where(obj => obj.Id == data.Id)
-                       .Select(obj => new MapObjectRepositoryData { DestinationX = data.DestinationX, DestinationY = data.DestinationY })
-                       .Update()
-                       .ExecuteAsync();
+            var data = ToModel(mapObj);
+            var filter = Filter.Where(model => model.Id == data.Id);
+            var update = Update.Combine(Update.Set(model => model.DestinationX, data.DestinationX),
+                                        Update.Set(model => model.DestinationY, data.DestinationY));
+
+            if(data.IsMoving)
+            {
+                update = Update.Combine(update, Update.Set(model => model.IsMoving, true));
+            }
+
+            await objects.UpdateOneAsync(filter, update);
         }
 
-        public async Task SaveLocationAndVisibleAsync(IEnumerable<MapObject> objects)
+        public async Task UpdateLocationAndVisibleAsync(IEnumerable<MapObject> mapObjects)
         {
-            var requests = objects.Select(ToSaveLocationAndVisibleRequest);
-            await session.CreateBatch()
-                         .Append(requests)
-                         .ExecuteAsync();
+            var requests = mapObjects.SelectMany(ToUpdateLocationAndVisibleRequests).ToList();
+            var options = new BulkWriteOptions { IsOrdered = false };
+            await objects.BulkWriteAsync(requests, options);
         }
 
-        private CqlUpdate ToSaveLocationAndVisibleRequest(MapObject mapObject)
+        private IEnumerable<WriteModel<MapObjectModel>> ToUpdateLocationAndVisibleRequests(MapObject mapObject)
         {
-            var table = new Table<MapObjectRepositoryData>(session);
-            var data = mapObject.GetRepositoryData();
-            return table.Where(obj => obj.Id == data.Id)
-                        .Select(obj => new MapObjectRepositoryData { LocationX = data.LocationX, LocationY = data.LocationY, IsVisible = data.IsVisible })
-                        .Update();
+            var data = ToModel(mapObject);
+            var filter = Filter.Where(model => model.Id == data.Id);
+            var update = Update.Combine(Update.Set(model => model.LocationX, data.LocationX),
+                                        Update.Set(model => model.LocationY, data.LocationY),
+                                        Update.Set(model => model.IsVisible, data.IsVisible));
+            yield return new UpdateOneModel<MapObjectModel>(filter, update);
+
+            if(data.IsMoving)
+            {
+                yield break;
+            }
+
+            filter = Filter.And(filter, Filter.Where(model => model.DestinationX == data.DestinationX && model.DestinationY == data.DestinationY));
+            update = Update.Set(model => model.IsMoving, false);
+            yield return new UpdateOneModel<MapObjectModel>(filter, update);
+        }
+
+        private UpdateDefinitionBuilder<MapObjectModel> Update
+        {
+            get => Builders<MapObjectModel>.Update;
+        }
+
+        private FilterDefinitionBuilder<MapObjectModel> Filter
+        {
+            get => Builders<MapObjectModel>.Filter;
+        }
+
+        private MapObjectModel ToModel(MapObject mapObject)
+        {
+            var model = new MapObjectModel
+            {
+                IsMoving = mapObject.IsMoving,
+                IsVisible = mapObject.IsVisible
+            };
+            mapObject.FillRepositoryData(model);
+            return model;
         }
     }
 }

@@ -61,7 +61,7 @@ namespace MapService.Commands
 
         private async Task SaveMapObjectAsync()
         {
-            await mapObjectsRepository.SaveDestinationAsync(mapObject);
+            await mapObjectsRepository.UpdateDestinationAsync(mapObject);
         }
     }
 }

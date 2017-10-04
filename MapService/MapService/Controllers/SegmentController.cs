@@ -12,7 +12,7 @@ namespace MapService.Controllers
 {
     [Authorize]
     [Route("api/v1/map/segment")]
-    class SegmentController : Controller
+    public class SegmentController : Controller
     {
         private readonly IQueryFactory queryFactory;
 
@@ -28,7 +28,7 @@ namespace MapService.Controllers
 
             try
             {
-                return Json(await query.GetJsonAsync());
+                return Ok(await query.GetJsonAsync());
             }
             catch(NotFoundException)
             {
@@ -43,7 +43,7 @@ namespace MapService.Controllers
 
             try
             {
-                return Json(await query.GetJsonAsync());
+                return Ok(await query.GetJsonAsync());
             }
             catch (NotFoundException)
             {

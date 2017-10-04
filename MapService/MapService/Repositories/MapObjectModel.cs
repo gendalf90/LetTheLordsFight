@@ -1,10 +1,12 @@
-﻿using System;
+﻿using MapDomain.Common;
+using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MapDomain.Common
+namespace MapService.Repositories
 {
-    public class MapObjectRepositoryData
+    public class MapObjectModel : IMapObjectRepositoryData
     {
         public string Id { get; set; }
 
@@ -17,5 +19,7 @@ namespace MapDomain.Common
         public float DestinationY { get; set; }
 
         public bool IsVisible { get; set; }
+
+        public bool IsMoving { get; set; }
     }
 }

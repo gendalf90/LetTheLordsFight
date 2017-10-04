@@ -55,7 +55,7 @@ namespace MapService.Commands
 
         private async Task SaveMovingObjectsAsync()
         {
-            await mapObjectsRepository.SaveLocationAndVisibleAsync(movingObjects);
+            await mapObjectsRepository.UpdateLocationAndVisibleAsync(movingObjects);
         }
     }
 }

@@ -39,7 +39,7 @@ namespace MapDomain.Services
         {
             var currentUser = userRepository.GetCurrent();
 
-            if (!currentUser.IsOwnerOf(mapObjectId) || !currentUser.IsSystem)
+            if (!currentUser.IsOwnerOf(mapObjectId) && !currentUser.IsSystem)
             {
                 throw new NoPermissionException();
             }

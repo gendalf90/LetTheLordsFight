@@ -17,8 +17,8 @@ namespace MapDomain.Repositories
 
         Task<MapObject> GetByIdAsync(string id);
 
-        Task SaveDestinationAsync(MapObject mapObj);
+        Task UpdateDestinationAsync(MapObject mapObj);
 
-        Task SaveLocationAndVisibleAsync(IEnumerable<MapObject> objects);
+        Task UpdateLocationAndVisibleAsync(IEnumerable<MapObject> objects);
     }
 }

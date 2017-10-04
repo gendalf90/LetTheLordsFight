@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MapService.Commands
 {
-    interface ICommandFactory
+    public interface ICommandFactory
     {
         ICommand GetAddMapObjectCommand(string id, MapObjectCreateData data);
 

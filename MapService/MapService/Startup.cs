@@ -23,7 +23,7 @@ namespace MapService
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCassandra(configuration)
+            services.AddMongo(configuration)
                     .AddDomain(configuration)
                     .AddAuthentication(configuration)
                     .AddCommands()

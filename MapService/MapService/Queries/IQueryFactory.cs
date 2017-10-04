@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace MapService.Queries
 {
-    interface IQueryFactory
+    public interface IQueryFactory
     {
         IQuery CreateMapQuery();
 

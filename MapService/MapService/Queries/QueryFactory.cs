@@ -1,7 +1,7 @@
-﻿using Cassandra;
-using MapDomain.Factories;
+﻿using MapDomain.Factories;
 using MapDomain.Repositories;
 using MapDomain.Services;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,13 +13,13 @@ namespace MapService.Queries
     {
         private readonly IUserValidationService userValidationService;
         private readonly IMapFactory mapFactory;
-        private readonly ISession session;
+        private readonly IMongoDatabase mapDatabase;
 
-        public QueryFactory(ISession session, IMapFactory mapFactory, IUserValidationService userValidationService)
+        public QueryFactory(IMongoDatabase mapDatabase, IMapFactory mapFactory, IUserValidationService userValidationService)
         {
             this.userValidationService = userValidationService;
             this.mapFactory = mapFactory;
-            this.session = session;
+            this.mapDatabase = mapDatabase;
         }
 
         public IQuery CreateMapQuery()
@@ -29,17 +29,17 @@ namespace MapService.Queries
 
         public IQuery CreateObjectQuery(string id)
         {
-            return new ObjectQuery(session, userValidationService, id);
+            return new ObjectQuery(mapDatabase, userValidationService, id);
         }
 
         public IQuery CreateSegmentQuery(int i, int j)
         {
-            return new SegmentQuery(session, mapFactory, i, j);
+            return new SegmentQuery(mapDatabase, mapFactory, i, j);
         }
 
         public IQuery CreateSegmentQuery(float x, float y)
         {
-            return new SegmentQuery(session, mapFactory, x, y);
+            return new SegmentQuery(mapDatabase, mapFactory, x, y);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace MapService.Controllers
 {
     [Authorize]
     [Route("api/v1/map")]
-    class MapController : Controller
+    public class MapController : Controller
     {
         private readonly IQueryFactory queryFactory;
 
@@ -24,7 +24,7 @@ namespace MapService.Controllers
         {
             var query = queryFactory.CreateMapQuery();
             var result = await query.GetJsonAsync();
-            return Json(result);
+            return Ok(result);
         }
     }
 }

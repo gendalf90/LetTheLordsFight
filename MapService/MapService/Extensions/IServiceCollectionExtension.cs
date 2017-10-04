@@ -1,7 +1,4 @@
-﻿using Cassandra;
-using Cassandra.Mapping;
-using MapDomain.Common;
-using MapDomain.Factories;
+﻿using MapDomain.Factories;
 using MapDomain.Repositories;
 using MapDomain.Services;
 using MapService.Commands;
@@ -9,40 +6,28 @@ using MapService.Factories;
 using MapService.Options;
 using MapService.Queries;
 using MapService.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using MongoDB.Driver;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MapService.Extensions
 {
     static class IServiceCollectionExtension
     {
-        public static IServiceCollection AddCassandra(this IServiceCollection serviceCollection, IConfiguration configuration)
+        public static IServiceCollection AddMongo(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
-            var cassandraConnectionString = configuration["CASSANDRA_CONNECTION_STRING"];
-            var cassandraConnectionData = cassandraConnectionString.Split(';');
-            var nodes = cassandraConnectionData.Reverse().Skip(2).ToArray();
-            var login = cassandraConnectionData.Reverse().Skip(1).First();
-            var password = cassandraConnectionData.Last();
-
-            var cluster = Cluster.Builder()
-                                 .AddContactPoints(nodes)
-                                 .WithCredentials(login, password)
-                                 .Build();
-            var session = cluster.Connect("map");
-            return serviceCollection.AddSingleton(session);
+            var connection = configuration["MONGO_CONNECTION_STRING"];
+            var client = new MongoClient(connection);
+            var database = client.GetDatabase("map");
+            return serviceCollection.AddSingleton(database);
         }
 
         public static IServiceCollection AddDomain(this IServiceCollection services, IConfiguration configuration)
         {
-            MappingConfiguration.Global.Define(new Map<MapObjectRepositoryData>().TableName("objects").PartitionKey(data => data.Id));
-
             services.Configure<MapOptions>(configuration);
 
             return services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
@@ -66,18 +51,19 @@ namespace MapService.Extensions
         {
             var tokenSigningKey = CreateTokenSigningKey(configuration);
 
-            services.AddAuthentication().AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = false,
-                    RequireExpirationTime = false,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = tokenSigningKey
-                };
-            });
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddJwtBearer(options =>
+                    {
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuer = false,
+                            ValidateAudience = false,
+                            ValidateLifetime = false,
+                            RequireExpirationTime = false,
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = tokenSigningKey
+                        };
+                    });
 
             return services;
         }

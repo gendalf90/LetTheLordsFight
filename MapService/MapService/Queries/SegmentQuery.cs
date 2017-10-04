@@ -1,29 +1,34 @@
-﻿using Cassandra;
-using MapDomain.Repositories;
+﻿using MapDomain.Repositories;
 using MapDomain.ValueObjects;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
 using MapDomain.Factories;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using System.Collections.Generic;
 
 namespace MapService.Queries
 {
     public class SegmentQuery : IQuery
     {
-        private readonly ISession session;
+        private readonly IMongoCollection<BsonDocument> objects;
 
         private Func<Segment> getStrategy;
         private Segment segment;
-        private JToken segmentData;
-        private JToken objectsData;
-        private SimpleStatement statement;
-        private RowSet objectsRows;
+        private JObject segmentData;
+        private JArray objectsData;
+        private IEnumerable<BsonValue> objectsBson;
 
-        public SegmentQuery(ISession session, IMapFactory factory, int i, int j)
+        private SegmentQuery(IMongoDatabase mapDatabase)
         {
-            this.session = session;
+            objects = mapDatabase.GetCollection<BsonDocument>("objects");
+        }
 
+        public SegmentQuery(IMongoDatabase mapDatabase, IMapFactory factory, int i, int j)
+            : this(mapDatabase)
+        {
             getStrategy = () =>
             {
                 var map = factory.GetMap();
@@ -31,10 +36,10 @@ namespace MapService.Queries
             };
         }
 
-        public SegmentQuery(ISession session, IMapFactory factory, float x, float y)
-        {
-            this.session = session;
+        public SegmentQuery(IMongoDatabase mapDatabase, IMapFactory factory, float x, float y)
+            : this(mapDatabase)
 
+        {
             getStrategy = () =>
             {
                 var map = factory.GetMap();
@@ -47,6 +52,7 @@ namespace MapService.Queries
             LoadSegment();
             CreateSegmentData();
             await LoadObjectsDataAsync();
+            CreateObjectsData();
             return GetResult();
         }
 
@@ -69,60 +75,42 @@ namespace MapService.Queries
 
         private async Task LoadObjectsDataAsync()
         {
-            CreateStatement();
-            await LoadObjectsRowsAsync();
-            ConvertObjectsRowsToJson();
+            var builder = Builders<BsonDocument>.Filter;
+            var filter = builder.And(builder.Eq("IsVisible", true),
+                                     builder.Gt("LocationX", segment.LeftUpLocation.X),
+                                     builder.Lt("LocationX", segment.RightDownLocation.X),
+                                     builder.Gt("LocationY", segment.LeftUpLocation.Y),
+                                     builder.Lt("LocationY", segment.RightDownLocation.Y));
+            var projection = Builders<BsonDocument>.Projection.Include("LocationX")
+                                                              .Include("LocationY");
+
+            objectsBson = await objects.Find(filter)
+                                       .Project(projection)
+                                       .ToListAsync();
         }
 
-        private void CreateStatement()
+        private void CreateObjectsData()
         {
-            var query = @"select id, locationX, locationY 
-                          from objects 
-                          where visible = true 
-                                and locationX > ? and locationX < ?
-                                and locationY > ? and locationY < ?";
-
-            var parameters = new[] 
+            var convertedFromBsonObjects = objectsBson.Select(bson => new
             {
-                segment.LeftUpLocation.X,
-                segment.RightDownLocation.X,
-                segment.RightDownLocation.Y,
-                segment.LeftUpLocation.Y
-            };
-
-            statement = new SimpleStatement(query, parameters);
-        }
-
-        private async Task LoadObjectsRowsAsync()
-        {
-            objectsRows = await session.ExecuteAsync(statement);
-        }
-
-        private void ConvertObjectsRowsToJson()
-        {
-            JObject Convert(Row row)
-            {
-                var result = new
+                Id = bson["_id"].AsString,
+                Location = new
                 {
-                    Id = row.GetValue<string>("id"),
-                    Position = new
-                    {
-                        X = row.GetValue<float>("locationX"),
-                        Y = row.GetValue<float>("locationY")
-                    }
-                };
-                
-                return JObject.FromObject(result);
-            }
+                    X = bson["LocationX"].AsDouble,
+                    Y = bson["LocationY"].AsDouble
+                }
+            });
 
-            objectsData = new JArray(objectsRows.Select(Convert));
+            objectsData = JArray.FromObject(convertedFromBsonObjects);
         }
 
         private string GetResult()
         {
-            var result = new JObject();
-            result.Add("segment", segmentData);
-            result.Add("objects", objectsData);
+            var result = new JObject
+            {
+                { "segment", segmentData },
+                { "objects", objectsData }
+            };
             return result.ToString();
         }
     }

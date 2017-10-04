@@ -13,7 +13,7 @@ namespace MapService.Controllers
 {
     [Authorize]
     [Route("api/v1/map/objects")]
-    class ObjectsController : Controller
+    public class ObjectsController : Controller
     {
         private readonly IQueryFactory queryFactory;
         private readonly ICommandFactory commandFactory;
@@ -53,7 +53,7 @@ namespace MapService.Controllers
 
             try
             {
-                return Json(await query.GetJsonAsync());
+                return Ok(await query.GetJsonAsync());
             }
             catch(NoPermissionException)
             {

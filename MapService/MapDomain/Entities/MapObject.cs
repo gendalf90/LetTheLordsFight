@@ -1,4 +1,5 @@
 ﻿using MapDomain.Common;
+using MapDomain.Exceptions;
 using MapDomain.ValueObjects;
 using System;
 using System.Collections.Generic;
@@ -13,15 +14,13 @@ namespace MapDomain.Entities
         private readonly Map map;
         private Location location;
         private Location destination;
-        private bool isVisible;
 
-        public MapObject(MapObjectRepositoryData data, Map map)
+        public MapObject(IMapObjectRepositoryData data, Map map)
         {
             this.map = map;
             this.id = data.Id;
             this.location = new Location(data.LocationX, data.LocationY);
             this.destination = new Location(data.DestinationX, data.DestinationY);
-            this.isVisible = data.IsVisible;
         }
 
         public MapObject(string id, Map map)
@@ -30,12 +29,16 @@ namespace MapDomain.Entities
             this.map = map;
         }
 
+        public string Id
+        {
+            get => id;
+        }
+
         public void SetPosition(Location location)
         {
             ValidateLocation(location);
             SetLocation(location);
             SetDestination(location);
-            SetVisible();
         }
 
         private void SetLocation(Location location)
@@ -58,14 +61,22 @@ namespace MapDomain.Entities
         {
             if(location.X < 0 || location.X >= map.Width || location.Y < 0 || location.Y >= map.Height)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new BadLocationException();
             }
         }
 
-        private void SetVisible()
+        public bool IsMoving
         {
-            var currentSegment = map[location.X, location.Y];
-            isVisible = currentSegment.Type != SegmentType.Forest;
+            get => location != destination;
+        }
+
+        public bool IsVisible
+        {
+            get
+            {
+                var currentSegment = map[location.X, location.Y];
+                return currentSegment.Type != SegmentType.Forest;
+            }
         }
 
         //public void SetSpeedCoefficient(float coefficient)
@@ -75,18 +86,34 @@ namespace MapDomain.Entities
 
         public void UpdateMoving(TimeSpan elapsedTime)
         {
-            var isStay = location == destination;
-
-            if (isStay)
+            if(!IsMoving)
             {
                 return;
             }
 
+            var elapsedSeconds = (float)elapsedTime.TotalSeconds;
+            location = CalculateNextLocation(elapsedSeconds);
+        }
+        
+        private Location CalculateNextLocation(float elapsedSeconds)
+        {
             var speed = GetSpeed();
-            var traveledDistance = speed * (float)elapsedTime.TotalSeconds;
-            var totalDistance = GetTotalDistance();
-            var traveledPart = totalDistance / traveledDistance;
-            location = GetNextLocation(traveledPart);
+            var fromVector = new Vector2(location.X, location.Y);
+            var toVector = new Vector2(destination.X, destination.Y);
+            var traveledDistance = speed * elapsedSeconds;
+            var totalDistance = Vector2.Distance(fromVector, toVector);
+            var traveledPart = traveledDistance / totalDistance;
+            var isFinish = traveledPart >= 1;
+
+            if (isFinish)
+            {
+                return destination;
+            }
+
+            var movingVector = toVector - fromVector;
+            var traveledVector = movingVector * traveledPart;
+            var resultVector = fromVector + traveledVector;
+            return new Location(resultVector.X, resultVector.Y);
         }
 
         private float GetSpeed()
@@ -95,41 +122,13 @@ namespace MapDomain.Entities
             return segment.Speed;
         }
 
-        private float GetTotalDistance()
+        public void FillRepositoryData(IMapObjectRepositoryData data)
         {
-            var fromVector = new Vector2(location.X, location.Y);
-            var toVector = new Vector2(destination.X, destination.Y);
-            return Vector2.Distance(fromVector, toVector);
-        }
-
-        private Location GetNextLocation(float traveledPart)
-        {
-            var isFinish = traveledPart >= 1;
-
-            if (isFinish)
-            {
-                return destination;
-            }
-
-            var fromVector = new Vector2(location.X, location.Y);
-            var toVector = new Vector2(destination.X, destination.Y);
-            var movingVector = toVector - fromVector;
-            var traveledVector = movingVector * traveledPart;
-            var resultVector = fromVector + traveledVector;
-            return new Location(resultVector.X, resultVector.Y);
-        }
-
-        public MapObjectRepositoryData GetRepositoryData()
-        {
-            return new MapObjectRepositoryData
-            {
-                Id = id,
-                LocationX = location.X,
-                LocationY = location.Y,
-                DestinationX = destination.X,
-                DestinationY = destination.Y,
-                IsVisible = isVisible
-            };
+            data.Id = id;
+            data.LocationX = location.X;
+            data.LocationY = location.Y;
+            data.DestinationX = destination.X;
+            data.DestinationY = destination.Y;
         }
     }
 }
