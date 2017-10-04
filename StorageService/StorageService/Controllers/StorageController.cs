@@ -68,7 +68,7 @@ namespace StorageService.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
             var command = commandFactory.GetSingleTransactionCommand(SingleTransactionType.Increase, transaction);
@@ -94,7 +94,7 @@ namespace StorageService.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
             var command = commandFactory.GetSingleTransactionCommand(SingleTransactionType.Decrease, transaction);
@@ -120,7 +120,7 @@ namespace StorageService.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
             var command = commandFactory.GetDualTransactionCommand(transaction);
