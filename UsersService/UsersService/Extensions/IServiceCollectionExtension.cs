@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UsersService.Commands;
 using UsersService.Options;
 using UsersService.Queries;
@@ -20,7 +19,14 @@ namespace UsersService.Extensions
         public static IServiceCollection AddMySql(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
             var connectionString = configuration["MYSQL_CONNECTION_STRING"];
+
+            serviceCollection.Configure<SqlOptions>(options =>
+            {
+                options.ConnectionString = connectionString;
+            });
+
             return serviceCollection.AddDbContext<UsersContext>(options => options.UseMySql(connectionString));
+                                    
         }
 
         public static IServiceCollection AddQueries(this IServiceCollection services)
@@ -39,9 +45,9 @@ namespace UsersService.Extensions
         {
             var tokenSigningCredentials = CreateTokenSigningCredentials(configuration);
 
-            services.Configure<JwtOptions>(settings =>
+            services.Configure<JwtOptions>(options =>
             {
-                settings.Sign = tokenSigningCredentials;
+                options.Sign = tokenSigningCredentials;
             });
 
             services.AddAuthentication().AddBasic().AddJwtBearer(options =>
