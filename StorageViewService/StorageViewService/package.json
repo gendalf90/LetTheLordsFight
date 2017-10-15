@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "name": "storageview",
+  "private": true,
+  "devDependencies": {
+    "gulp": "3.9.1",
+    "gulp-concat": "2.6.0",
+    "gulp-uglify": "2.0.0",
+    "babel-core": "6.26.0",
+    "gulp-babel": "7.0.0",
+    "babel-preset-react": "6.24.1",
+    "babel-preset-env": "1.6.0",
+    "del": "3.0.0"
+  }
+}
