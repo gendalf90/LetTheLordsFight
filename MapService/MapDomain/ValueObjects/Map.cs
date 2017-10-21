@@ -43,7 +43,7 @@ namespace MapDomain.ValueObjects
             var rightDownLocation = new Location((i + 1) * segmentSize, (j + 1) * segmentSize);
             var type = segmentTypes[i, j];
             var speed = segmentsSpeed[type];
-            return new Segment(leftUpLocation, rightDownLocation, type, speed);
+            return new Segment(i, j, leftUpLocation, rightDownLocation, type, speed);
         }
 
         private void ValidateIJ(int i, int j)

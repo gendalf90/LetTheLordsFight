@@ -38,7 +38,6 @@ namespace MapService.Queries
 
         public SegmentQuery(IMongoDatabase mapDatabase, IMapFactory factory, float x, float y)
             : this(mapDatabase)
-
         {
             getStrategy = () =>
             {
@@ -65,11 +64,13 @@ namespace MapService.Queries
         {
             segmentData = new JObject
             {
-                ["leftX"] = segment.LeftUpLocation.X,
-                ["upY"] = segment.LeftUpLocation.Y,
-                ["rightX"] = segment.RightDownLocation.X,
-                ["downY"] = segment.RightDownLocation.Y,
-                ["type"] = segment.Type.ToString()
+                ["I"] = segment.I,
+                ["J"] = segment.J,
+                ["LeftX"] = segment.LeftUpLocation.X,
+                ["UpY"] = segment.LeftUpLocation.Y,
+                ["RightX"] = segment.RightDownLocation.X,
+                ["DownY"] = segment.RightDownLocation.Y,
+                ["Type"] = segment.Type.ToString()
             };
         }
 

@@ -29,7 +29,7 @@ namespace MapService.Queries
 
         public IQuery CreateObjectQuery(string id)
         {
-            return new ObjectQuery(mapDatabase, userValidationService, id);
+            return new ObjectQuery(mapDatabase, mapFactory, userValidationService, id);
         }
 
         public IQuery CreateSegmentQuery(int i, int j)
