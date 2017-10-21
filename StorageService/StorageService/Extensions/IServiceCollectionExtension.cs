@@ -59,7 +59,7 @@ namespace StorageService.Extensions
                 options.Password = configuration["STORAGE_SERVICE_PASSWORD"];
             });
 
-            return services.AddTransient<ISecurityService, SecurityService>();
+            return services.AddSingleton<ISecurityService, SecurityService>();
         }
 
         public static IServiceCollection AddStorages(this IServiceCollection services)
@@ -73,8 +73,7 @@ namespace StorageService.Extensions
                            .AddTransient<IUserValidationService, UserValidationService>()
                            .AddTransient<ITransactionValidationService, TransactionValidationService>()
                            .AddTransient<IUsersRepository, UserRepository>()
-                           .AddTransient<IMapRepository, MapRepository>()
-                           .AddTransient<IDistanceService, DistanceService>();
+                           .AddTransient<IMapRepository, MapRepository>();
         }
 
         public static IServiceCollection AddCommands(this IServiceCollection services)

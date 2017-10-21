@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 
 namespace StorageService.Services
 {
-    class MapObjectDto
+    class SegmentDto
     {
-        public SegmentDto Segment { get; set; }
+        public int I { get; set; }
+
+        public int J { get; set; }
     }
 }

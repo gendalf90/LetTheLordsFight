@@ -12,14 +12,16 @@ namespace StorageDomain.Services
     public class TransactionValidationService : ITransactionValidationService
     {
         private readonly IUserService userService;
-        private readonly IDistanceService distanceService;
+        private readonly IMapRepository mapRepository;
 
         private SingleTransaction sourceTransaction;
+        private Segment sourceSegment;
+        private Segment destinationSegment;
 
-        public TransactionValidationService(IUserService userService, IDistanceService distanceService)
+        public TransactionValidationService(IUserService userService, IMapRepository mapRepository)
         {
             this.userService = userService;
-            this.distanceService = distanceService;
+            this.mapRepository = mapRepository;
         }
 
         public Task ValidateAsync(SingleTransaction transaction)
@@ -53,7 +55,7 @@ namespace StorageDomain.Services
                 throw new NotAuthorizedException();
             }
 
-            if(!AreSourceAndDestinationStoragesAtOnePoint)
+            if(!SourceAndDestinationAtOneSegment)
             {
                 throw new ValidationException();
             }
@@ -62,7 +64,8 @@ namespace StorageDomain.Services
         private async Task InitializeAsync(DualTransaction transaction)
         {
             sourceTransaction = transaction.Decrease;
-            AreSourceAndDestinationStoragesAtOnePoint = await distanceService.IsDistanceBeetwenStoragesSufficientForTransactionAsync(transaction.Decrease.StorageId, transaction.Increase.StorageId);
+            sourceSegment = await mapRepository.GetSegmentAsync(transaction.Decrease.StorageId);
+            destinationSegment = await mapRepository.GetSegmentAsync(transaction.Increase.StorageId);
         }
 
         private bool IsCurrentUserNotSourceStorageOwnerOrSystem
@@ -97,6 +100,12 @@ namespace StorageDomain.Services
             }
         }
 
-        private bool AreSourceAndDestinationStoragesAtOnePoint { get; set; }
+        private bool SourceAndDestinationAtOneSegment
+        {
+            get
+            {
+                return sourceSegment.Equals(destinationSegment);
+            }
+        }
     }
 }
