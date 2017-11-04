@@ -39,9 +39,11 @@ namespace StorageService.Events
 
         public async Task VisitAsync(CreateEvent e)
         {
-            if(source.Any(entity => entity.Id == e.StorageId))
+            var storage = source.FirstOrDefault(entity => entity.Id == e.StorageId);
+
+            if(storage != null)
             {
-                return;
+                source.Remove(storage);
             }
 
             source.Add(new Storage(e.StorageId));

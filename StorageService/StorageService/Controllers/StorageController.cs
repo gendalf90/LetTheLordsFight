@@ -27,7 +27,7 @@ namespace StorageService.Controllers
             this.queryFactory = queryFactory;
         }
 
-        [HttpPut("{id}")]
+        [HttpPost("{id}")]
         public async Task<IActionResult> AddStorageAsync(string id)
         {
             var command = commandFactory.GetCreateStorageCommand(id);

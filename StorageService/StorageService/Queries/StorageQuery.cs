@@ -44,7 +44,7 @@ namespace StorageService.Queries
         private string GetJson()
         {
             var data = restoredStorage.GetRepositoryData();
-            var dto = new { Id = data.Id, Items = data.Items.ToDictionary(item => item.Name, item => item.Quantity) };
+            var dto = new { Id = data.Id, Items = data.Items.Select(item => new { Name = item.Name, Count = item.Quantity }) };
             return JsonConvert.SerializeObject(dto);
         }
     }
