@@ -4,37 +4,75 @@
 var gulp = require("gulp"),
     del = require("del"),
     concat = require("gulp-concat"),
-    babel = require('gulp-babel'),
-    uglify = require("gulp-uglify");
+    uglify = require("gulp-uglify"),
+    browserify = require("browserify"),
+    babelify = require("babelify"),
+    buffer = require('vinyl-buffer'),
+    source = require("vinyl-source-stream"),
+    server = require('gulp-json-srv');
 
-var src = [
-    './Src/app.jsx',
-    './Src/test.js'
-];
-const delPattern = '**/*';
-const testBabelSettings = { presets: ['react'] };
-const prodBabelSettings = { presets: ['react', 'env'] };
-const testResultFileName = 'main.js';
-const prodResultFileName = 'main.min.js';
-const distPath = './wwwroot/dist/';
+var config = {
+    delPattern: '**/*',
+    src: './Src/main.jsx',
+    testOutputFile: 'main.js',
+    prodOutputFile: 'main.min.js',
+    outputDir: './wwwroot/dist/'
+};
 
 gulp.task('clean', function () {
-    del.sync(distPath + delPattern);
+    del.sync(config.outputDir + config.delPattern);
 });
 
 gulp.task('test', ['clean'], function () {
-    return gulp.src(src)
-        .pipe(babel(testBabelSettings))
-        .pipe(concat(testResultFileName))
-        .pipe(gulp.dest(distPath));
+    return browserify(config.src)
+        //.external(['react', 'react-dom', 'redux', 'react-redux', 'redux-thunk'])
+        .transform(babelify.configure({
+            presets: ['react']
+        }))
+        .bundle()
+        .pipe(source(config.testOutputFile))
+        .pipe(gulp.dest(config.outputDir));
 });
 
 gulp.task('production', ['clean'], function () {
-    return gulp.src(src)
-        .pipe(babel(prodBabelSettings))
-        .pipe(concat(prodResultFileName))
+    return browserify(config.src)
+        .transform(babelify.configure({
+            presets: ['react', 'env']
+        }))
+        .bundle()
+        .pipe(source(config.prodOutputFile))
+        .pipe(buffer())
         .pipe(uglify())
-        .pipe(gulp.dest(distPath));
+        .pipe(gulp.dest(config.outputDir));
 });
 
 gulp.task('build', ['test', 'production']);
+
+var testServer = server.create({
+    port: 25000,
+    baseUrl: '/api/v1',
+    //rewriteRules: {
+    //    '/': '/api/',
+    //    '/blog/:resource/:id/show': '/api/:resource/:id'
+    //},
+    //customRoutes: {
+    //    '/api/v1/storage/:storage': {
+    //        method: 'get',
+    //        handler: (req, res) => res.json({
+    //            "storage": req.params.storage,
+    //            "items": [
+    //                {
+    //                    "name": "iron",
+    //                    "count": 20,
+    //                    "desc": "It is iron"
+    //                }
+    //            ]
+    //        })
+    //    }
+    //}
+});
+
+gulp.task('test-server', function () {
+    gulp.src('data.json')
+        .pipe(testServer.pipe());
+});

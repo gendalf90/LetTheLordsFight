@@ -3,21 +3,102 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Storage</title>
+    <title>@ViewBag.Storage</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
 </head>
 <body>
     <div id="content"></div>
+    <script>sessionStorage["api"] = "@ViewBag.Api"</script>
+    <script>sessionStorage["storage"] = "@ViewBag.Storage"</script>
 
     <environment names="Development">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react-dom.js"></script>
-        <script src="dist/main.js"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.js"></script>
+        <script src="dist/main.js" asp-append-version="true"></script>
     </environment>
 
     <environment names="Production">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react-dom.min.js"></script>
-        <script src="dist/main.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
+        <script src="dist/main.min.js" asp-append-version="true"></script>
     </environment>
+
+    
+    
+    
+  
+
+                @*<div class="list-group" id="accordion" role="tablist">
+                    <div id="headingOne" role="tab" >
+                        <button data-toggle="collapse" aria-expanded="false" data-target="#collapseOne" aria-controls="collapseOne" type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <span class="font-weight-bold">Iron</span>
+                            <span class="badge badge-secondary">14</span>
+                        </button>
+                        <div id="collapseOne" class="collapse mb-1" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
+                            <div class="media">
+                                <img class="mr-3" src="http://via.placeholder.com/64x64" alt="Generic placeholder image">
+                                <div class="media-body">
+                                    <div>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.</div>
+
+
+
+                                    
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control col-12 col-sm-6 col-md-4 col-lg-3" placeholder="Count" aria-label="Text input with dropdown button">
+                                                    <div class="input-group-btn">
+                                                        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            SendTo
+                                                        </button>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item" href="#">StorageOne</a>
+                                                            <a class="dropdown-item" href="#">StorageTwo</a>
+                                                            <div role="separator" class="dropdown-divider"></div>
+                                                            <a class="dropdown-item" href="#">Remove</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="headingTwo" role="tab">
+                        <button data-toggle="collapse" aria-expanded="false" data-target="#collapseTwo" aria-controls="collapseTwo" type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <span class="font-weight-bold">Wood</span>
+                            <span class="badge badge-secondary">14</span>
+                        </button>
+                        <div id="collapseTwo" class="collapse mb-1" role="tabpanel" aria-labelledby="headingTwo" data-parent="#accordion">
+                            <div class="media">
+                                <img class="mr-3" src="http://via.placeholder.com/64x64" alt="Generic placeholder image">
+                                <div class="media-body">
+                                    <div>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.</div>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control col-12 col-sm-6 col-md-4 col-lg-3" placeholder="Count" aria-label="Text input with dropdown button">
+                                        <div class="input-group-btn">
+                                            <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                SendTo
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" href="#">StorageOne</a>
+                                                <a class="dropdown-item" href="#">StorageTwo</a>
+                                                <div role="separator" class="dropdown-divider"></div>
+                                                <a class="dropdown-item" href="#">Remove</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>*@
+
+
+
+    
 </body>
 </html>

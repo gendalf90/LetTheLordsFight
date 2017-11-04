@@ -1,0 +1,14 @@
+﻿{
+  "storage": [
+    {
+      "id": "test@test.ru",
+      "items": [
+        {
+          "name": "iron",
+          "count": 20,
+          "desc": "It is iron"
+        }
+      ]
+    }
+  ]
+}

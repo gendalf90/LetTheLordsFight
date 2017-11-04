@@ -12,6 +12,8 @@ namespace StorageViewService.Controllers
         [HttpGet("{id}")]
         public IActionResult Index(string id)
         {
+            ViewBag.Storage = id;
+            ViewBag.Api = "http://localhost:25000";
             return View();
         }
     }
