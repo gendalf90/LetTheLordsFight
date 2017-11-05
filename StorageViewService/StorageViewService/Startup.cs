@@ -2,20 +2,28 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StorageViewService.Options;
+using System;
 
 namespace StorageViewService
 {
     public class Startup
     {
+        private readonly IConfiguration configuration;
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<ApiOptions>(options =>
+            {
+                options.BaseUri = new Uri(configuration["API_URL"]);
+            });
+
+            services.AddOptions();
             services.AddMvc();
         }
 

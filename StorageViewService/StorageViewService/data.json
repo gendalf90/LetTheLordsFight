@@ -5,8 +5,11 @@
       "items": [
         {
           "name": "iron",
-          "count": 20,
-          "desc": "It is iron"
+          "count": 20
+        },
+        {
+          "name": "wood",
+          "count": 10
         }
       ]
     }

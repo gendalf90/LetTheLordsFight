@@ -6,11 +6,13 @@ var reducer = require("./reducer.jsx");
 var AppView = require("./views.jsx");
 var thunk = require('redux-thunk').default;
 var actions = require("./actions.jsx");
+var itemDescriptions = require("./descriptions.js");
 
 var store = redux.createStore(reducer, redux.applyMiddleware(thunk));
 
-store.dispatch(actions.configure(sessionStorage['storage'], sessionStorage['api'], localStorage['token']));
-store.dispatch(actions.setItems([]));
+store.dispatch(actions.configure(sessionStorage['id'], sessionStorage['api'], localStorage['token']));
+store.dispatch(actions.initialize(itemDescriptions));
+store.dispatch(actions.clearItems());
 store.dispatch(actions.loadItems());
 
 ReactDOM.render(
