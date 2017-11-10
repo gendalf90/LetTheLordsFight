@@ -2,7 +2,8 @@
     switch (action.type) {
         case "SET_ITEMS":
             return Object.assign({}, state, {
-                items: action.items
+                items: action.items,
+                storages: action.storages
             });
         case "CONFIGURE":
             return Object.assign({}, state, {
@@ -14,9 +15,13 @@
             return Object.assign({}, state, {
                 itemDescriptions: action.itemDescriptions
             });
-        case "SET_ERROR":
+        case "SET_STORAGE_ERROR":
             return Object.assign({}, state, {
-                error: action.error
+                storageError: action.error
+            });
+        case "SET_ITEM_ERROR":
+            return Object.assign({}, state, {
+                [action.name + 'error']: action.error
             });
         default:
             return Object.assign({}, state);

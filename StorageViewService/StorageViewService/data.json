@@ -13,5 +13,27 @@
         }
       ]
     }
+  ],
+  "objects": [
+    {
+      "id": "test@test.ru",
+      "segment": {
+        "i": 1,
+        "j": 1
+      }
+    }
+  ],
+  "segment": [
+    {
+      "id": 1,
+      "objects": [
+        {
+          "id": "qwer@qwer.ru"
+        },
+        {
+          "id": "zxcv@zxcv.ru"
+        }
+      ]
+    }
   ]
 }

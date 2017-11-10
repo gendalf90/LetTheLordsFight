@@ -15,34 +15,67 @@ var initialize = function (itemDescriptions) {
 };
 
 var clearItems = function () {
-    return setItems([]);
+    return setItems([], []);
 }
 
-var setItems = function (items) {
+var setItems = function (items, storages) {
     return {
         type: 'SET_ITEMS',
-        items
+        items,
+        storages
     }
 };
 
-var setError = function (error) {
+var setStorageError = function (error) {
     return {
-        type: 'SET_ERROR',
+        type: 'SET_STORAGE_ERROR',
+        error
+    }
+};
+
+var setItemError = function (name, error) {
+    return {
+        type: 'SET_ITEM_ERROR',
+        name,
         error
     }
 };
 
 var loadItems = function () {
-    return function (dispatch, getState) {
+    return async function (dispatch, getState) {
         let state = getState();
         let id = state.id;
         let api = state.api;
-        let getItemsUrl = api + 'api/v1/storage/' + id;
-        fetch(getItemsUrl).then(getJsonOrThrowError)
-                          .then(json => dispatch(setItems(json.items)))
-                          .catch(error => handleError(dispatch, error));
+        
+        try {
+            let storageResponse = await fetch(`${api}api/v1/storage/${id}`);
+            let storage = await getJsonOrThrowError(storageResponse);
+            let mapObjectRepsonse = await fetch(`${api}api/v1/map/objects/${id}`);
+            let mapObject = await getJsonOrThrowError(mapObjectRepsonse);
+            let segmentResponse = await fetch(`${api}api/v1/map/segment/i/${mapObject.segment.i}/j/${mapObject.segment.j}`);
+            let segment = await getJsonOrThrowError(segmentResponse);
+            let items = storage.items;
+            let storages = segment.objects.map(obj => obj.id);
+            dispatch(setItems(items, storages));
+        } catch (error) {
+            handleStorageError(dispatch, error);
+        };
     }
 };
+
+//var dropItem = function (name, count) {
+//    return async function (dispatch, getState) {
+//        let state = getState();
+//        let id = state.id;
+//        let api = state.api;
+
+//        try {
+            
+//        } catch (error) {
+            
+//        };
+//    }
+//};
 
 var getJsonOrThrowError = function (response) {
     if (!response.ok) {
@@ -52,12 +85,20 @@ var getJsonOrThrowError = function (response) {
     return response.json();
 };
 
-var handleError = function (dispatch, error) {
+var handleStorageError = function (dispatch, error) {
     if (error.status === undefined) {
-        dispatch(setError(error));
+        dispatch(setStorageError(error));
     } else {
-        dispatch(setError(error.status));
+        dispatch(setStorageError(error.status));
     }
 };
+
+//var handleItemError = function (dispatch, name, error) {
+//    if (error.status === undefined) {
+//        dispatch(setItemError(error));
+//    } else {
+//        dispatch(setItemError(error.status));
+//    }
+//};
 
 module.exports = { configure, initialize, setItems, clearItems, loadItems };

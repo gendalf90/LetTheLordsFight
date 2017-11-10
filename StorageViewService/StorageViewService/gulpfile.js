@@ -25,9 +25,9 @@ gulp.task('clean', function () {
 
 gulp.task('test', ['clean'], function () {
     return browserify(config.src)
-        //.external(['react', 'react-dom', 'redux', 'react-redux', 'redux-thunk'])
         .transform(babelify.configure({
-            presets: ['react']
+            presets: ['react', 'env'],
+            plugins: ["transform-runtime"]
         }))
         .bundle()
         .pipe(source(config.testOutputFile))
@@ -50,26 +50,17 @@ gulp.task('build', ['test', 'production']);
 
 var testServer = server.create({
     port: 25000,
-    baseUrl: '/api/v1',
-    //rewriteRules: {
-    //    '/': '/api/',
-    //    '/blog/:resource/:id/show': '/api/:resource/:id'
-    //},
-    //customRoutes: {
-    //    '/api/v1/storage/:storage': {
-    //        method: 'get',
-    //        handler: (req, res) => res.json({
-    //            "storage": req.params.storage,
-    //            "items": [
-    //                {
-    //                    "name": "iron",
-    //                    "count": 20,
-    //                    "desc": "It is iron"
-    //                }
-    //            ]
-    //        })
-    //    }
-    //}
+    rewriteRules: {
+        '/api/v1/:storageId/item/:itemName/quantity/:itemCount/decrease': '/decrease',
+        '/api/v1/map/segment/i/1/j/1': '/segment/1',
+        '/api/v1/map/': '/',
+        '/api/v1/': '/'
+    },
+    customRoutes: {
+        '/decrease': {
+            method: 'post'
+        }
+    }
 });
 
 gulp.task('test-server', function () {
