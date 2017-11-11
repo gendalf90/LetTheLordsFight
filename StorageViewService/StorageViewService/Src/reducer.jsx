@@ -21,7 +21,14 @@
             });
         case "SET_ITEM_ERROR":
             return Object.assign({}, state, {
-                [action.name + 'error']: action.error
+                itemError: {
+                    name: action.name,
+                    error: action.error
+                }
+            });
+        case "CLEAR_ITEM_ERROR":
+            return Object.assign({}, state, {
+                itemError: null
             });
         default:
             return Object.assign({}, state);

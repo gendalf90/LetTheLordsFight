@@ -1,4 +1,6 @@
-﻿var configure = function (id, api, token) {
+﻿var validator = require('validator');
+
+var configure = function (id, api, token) {
     return {
         type: 'CONFIGURE',
         id,
@@ -41,6 +43,12 @@ var setItemError = function (name, error) {
     }
 };
 
+var clearItemError = function () {
+    return {
+        type: 'CLEAR_ITEM_ERROR'
+    }
+};
+
 var loadItems = function () {
     return async function (dispatch, getState) {
         let state = getState();
@@ -63,19 +71,48 @@ var loadItems = function () {
     }
 };
 
-//var dropItem = function (name, count) {
-//    return async function (dispatch, getState) {
-//        let state = getState();
-//        let id = state.id;
-//        let api = state.api;
+var dropItem = function (name, count) {
+    return async function (dispatch, getState) {
+        let state = getState();
+        let id = state.id;
+        let api = state.api;
 
-//        try {
-            
-//        } catch (error) {
-            
-//        };
-//    }
-//};
+        try {
+            validateCount(count);
+            let response = await fetch(`${api}api/v1/storage/${id}/item/${name}/quantity/${count}/decrease`, { method: "POST" });
+            throwErrorIfNotOk(response);
+            reloadItems(dispatch);
+        } catch (error) {
+            handleItemError(dispatch, name, error);
+        };
+    }
+};
+
+var sendItem = function (name, count, storage) {
+    return async function (dispatch, getState) {
+        let state = getState();
+        let id = state.id;
+        let api = state.api;
+
+        try {
+            validateCount(count);
+            let response = await fetch(`${api}api/v1/storage/${id}/item/${name}/quantity/${count}/to/${storage}`, { method: "POST" });
+            throwErrorIfNotOk(response);
+            reloadItems(dispatch);
+        } catch (error) {
+            handleItemError(dispatch, name, error);
+        };
+    }
+};
+
+var validateCount = function (count) {
+    if (!validator.isInt(count.toString(), { gt: 0 })) {
+        throw {
+            validation: true,
+            desc: 'Count is incorrect'
+        }
+    }
+};
 
 var getJsonOrThrowError = function (response) {
     if (!response.ok) {
@@ -85,20 +122,42 @@ var getJsonOrThrowError = function (response) {
     return response.json();
 };
 
-var handleStorageError = function (dispatch, error) {
-    if (error.status === undefined) {
-        dispatch(setStorageError(error));
-    } else {
-        dispatch(setStorageError(error.status));
+var throwErrorIfNotOk = function (response) {
+    if (!response.ok) {
+        throw response;
     }
 };
 
-//var handleItemError = function (dispatch, name, error) {
-//    if (error.status === undefined) {
-//        dispatch(setItemError(error));
-//    } else {
-//        dispatch(setItemError(error.status));
-//    }
-//};
+var handleStorageError = function (dispatch, error) {
+    var result = {};
 
-module.exports = { configure, initialize, setItems, clearItems, loadItems };
+    if (error.status === 403) {
+        result.notAuthorized = true;
+    } else if (error.status === 404) {
+        result.notFound = true;
+    } else {
+        result.unknown = true;
+    }
+
+    dispatch(setStorageError(result));
+};
+
+var handleItemError = function (dispatch, name, error) {
+    var result = {};
+    
+    if (error.status === 400 || error.validation) {
+        result.validation = true;
+        result.desc = error.desc;
+    } else {
+        result.unknown = true;
+    }
+
+    dispatch(setItemError(name, result));
+};
+
+var reloadItems = function (dispatch) {
+    dispatch(clearItemError());
+    dispatch(loadItems());
+}
+
+module.exports = { configure, initialize, setItems, clearItems, loadItems, dropItem, sendItem };

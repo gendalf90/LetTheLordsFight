@@ -51,14 +51,20 @@ gulp.task('build', ['test', 'production']);
 var testServer = server.create({
     port: 25000,
     rewriteRules: {
-        '/api/v1/:storageId/item/:itemName/quantity/:itemCount/decrease': '/decrease',
+        '/api/v1/storage/:storageId/item/:itemName/quantity/:itemCount/decrease': '/decrease',
+        '/api/v1/storage/:fromStorageId/item/:itemName/quantity/:itemCount/to/:toStorageId': '/send',
         '/api/v1/map/segment/i/1/j/1': '/segment/1',
         '/api/v1/map/': '/',
         '/api/v1/': '/'
     },
     customRoutes: {
         '/decrease': {
-            method: 'post'
+            method: 'post',
+            handler: (req, res) => res.sendStatus(200)
+        },
+        '/send': {
+            method: 'post',
+            handler: (req, res) => res.sendStatus(200)
         }
     }
 });
