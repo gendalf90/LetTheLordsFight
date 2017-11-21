@@ -41,5 +41,10 @@ namespace MapService.Queries
         {
             return new SegmentQuery(mapDatabase, mapFactory, x, y);
         }
+
+        public IQuery CreateSquare5x5Query(int i, int j)
+        {
+            return new Square5x5Query(mapDatabase, mapFactory, i, j);
+        }
     }
 }

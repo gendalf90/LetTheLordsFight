@@ -17,6 +17,13 @@ server.get('/api/v1/map', (req, res) => {
     });
 });
 
+server.get('/api/v1/map/segments/square5x5/i/:i/j/:j', (req, res) => {
+    res.json({
+        
+        }
+    });
+});
+
 server.listen(25000, () => {
     console.log('Server is running')
 });

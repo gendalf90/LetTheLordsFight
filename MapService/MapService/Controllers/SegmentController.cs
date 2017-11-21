@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace MapService.Controllers
 {
     [Authorize]
-    [Route("api/v1/map/segment")]
+    [Route("api/v1/map/segments")]
     public class SegmentController : Controller
     {
         private readonly IQueryFactory queryFactory;
@@ -40,6 +40,21 @@ namespace MapService.Controllers
         public async Task<IActionResult> GetSegmentXYAsync(float x, float y)
         {
             var query = queryFactory.CreateSegmentQuery(x, y);
+
+            try
+            {
+                return Ok(await query.GetJsonAsync());
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet("square5x5/i/{i:int}/j/{j:int}")]
+        public async Task<IActionResult> GetSquare5x5Async(int i, int j)
+        {
+            var query = queryFactory.CreateSquare5x5Query(i, j);
 
             try
             {

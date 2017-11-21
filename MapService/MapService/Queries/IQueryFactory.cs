@@ -14,5 +14,7 @@ namespace MapService.Queries
         IQuery CreateSegmentQuery(float x, float y);
 
         IQuery CreateObjectQuery(string id);
+
+        IQuery CreateSquare5x5Query(int i, int j);
     }
 }
