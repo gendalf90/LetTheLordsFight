@@ -60,7 +60,7 @@ var loadItems = function () {
             let storage = await getJsonOrThrowError(storageResponse);
             let mapObjectRepsonse = await fetch(`${api}api/v1/map/objects/${id}`);
             let mapObject = await getJsonOrThrowError(mapObjectRepsonse);
-            let segmentResponse = await fetch(`${api}api/v1/map/segment/i/${mapObject.segment.i}/j/${mapObject.segment.j}`);
+            let segmentResponse = await fetch(`${api}api/v1/map/segments/i/${mapObject.segment.i}/j/${mapObject.segment.j}`);
             let segment = await getJsonOrThrowError(segmentResponse);
             let items = storage.items;
             let storages = segment.objects.map(obj => obj.id);
