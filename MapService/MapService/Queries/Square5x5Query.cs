@@ -8,50 +8,44 @@ using MapDomain.Factories;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Collections.Generic;
+using MapDomain.Exceptions;
 
 namespace MapService.Queries
 {
     public class Square5x5Query : IQuery
     {
-        private const int Size = 5;
+        private readonly IMongoDatabase database;
+        private readonly IMapFactory factory;
 
-        private readonly IMongoCollection<BsonDocument> objects;
-        private readonly IMapFactory mapFactory;
-
-        private int upI;
-        private int leftJ;
-        private int downI;
-        private int rightJ;
+        private int i;
+        private int j;
         private Map map;
+        private Square5 square;
 
-        public Square5x5Query(IMongoDatabase mapDatabase, IMapFactory factory, int upI, int leftJ)
+        public Square5x5Query(IMongoDatabase database, IMapFactory factory, int i, int j)
         {
-            objects = mapDatabase.GetCollection<BsonDocument>("objects");
-            mapFactory = factory;
-            this.upI = upI;
-            this.leftJ = leftJ;
+            
+            this.database = database;
+            this.factory = factory;
+            this.i = i;
+            this.j = j;
         }
 
         public async Task<string> GetJsonAsync()
         {
-            InitializeMap();
-            FillDownIAndRightJ();
+            CreateMap();
+            CreateSquare();
             return await CreateResultAsync();
         }
 
-        private void InitializeMap()
+        private void CreateMap()
         {
-            map = mapFactory.GetMap();
+            map = factory.GetMap();
         }
 
-        private void FillDownIAndRightJ()
+        private void CreateSquare()
         {
-            var maxI = map.SegmentsHeight - 1;
-            var currentI = upI + Size;
-            var maxJ = map.SegmentsWidth - 1;
-            var currentJ = leftJ + Size;
-            downI = currentI > maxI ? maxI : currentI;
-            rightJ = currentJ > maxJ ? maxJ : currentJ;
+            square = new Square5(map, i, j);
         }
 
         private async Task<string> CreateResultAsync()
@@ -72,9 +66,9 @@ namespace MapService.Queries
 
         private IEnumerable<Segment> LoadSegments()
         {
-            for (int i = upI; i <= downI; i++)
+            for (int i = square.UpI; i <= square.DownI; i++)
             {
-                for (int j = leftJ; j <= rightJ; j++)
+                for (int j = square.LeftJ; j <= square.RightJ; j++)
                 {
                     yield return map[i, j];
                 }
@@ -97,9 +91,9 @@ namespace MapService.Queries
 
         private async Task<IEnumerable<BsonDocument>> LoadObjectsAsync()
         {
-            var leftUpSegment = map[upI, leftJ];
-            var rightDownSegment = map[downI, rightJ];
-
+            var objects = database.GetCollection<BsonDocument>("objects");
+            var leftUpSegment = map[square.UpI, square.LeftJ];
+            var rightDownSegment = map[square.DownI, square.RightJ];
             var builder = Builders<BsonDocument>.Filter;
             var filter = builder.And(builder.Eq("IsVisible", true),
                                      builder.Gt("LocationX", leftUpSegment.LeftUpLocation.X),
@@ -108,7 +102,6 @@ namespace MapService.Queries
                                      builder.Lt("LocationY", rightDownSegment.RightDownLocation.Y));
             var projection = Builders<BsonDocument>.Projection.Include("LocationX")
                                                               .Include("LocationY");
-
             return await objects.Find(filter)
                                 .Project(projection)
                                 .ToListAsync();
