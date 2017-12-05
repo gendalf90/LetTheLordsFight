@@ -1,0 +1,7 @@
+﻿<div (click)="onclick($event)">
+    <div class="d-flex flex-row" *ngFor="let row of segments">
+        <div class="p" *ngFor="let segment of row">
+            <segment [data]="segment"></segment>
+        </div>
+    </div>
+</div>

@@ -6,6 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Src\Components\App\app.component.ts" />
+    <None Remove="Src\Components\Segment\segment.component.ts" />
+    <None Remove="Src\Components\tile.component.ts" />
+    <None Remove="Src\Components\Tile\data.ts" />
+    <None Remove="Src\Components\Tile\object.ts" />
     <None Remove="Src\testthree.ts" />
   </ItemGroup>
 
@@ -14,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Src\Img\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -26,6 +32,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Include="Src\Components\App\app.component.ts" />
+    <TypeScriptCompile Include="Src\Components\View\view.component.ts" />
+    <TypeScriptCompile Include="Src\Components\Segment\segment.component.ts" />
+    <TypeScriptCompile Include="Src\Components\Tile\data.ts" />
+    <TypeScriptCompile Include="Src\Components\Tile\tile.component.ts" />
+    <TypeScriptCompile Include="Src\Components\Segment\data.ts" />
     <TypeScriptCompile Include="Src\testthree.ts" />
   </ItemGroup>
   

@@ -21,6 +21,14 @@ module.exports = {
               use: ['awesome-typescript-loader', 'angular2-template-loader'],
               exclude: [path.resolve(__dirname, 'node_modules')]
             },
+            {
+              test: /\.(png|jpg|gif)$/,
+              use: 'url-loader'
+            },
+            {
+              test: /\.html$/,
+              use: 'html-loader?minimize=false'
+            }
           ]
         },
     plugins: [
