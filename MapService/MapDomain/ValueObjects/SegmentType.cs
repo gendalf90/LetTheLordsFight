@@ -6,7 +6,7 @@ namespace MapDomain.ValueObjects
 {
     public enum SegmentType : byte
     {
-        GrassField = 0,
+        Grass = 0,
         Forest = 1
     }
 }
