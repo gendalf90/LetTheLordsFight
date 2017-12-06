@@ -4,6 +4,7 @@ var clean = require('clean-webpack-plugin');
 var uglify = require('uglifyjs-webpack-plugin');
 
 const output = "./wwwroot/dist/";
+const src = "src";
 
 module.exports = {
     entry: './src/testthree.ts',
@@ -19,7 +20,7 @@ module.exports = {
             {
               test: /\.ts$/,
               use: ['awesome-typescript-loader', 'angular2-template-loader'],
-              exclude: [path.resolve(__dirname, 'node_modules')]
+              include: [path.resolve(__dirname, src)]
             },
             {
               test: /\.(png|jpg|gif)$/,
@@ -28,6 +29,11 @@ module.exports = {
             {
               test: /\.html$/,
               use: 'html-loader?minimize=false'
+            },
+            {
+                test: /\.css$/,
+                include: path.resolve(__dirname, src),
+                loader: 'raw-loader'
             }
           ]
         },

@@ -33,7 +33,7 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="Src\Components\App\app.component.ts" />
-    <TypeScriptCompile Include="Src\Components\View\view.component.ts" />
+    <TypeScriptCompile Include="Src\Components\Square\square.component.ts" />
     <TypeScriptCompile Include="Src\Components\Segment\segment.component.ts" />
     <TypeScriptCompile Include="Src\Components\Tile\data.ts" />
     <TypeScriptCompile Include="Src\Components\Tile\tile.component.ts" />

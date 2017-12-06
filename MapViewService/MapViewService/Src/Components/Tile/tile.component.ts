@@ -7,29 +7,36 @@ var knight = require('../../Img/test.png');
 
 @Component({
     selector: 'tile',
-    templateUrl: './tile.component.html'
+    templateUrl: './tile.component.html',
+    styleUrls: ['./tile.component.css']
 })
 export class TileComponent {
 
-    private size: number = 32;
+    private pixelSize: number = 32;
     private backgroundImage: string;
     private objectImage: string;
-    private top: number;
-    private left: number;
+    private pixelTop: number;
+    private pixelLeft: number;
+    private currentData: TileData;
 
     constructor() {
         this.backgroundImage = this.getDefaultImage();
         this.objectImage = this.getDefaultImage();
-        this.top = 0;
-        this.left = 0;
+        this.pixelTop = 0;
+        this.pixelLeft = 0;
     }
 
     @Input()
     set data(value: TileData) {
-        this.backgroundImage = this.getImageByType(value.background);
-        this.objectImage = this.getImageByType(value.object);
-        this.top = value.i * this.size;
-        this.left = value.j * this.size;
+        this.currentData = value;
+        this.applyData();
+    }
+
+    private applyData() {
+        this.backgroundImage = this.getImageByType(this.currentData.background);
+        this.objectImage = this.getImageByType(this.currentData.object);
+        this.pixelTop = this.currentData.i * this.pixelSize;
+        this.pixelLeft = this.currentData.j * this.pixelSize;
     }
 
     private getImageByType(type: TileImage): string {
@@ -51,5 +58,16 @@ export class TileComponent {
 
     private getDefaultImage(): string {
         return empty;
+    }
+
+    private onclick(e): void {
+        //let tileRect = e.currentTarget.getBoundingClientRect();
+        //let clickedX = e.clientX - tileRect.left; //+right
+        //let clickedY = e.clientY - tileRect.top; //+bottom
+        //e.currentTarget.width // +height
+
+        //alert(`${clickedX} ${clickedY} ${this.data.i}`);
+
+        alert('click');
     }
 }

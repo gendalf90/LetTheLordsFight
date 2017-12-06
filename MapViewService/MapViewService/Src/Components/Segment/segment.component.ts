@@ -8,7 +8,7 @@ import { TileData, TileImage } from '../Tile/data';
 })
 export class SegmentComponent {
 
-    private splitCoefficient: number = 5;
+    private tilesSize: number = 5;
     private tiles: TileData[];
     private currentData: SegmentData;
     private currentTiles: TileData[][];
@@ -27,18 +27,39 @@ export class SegmentComponent {
 
     private initializeTiles() {
         this.currentTiles = [];
-        for (let i = 0; i < this.splitCoefficient; i++) {
+        for (let i = 0; i < this.tilesSize; i++) {
             this.currentTiles[i] = [];
-            for (let j = 0; j < this.splitCoefficient; j++) {
+            for (let j = 0; j < this.tilesSize; j++) {
                 this.currentTiles[i][j] = this.createTileData(i, j);
             }
         }
     }
 
     private createTileData(i: number, j: number): TileData {
+        let locationIJ = this.createTileIJ(i, j);
+        let locationXY = this.createTileXY(i, j);
+        let images = this.createTileImages();
+        return Object.assign({}, locationIJ, locationXY, images);
+    }
+
+    private createTileIJ(i: number, j: number) {
         return {
-            i: this.currentData.i * this.splitCoefficient + i,
-            j: this.currentData.j * this.splitCoefficient + j,
+            i: this.currentData.i * this.tilesSize + i,
+            j: this.currentData.j * this.tilesSize + j
+        };
+    }
+
+    private createTileXY(i: number, j: number) {
+        return {
+            upy: this.currentData.upy + this.tileHeight * i,
+            downy: this.currentData.upy + this.tileHeight * (i + 1),
+            leftx: this.currentData.leftx + this.tileWidth * j,
+            rightx: this.currentData.leftx + this.tileWidth * (j + 1)
+        };
+    }
+
+    private createTileImages() {
+        return {
             background: this.getBackgroundImage(),
             object: TileImage.Empty
         };
@@ -76,16 +97,22 @@ export class SegmentComponent {
     }
 
     private getCurrentTileDataByXY(x: number, y: number): TileData {
-        let tileHeight = (this.currentData.location.downy - this.currentData.location.upy) / this.splitCoefficient;
-        let i = Math.floor((y - this.currentData.location.upy) / tileHeight);
-        let tileWidth = (this.currentData.location.rightx - this.currentData.location.leftx) / this.splitCoefficient;
-        let j = Math.floor((x - this.currentData.location.leftx) / tileHeight);
+        let i = Math.floor((y - this.currentData.upy) / this.tileHeight);
+        let j = Math.floor((x - this.currentData.leftx) / this.tileHeight);
 
         if (!this.currentTiles[i] || !this.currentTiles[i][j]) {
             return;
         }
 
         return this.currentTiles[i][j];
+    }
+
+    private get tileWidth(): number {
+        return (this.currentData.rightx - this.currentData.leftx) / this.tilesSize;
+    }
+
+    private get tileHeight(): number {
+        return (this.currentData.downy - this.currentData.upy) / this.tilesSize;
     }
 
     private createTiles() {

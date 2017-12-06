@@ -1,6 +1,6 @@
 ﻿<img [src]="objectImage"
-     [style.top]="top + 'px'"
-     [style.left]="left + 'px'"
+     [style.top]="pixelTop + 'px'"
+     [style.left]="pixelLeft + 'px'"
      [style.backgroundImage]="'url(' + backgroundImage + ')'"
-     style="position: absolute" />
+     (click)="onclick($event)" />
 
