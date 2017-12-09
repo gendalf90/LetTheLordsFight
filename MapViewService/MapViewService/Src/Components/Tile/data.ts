@@ -1,4 +1,4 @@
-﻿export enum TileImage { Empty, Grass, Knight };
+﻿export enum TileImage { Empty, Grass, Knight, Forest };
 
 export class TileData {
     i: number;

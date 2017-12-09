@@ -33,7 +33,7 @@ server.get('/api/v1/map/segments/square5x5/i/:i/j/:j', (req, res) => {
                 rightx: (j + 1) * size,
                 upy: i * size,
                 downy: (i + 1) * size,
-                type: 'GrassField'
+                type: 'Grass'
             });
         }
     }
@@ -41,13 +41,15 @@ server.get('/api/v1/map/segments/square5x5/i/:i/j/:j', (req, res) => {
     let toForest = segments.find(segment => segment.i == 1 && segment.j == 1);
     toForest.type = 'Forest';
 
-    let objects = [{
-        id: 'test@test.ru',
-        location: {
-            x: 25,
-            y: 25
-        }
-    }];
+    //let objects = [{
+    //    id: 'test@test.ru',
+    //    location: {
+    //        x: 25,
+    //        y: 25
+    //    }
+    //}];
+
+    let objects = [];
 
     res.json({
         segments,

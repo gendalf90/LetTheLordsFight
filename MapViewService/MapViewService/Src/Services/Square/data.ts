@@ -1,18 +1,24 @@
-﻿export enum SegmentType { Empty, Grass, Forest }
+﻿export class LocationData {
+    x: number;
+    y: number;
+}
 
 export class ObjectData {
     id: string;
-    x: number;
-    y: number;
+    location: LocationData;
 }
 
 export class SegmentData {
     i: number;
     j: number;
-    type: SegmentType;
+    type: string;
     leftx: number;
     rightx: number;
     upy: number;
     downy: number;
+}
+
+export class SquareData {
+    segments: SegmentData[];
     objects: ObjectData[];
 }

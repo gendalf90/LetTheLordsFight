@@ -7,7 +7,7 @@ const output = "./wwwroot/dist/";
 const src = "src";
 
 module.exports = {
-    entry: './src/testthree.ts',
+    entry: './src/main.ts',
     output: {
         path: path.join(__dirname, output),
         filename: 'bundle.js'

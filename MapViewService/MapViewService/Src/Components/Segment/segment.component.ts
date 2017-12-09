@@ -70,6 +70,12 @@ export class SegmentComponent {
             case SegmentType.Grass: {
                 return TileImage.Grass;
             }
+            case SegmentType.Forest: {
+                return TileImage.Forest;
+            }
+            case SegmentType.Empty: {
+                return TileImage.Empty;
+            }
             default: {
                 return TileImage.Empty;
             }

@@ -1,9 +1,11 @@
 ﻿import { Input, Component } from '@angular/core';
 import { TileData, TileImage } from './data';
 
-var grass = require('../../Img/grass.png');
-var empty = require('../../Img/empty.png');
-var knight = require('../../Img/test.png');
+const grass = require('../../Img/grass.png');
+const forest = require('../../Img/forest.png');
+const empty = require('../../Img/empty.png');
+const user = require('../../Img/knight-black.png');
+const knight = require('../../Img/knight-red.png');
 
 @Component({
     selector: 'tile',
@@ -43,6 +45,9 @@ export class TileComponent {
         switch (type) {
             case TileImage.Grass: {
                 return grass;
+            }
+            case TileImage.Forest: {
+                return forest;
             }
             case TileImage.Empty: {
                 return empty;

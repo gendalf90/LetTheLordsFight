@@ -11,7 +11,12 @@
     <None Remove="Src\Components\tile.component.ts" />
     <None Remove="Src\Components\Tile\data.ts" />
     <None Remove="Src\Components\Tile\object.ts" />
-    <None Remove="Src\testthree.ts" />
+    <None Remove="Src\Services\Configuration\configuration.service.ts" />
+    <None Remove="Src\Services\Configuration\data.ts" />
+    <None Remove="Src\Services\Square\data.ts" />
+    <None Remove="Src\Services\Square\square.service.ts" />
+    <None Remove="Src\Services\User\data.ts" />
+    <None Remove="Src\Services\User\user.service.ts" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,7 +43,13 @@
     <TypeScriptCompile Include="Src\Components\Tile\data.ts" />
     <TypeScriptCompile Include="Src\Components\Tile\tile.component.ts" />
     <TypeScriptCompile Include="Src\Components\Segment\data.ts" />
-    <TypeScriptCompile Include="Src\testthree.ts" />
+    <TypeScriptCompile Include="Src\Services\Configuration\configuration.service.ts" />
+    <TypeScriptCompile Include="Src\Services\Configuration\data.ts" />
+    <TypeScriptCompile Include="Src\Services\Square\data.ts" />
+    <TypeScriptCompile Include="Src\Services\Square\square.service.ts" />
+    <TypeScriptCompile Include="Src\main.ts" />
+    <TypeScriptCompile Include="Src\Services\User\data.ts" />
+    <TypeScriptCompile Include="Src\Services\User\user.service.ts" />
   </ItemGroup>
   
   <PropertyGroup>
@@ -60,5 +71,7 @@
     <TypeScriptMapRoot />
     <TypeScriptSourceRoot />
   </PropertyGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties package_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>
