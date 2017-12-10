@@ -1,7 +1,6 @@
 ﻿var path = require('path');
 var webpack = require('webpack');
 var clean = require('clean-webpack-plugin');
-var uglify = require('uglifyjs-webpack-plugin');
 
 const output = "./wwwroot/dist/";
 const src = "src";

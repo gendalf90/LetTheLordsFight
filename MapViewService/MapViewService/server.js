@@ -41,15 +41,13 @@ server.get('/api/v1/map/segments/square5x5/i/:i/j/:j', (req, res) => {
     let toForest = segments.find(segment => segment.i == 1 && segment.j == 1);
     toForest.type = 'Forest';
 
-    //let objects = [{
-    //    id: 'test@test.ru',
-    //    location: {
-    //        x: 25,
-    //        y: 25
-    //    }
-    //}];
-
-    let objects = [];
+    let objects = [{
+        id: 'other@other.ru',
+        location: {
+            x: 44,
+            y: 27
+        }
+    }];
 
     res.json({
         segments,

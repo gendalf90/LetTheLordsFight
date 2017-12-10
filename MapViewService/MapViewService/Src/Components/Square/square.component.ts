@@ -9,23 +9,26 @@ import { SquareData as SquareServiceData, SegmentData as SegmentServiceData, Obj
 })
 export class SquareComponent implements OnInit {
 
-    private data: SquareServiceData;
+    private updateInterval: number = 1000;
     private segments: SegmentComponentData[];
 
     constructor(private square: SquareService) {
     }
 
     async ngOnInit() {
-        await this.loadData();
-        this.setData();
+        await this.initialize();
+        this.startReloading();
     }
 
-    private async loadData() {
-        this.data = await this.square.getData();
+    private startReloading() {
+        setInterval(async () => {
+            await this.initialize();
+        }, this.updateInterval);
     }
 
-    private setData() {
-        this.segments = this.createSegments(this.data);
+    private async initialize() {
+        let data = await this.square.getData();
+        this.segments = this.createSegments(data);
     }
 
     private createSegments(square: SquareServiceData): SegmentComponentData[] {

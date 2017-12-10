@@ -1,5 +1,6 @@
 ﻿import { Input, Component } from '@angular/core';
 import { TileData, TileImage } from './data';
+import { UserService } from '../../Services/User/user.service';
 
 const grass = require('../../Img/grass.png');
 const forest = require('../../Img/forest.png');
@@ -21,7 +22,7 @@ export class TileComponent {
     private pixelLeft: number;
     private currentData: TileData;
 
-    constructor() {
+    constructor(private user: UserService) {
         this.backgroundImage = this.getDefaultImage();
         this.objectImage = this.getDefaultImage();
         this.pixelTop = 0;
@@ -55,6 +56,9 @@ export class TileComponent {
             case TileImage.Knight: {
                 return knight;
             }
+            case TileImage.User: {
+                return user;
+            }
             default: {
                 return empty;
             }
@@ -65,14 +69,20 @@ export class TileComponent {
         return empty;
     }
 
-    private onclick(e): void {
-        //let tileRect = e.currentTarget.getBoundingClientRect();
-        //let clickedX = e.clientX - tileRect.left; //+right
-        //let clickedY = e.clientY - tileRect.top; //+bottom
-        //e.currentTarget.width // +height
+    private async onclick(e) {
+        let tileRectangle = e.currentTarget.getBoundingClientRect();
+        let clickedPixelX = e.clientX - tileRectangle.left;
+        let clickedPixelY = e.clientY - tileRectangle.top;
+        let clickedTileX = clickedPixelX * this.width / e.currentTarget.width + this.currentData.leftx;
+        let clickedTileY = clickedPixelY * this.height / e.currentTarget.height + this.currentData.upy;
+        await this.user.currentMoveTo({ x: clickedTileX, y: clickedTileY });
+    }
 
-        //alert(`${clickedX} ${clickedY} ${this.data.i}`);
+    private get width(): number {
+        return this.currentData.rightx - this.currentData.leftx;
+    }
 
-        alert('click');
+    private get height(): number {
+        return this.currentData.downy - this.currentData.upy;
     }
 }

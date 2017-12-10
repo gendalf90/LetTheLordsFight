@@ -1,5 +1,5 @@
 ﻿import { Injectable } from '@angular/core';
-import { UserData, ObjectData } from './data';
+import { UserData, ObjectData, LocationData } from './data';
 import { ConfigurationService } from '../Configuration/configuration.service';
 
 var axios = require('axios');
@@ -12,18 +12,22 @@ export class UserService {
 
     public getCurrentData(): UserData {
         return {
-            id: sessionStorage.getItem('id')
+            id: this.currentId
         };
     }
 
     public async getCurrentObject(): Promise<ObjectData> {
-        let id = sessionStorage.getItem('id');
-        return await this.getObjectById(id);
+        let configuration = this.configuration.getData();
+        let response = await axios.get(`${configuration.api}api/v1/map/objects/${this.currentId}`);
+        return response.data;
     }
 
-    private async getObjectById(id: string): Promise<ObjectData> {
+    public async currentMoveTo(location: LocationData) {
         let configuration = this.configuration.getData();
-        let response = await axios.get(`${configuration.api}api/v1/map/objects/${id}`);
-        return response.data;
+        await axios.patch(`${configuration.api}api/v1/map/objects/${this.currentId}`, { destination: location });
+    }
+
+    private get currentId(): string {
+        return sessionStorage.getItem('id');
     }
 }

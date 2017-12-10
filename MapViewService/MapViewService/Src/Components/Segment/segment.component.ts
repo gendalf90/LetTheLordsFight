@@ -1,6 +1,7 @@
 ﻿import { Input, Component } from '@angular/core';
 import { SegmentData, ObjectData, SegmentType } from './data';
 import { TileData, TileImage } from '../Tile/data';
+import { UserService } from '../../Services/User/user.service';
 
 @Component({
     selector: 'segment',
@@ -13,7 +14,7 @@ export class SegmentComponent {
     private currentData: SegmentData;
     private currentTiles: TileData[][];
 
-    constructor() {
+    constructor(private user: UserService) {
         this.tiles = [];
     }
 
@@ -99,7 +100,12 @@ export class SegmentComponent {
             return;
         }
 
-        objectTile.object = TileImage.Knight;
+        objectTile.object = this.getObjectImage(data);
+    }
+
+    private getObjectImage(data: ObjectData): TileImage {
+        let user = this.user.getCurrentData();
+        return user.id == data.id ? TileImage.User : TileImage.Knight;
     }
 
     private getCurrentTileDataByXY(x: number, y: number): TileData {
