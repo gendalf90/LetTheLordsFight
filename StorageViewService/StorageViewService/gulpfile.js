@@ -1,19 +1,21 @@
 ﻿/// <binding BeforeBuild='build' />
 'use strict';
 
-var gulp = require("gulp"),
-    del = require("del"),
-    concat = require("gulp-concat"),
-    uglify = require("gulp-uglify"),
-    browserify = require("browserify"),
-    babelify = require("babelify"),
+var gulp = require('gulp'),
+    del = require('del'),
+    concat = require('gulp-concat'),
+    uglify = require('gulp-uglify'),
+    browserify = require('browserify'),
+    babelify = require('babelify'),
     buffer = require('vinyl-buffer'),
-    source = require("vinyl-source-stream"),
-    server = require('gulp-json-srv');
+    source = require('vinyl-source-stream'),
+    server = require('gulp-json-srv'),
+    image = require('gulp-image');
 
 var config = {
     delPattern: '**/*',
     src: './Src/main.jsx',
+    images: './Src/Img/*',
     testOutputFile: 'main.js',
     prodOutputFile: 'main.min.js',
     outputDir: './wwwroot/dist/'
@@ -21,6 +23,12 @@ var config = {
 
 gulp.task('clean', function () {
     del.sync(config.outputDir + config.delPattern);
+});
+
+gulp.task('image', ['clean'], function () {
+    gulp.src(config.images)
+        .pipe(image())
+        .pipe(gulp.dest(config.outputDir));
 });
 
 gulp.task('test', ['clean'], function () {
@@ -46,7 +54,7 @@ gulp.task('production', ['clean'], function () {
         .pipe(gulp.dest(config.outputDir));
 });
 
-gulp.task('build', ['test', 'production']);
+gulp.task('build', ['test', 'production', 'image']);
 
 var testServer = server.create({
     port: 25000,

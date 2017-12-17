@@ -19,6 +19,7 @@
     "babelify": "8.0.0",
     "vinyl-source-stream": "1.1.0",
     "vinyl-buffer": "1.0.0",
-    "gulp-json-srv": "1.1.0"
+    "gulp-json-srv": "1.1.0",
+    "gulp-image": "^4.1.0"
   }
 }

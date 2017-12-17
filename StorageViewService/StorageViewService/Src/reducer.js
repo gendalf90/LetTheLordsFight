@@ -1,10 +1,5 @@
 ﻿var reducer = function (state = {}, action) {
     switch (action.type) {
-        case "SET_ITEMS":
-            return Object.assign({}, state, {
-                items: action.items,
-                storages: action.storages
-            });
         case "CONFIGURE":
             return Object.assign({}, state, {
                 id: action.id,
@@ -13,22 +8,29 @@
             });
         case "INITIALIZE":
             return Object.assign({}, state, {
-                itemDescriptions: action.itemDescriptions
+                resourceDesctiptions: action.descriptions
+            });
+        case "SET_RESOURCES":
+            return Object.assign({}, state, {
+                resources: action.resources
+            });
+        case "SET_SELECTED_RESOURCE":
+            return Object.assign({}, state, {
+                selectedResource: {
+                   name: action.resourceName
+                }
             });
         case "SET_STORAGE_ERROR":
             return Object.assign({}, state, {
                 storageError: action.error
             });
-        case "SET_ITEM_ERROR":
+        case "SET_INPUT_ERROR":
             return Object.assign({}, state, {
-                itemError: {
-                    name: action.name,
-                    error: action.error
-                }
+                inputError: action.error
             });
-        case "CLEAR_ITEM_ERROR":
+        case "SET_STORAGES":
             return Object.assign({}, state, {
-                itemError: null
+                storagesIds: action.ids
             });
         default:
             return Object.assign({}, state);
