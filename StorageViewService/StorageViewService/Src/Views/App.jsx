@@ -6,23 +6,42 @@ var ResourcesView = require("./Resources.jsx");
 var ResourceInputVew = require("./ResourceInput.jsx");
 var sendResource = require("../Actions/SendResource.js");
 var dropResource = require("../Actions/DropResource.js");
-var setSelectedResource = require("../Actions/SetSelectedResource.js");
-var clearSelectedResource = require("../Actions/ClearSelectedResource.js");
+var selectResource = require("../Actions/SelectResource.js");
+var unselectResource = require("../Actions/UnselectResource.js");
 
 class AppView extends React.Component {
     render() {
         return (
             <div>
-                <div className="container-fluid">
-                    <div className="row">
-                        <div className="col-2">
-                        </div>
-                        <div className="col-8">
-                            {this.renderStorageError()}
-                            {this.renderResources()}
-                        </div>
-                        <div className="col-2">
-                        </div>
+                {this.renderHead()}
+                {this.renderBody()}
+            </div>
+        );
+    }
+
+    renderHead() {
+        return (
+            <nav className="navbar sticky-top navbar-light bg-light justify-content-between">
+                <div className="navbar-brand">{this.props.myId}</div>
+                <div>
+                    {this.renderResourceInput()}
+                </div>
+            </nav>
+        );
+    }
+
+    renderBody() {
+        return (
+            <div className="container-fluid">
+                <div className="row">
+                    <div className="col-2">
+                    </div>
+                    <div className="col-8">
+                        {this.renderStorageError()}
+                        {this.renderInputError()}
+                        {this.renderResources()}
+                    </div>
+                    <div className="col-2">
                     </div>
                 </div>
             </div>
@@ -34,7 +53,7 @@ class AppView extends React.Component {
         let storages = this.props.storagesIds;
         let actions = this.props.actions;
 
-        if (resource && storagesIds && actions) {
+        if (resource) {
             return <ResourceInputVew resource={resource} storages={storages} actions={actions} />
         }
     }
@@ -56,17 +75,13 @@ class AppView extends React.Component {
     }
 
     renderResources() {
-        let resources = this.props.resources;
-        let actions = this.props.actions;
-
-        if (resources && actions) {
-            return <ResourcesView items={resources} actions={actions} />
-        }
+        return <ResourcesView items={this.props.resources} actions={this.props.actions} />
     }
 };
 
 function mapStateToProps(state) {
     return {
+        myId: state.id,
         resources: getResources(state),
         storageError: state.storageError,
         inputError: state.inputError,
@@ -97,7 +112,7 @@ function getResourceDescription(descriptions, resourceName) {
 
 function mapDispatchToProps(dispatch) {
     return {
-        actions: bindActionCreators({ sendResource, dropResource, setSelectedResource, clearSelectedResource }, dispatch)
+        actions: bindActionCreators({ sendResource, dropResource, selectResource, unselectResource }, dispatch)
     };
 }
 

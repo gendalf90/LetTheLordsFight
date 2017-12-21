@@ -1,6 +1,6 @@
 ﻿var validator = require('validator');
-var setStorageError = require('./SetStorageError.js');
 var reloadResources = require('./ReloadResources.js');
+var setInputError = require('./SetInputError.js');
 
 module.exports = function (name, count, storage) {
     return async function (dispatch, getState) {
@@ -14,7 +14,7 @@ module.exports = function (name, count, storage) {
             throwErrorIfNotOk(response);
             dispatch(reloadResources());
         } catch (error) {
-            handleError(dispatch, name, error);
+            handleError(dispatch, error);
         };
     }
 };
@@ -23,7 +23,7 @@ var validateCount = function (count) {
     if (!validator.isInt(count.toString(), { gt: 0 })) {
         throw {
             validation: true,
-            description: 'Count is incorrect'
+            description: 'count is incorrect'
         }
     }
 };
@@ -35,13 +35,16 @@ var throwErrorIfNotOk = function (response) {
 };
 
 var handleError = function (dispatch, error) {
-    var storageError = {};
+    var inputError = {};
 
     if (error.status === 403) {
-        storageError.type = 'NOT_AUTHORIZED';
+        inputError.type = 'NOT_AUTHORIZED';
     } else if (error.status === 404) {
-        storageError.type = 'NOT_FOUND';
+        inputError.type = 'NOT_FOUND';
+    } else if (error.status === 400 || error.validation) {
+        inputError.type = 'VALIDATION';
+        inputError.description = error.description;
     }
 
-    dispatch(setStorageError(storageError));
+    dispatch(setInputError(inputError));
 };

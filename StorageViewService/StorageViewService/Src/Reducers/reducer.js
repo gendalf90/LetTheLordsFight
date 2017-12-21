@@ -8,9 +8,7 @@ var reducer = function (currentState = state.create(), action) {
             });
         case "SET_SELECTED_RESOURCE":
             return Object.assign({}, currentState, {
-                selectedResource: {
-                   name: action.resourceName
-                }
+                selectedResource: action.resource
             });
         case "SET_STORAGE_ERROR":
             return Object.assign({}, currentState, {

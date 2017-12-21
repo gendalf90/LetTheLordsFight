@@ -4,17 +4,25 @@ class ResourceInputView extends React.Component {
     render() {
         return (
             <div className="input-group">
-                <div className="input-group-btn">
-                    <button type="button" className="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        SendTo
-                    </button>
-                    <div className="dropdown-menu dropdown-menu-right">
-                        {this.renderStorages()}
-                        <div role="separator" className="dropdown-divider" />
-                        {this.renderDrop()}
-                    </div>
+                <span className="input-group-addon">send</span>
+                {this.renderDestinationGroup()}
+                <input ref="resourceCountInput" className="form-control" placeholder="count" type="text" />
+                <span className="input-group-addon">{this.props.resource.description.name}</span>
+            </div>
+        );
+    }
+
+    renderDestinationGroup() {
+        return (
+            <div className="input-group-btn">
+                <button type="button" className="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    to
+                </button>
+                <div className="dropdown-menu dropdown-menu-right">
+                    {this.renderStorages()}
+                    {this.renderSeparatorIfNeeded()}
+                    {this.renderDrop()}
                 </div>
-                <input ref="resourceCountInput" className="form-control" placeholder="Count" type="text" />
             </div>
         );
     }
@@ -25,6 +33,12 @@ class ResourceInputView extends React.Component {
 
     renderStorage(storageId, sendAction) {
         return <button className="dropdown-item" type="button" onClick={() => sendAction(storageId)}>{storageId}</button>
+    }
+
+    renderSeparatorIfNeeded() {
+        if (this.props.storages.length > 0) {
+            return <div role="separator" className="dropdown-divider" />
+        }
     }
 
     renderDrop() {

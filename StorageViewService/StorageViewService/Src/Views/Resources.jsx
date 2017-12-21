@@ -25,21 +25,20 @@ class ResourcesView extends React.Component {
 
     renderItemTabButton(item) {
         return (
-            <button data-toggle="collapse" onClick={this.onExpand.bind(this)} resource-name={item.name} aria-expanded="false" data-target={'#' + 'body' + item.name} aria-controls={'body' + item.name} type="button" className="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                <span className="font-weight-bold">{item.name}</span>
+            <button data-toggle="collapse" onClick={this.onExpand.bind(this, item)} aria-expanded="false" data-target={'#' + 'body' + item.name} aria-controls={'body' + item.name} type="button" className="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <span className="font-weight-bold">{item.description.name}</span>
                 <span className="badge badge-secondary">{item.count}</span>
             </button>
         );
     }
 
-    onExpand(e) {
+    onExpand(item, e) {
         let isExpanded = e.target.getAttribute('aria-expanded') === 'true';
-        let selectedResourceName = e.target.getAttribute('resource-name');
 
         if (isExpanded) {
-            this.props.actions.setSelectedResource(selectedResourceName);
+            this.props.actions.selectResource(item);
         } else {
-            this.props.actions.clearSelectedResource();
+            this.props.actions.unselectResource();
         }
     }
 
