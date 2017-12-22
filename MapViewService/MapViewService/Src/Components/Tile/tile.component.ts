@@ -16,30 +16,60 @@ const knight = require('../../Img/knight-red.png');
 export class TileComponent {
 
     private pixelSize: number = 32;
-    private backgroundImage: string;
-    private objectImage: string;
-    private pixelTop: number;
-    private pixelLeft: number;
     private currentData: TileData;
+    private styles: any;
 
     constructor(private user: UserService) {
-        this.backgroundImage = this.getDefaultImage();
-        this.objectImage = this.getDefaultImage();
-        this.pixelTop = 0;
-        this.pixelLeft = 0;
+        this.styles = this.defaultStyles;
+        console.log("ini");
+    }
+
+    private get defaultStyles() {
+        return {
+            backgroundImage: `url(${this.defaultImage})`,
+            top: '0px',
+            left: '0px',
+            width: `${this.pixelSize}px`,
+            height: `${this.pixelSize}px`
+        };
     }
 
     @Input()
     set data(value: TileData) {
-        this.currentData = value;
-        this.applyData();
+        this.initialize(value);
+        this.setImages();
+        this.setPosition();
+        this.setBorders();
     }
 
-    private applyData() {
-        this.backgroundImage = this.getImageByType(this.currentData.background);
-        this.objectImage = this.getImageByType(this.currentData.object);
-        this.pixelTop = this.currentData.i * this.pixelSize;
-        this.pixelLeft = this.currentData.j * this.pixelSize;
+    private initialize(value: TileData) {
+        this.currentData = value;
+    }
+
+    private setImages() {
+        let background = this.getImageByType(this.currentData.background);
+        let object = this.getImageByType(this.currentData.object);
+        this.styles.backgroundImage = `url(${object}), url(${background})`;
+    }
+
+    private setPosition() {
+        let top = this.currentData.i * this.pixelSize;
+        let left = this.currentData.j * this.pixelSize;
+        this.styles.left = `${left}px`;
+        this.styles.top = `${top}px`;
+    }
+
+    private setBorders() {
+        this.styles['border-left'] = this.getBorderIfExist(this.currentData.borderLeft);
+        this.styles['border-right'] = this.getBorderIfExist(this.currentData.borderRight);
+        this.styles['border-top'] = this.getBorderIfExist(this.currentData.borderUp);
+        this.styles['border-bottom'] = this.getBorderIfExist(this.currentData.borderDown);
+    }
+
+    private getBorderIfExist(exist: boolean): string {
+        if (exist) {
+            return 'solid 1px';
+        }
     }
 
     private getImageByType(type: TileImage): string {
@@ -65,7 +95,7 @@ export class TileComponent {
         }
     }
 
-    private getDefaultImage(): string {
+    private get defaultImage(): string {
         return empty;
     }
 

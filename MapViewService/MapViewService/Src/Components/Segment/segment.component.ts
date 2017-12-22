@@ -40,7 +40,8 @@ export class SegmentComponent {
         let locationIJ = this.createTileIJ(i, j);
         let locationXY = this.createTileXY(i, j);
         let images = this.createTileImages();
-        return Object.assign({}, locationIJ, locationXY, images);
+        let borders = this.createTileBorders(i, j);
+        return Object.assign({}, locationIJ, locationXY, images, borders);
     }
 
     private createTileIJ(i: number, j: number) {
@@ -63,6 +64,15 @@ export class SegmentComponent {
         return {
             background: this.getBackgroundImage(),
             object: TileImage.Empty
+        };
+    }
+
+    private createTileBorders(i: number, j: number) {
+        return {
+            borderLeft: j == 0,
+            borderRight: j == this.tilesSize - 1,
+            borderUp: i == 0,
+            borderDown: i == this.tilesSize - 1
         };
     }
 
@@ -128,6 +138,6 @@ export class SegmentComponent {
     }
 
     private createTiles() {
-        this.tiles = this.currentTiles.reduce((sumArr, currentArr) => sumArr.concat(currentArr), []);
+        this.tiles = this.currentTiles.reduce((result, current) => result.concat(current), []);
     }
 }

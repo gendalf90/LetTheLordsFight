@@ -1,6 +1,2 @@
-﻿<img [src]="objectImage"
-     [style.top]="pixelTop + 'px'"
-     [style.left]="pixelLeft + 'px'"
-     [style.backgroundImage]="'url(' + backgroundImage + ')'"
-     (click)="onclick($event)" />
+﻿<img [ngStyle]="styles" (click)="onclick($event)" />
 

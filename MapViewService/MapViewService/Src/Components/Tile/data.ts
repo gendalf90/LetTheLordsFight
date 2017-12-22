@@ -7,6 +7,10 @@ export class TileData {
     rightx: number;
     upy: number;
     downy: number;
+    borderLeft: boolean;
+    borderRight: boolean;
+    borderUp: boolean;
+    borderDown: boolean;
     background: TileImage;
     object: TileImage;
 }
