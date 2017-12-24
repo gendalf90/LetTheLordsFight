@@ -21,7 +21,6 @@ export class TileComponent {
 
     constructor(private user: UserService) {
         this.styles = this.defaultStyles;
-        console.log("ini");
     }
 
     private get defaultStyles() {
