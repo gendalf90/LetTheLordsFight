@@ -1,31 +1,30 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Microsoft.Extensions.Options;
 using UsersService.Options;
 using MySql.Data.MySqlClient;
 using Dapper;
 
-namespace UsersService.Queries
+namespace UsersService.Queries.GetUserByLogin
 {
-    class GetByLoginQuery : IQuery
+    class Query : IQuery<User>
     {
         private readonly string login;
         private readonly IOptions<SqlOptions> sqlOptions;
 
         private IEnumerable<Roles> roles;
 
-        public GetByLoginQuery(IOptions<SqlOptions> sqlOptions, string login)
+        public Query(IOptions<SqlOptions> sqlOptions, string login)
         {
             this.login = login;
             this.sqlOptions = sqlOptions;
         }
 
-        public async Task<string> AskAsync()
+        public async Task<User> AskAsync()
         {
             await LoadRolesAsync();
-            return CreateJsonResult();
+            return CreateResult();
         }
 
         private async Task LoadRolesAsync()
@@ -41,14 +40,13 @@ namespace UsersService.Queries
             }
         }
 
-        private string CreateJsonResult()
+        private User CreateResult()
         {
-            var result = new
+            return new User
             {
                 Login = login,
-                Roles = roles.Select(role => role.Role)
+                Roles = roles.Select(role => role.Role).ToArray()
             };
-            return JsonConvert.SerializeObject(result);
         }
     }
 }

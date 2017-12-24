@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace UsersService.Queries
 {
-    public interface IQuery
+    public interface IQuery<T>
     {
-        Task<string> AskAsync();
+        Task<T> AskAsync();
     }
 }

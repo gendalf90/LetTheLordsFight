@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using UsersService.Commands;
 using UsersService.Queries;
 using UsersDomain.Exceptions;
+using IQueryFactory = UsersService.Queries.IFactory;
 
 namespace UsersService.Controllers
 {
@@ -30,7 +31,7 @@ namespace UsersService.Controllers
         [HttpGet("current/token")]
         public async Task<IActionResult> GetTokenAsync()
         {
-            var query = queries.CreateTokenQuery();
+            var query = queries.CreateGetTokenQuery();
             var result = await query.AskAsync();
             return Ok(result);
         }
@@ -39,18 +40,18 @@ namespace UsersService.Controllers
         [HttpGet("current")]
         public async Task<IActionResult> GetCurrentAsync()
         {
-            var query = queries.CreateCurrentQuery();
+            var query = queries.CreateGetCurrentUserQuery();
             var result = await query.AskAsync();
-            return Ok(result);
+            return Json(result);
         }
 
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "System")]
         [HttpGet("{login}")]
         public async Task<IActionResult> GetByLoginAsync(string login)
         {
-            var query = queries.CreateLoginQuery(login);
+            var query = queries.CreateGetUserByLoginQuery(login);
             var result = await query.AskAsync();
-            return Ok(result);
+            return Json(result);
         }
 
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "System")]

@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -10,14 +8,14 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using UsersService.Options;
 
-namespace UsersService.Queries
+namespace UsersService.Queries.GetCurrentToken
 {
-    public class GetTokenQuery : IQuery
+    public class Query : IQuery<string>
     {
         private readonly IHttpContextAccessor context;
         private readonly IOptions<JwtOptions> options;
 
-        public GetTokenQuery(IOptions<JwtOptions> options, IHttpContextAccessor context)
+        public Query(IOptions<JwtOptions> options, IHttpContextAccessor context)
         {
             this.options = options;
             this.context = context;
@@ -26,9 +24,7 @@ namespace UsersService.Queries
         public Task<string> AskAsync()
         {
             var token = CreateToken();
-            var result = new { Token = token };
-            var json = JsonConvert.SerializeObject(result);
-            return Task.FromResult(json);
+            return Task.FromResult(token);
         }
 
         private string CreateToken()
