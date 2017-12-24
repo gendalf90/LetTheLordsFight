@@ -29,11 +29,9 @@ namespace StorageService.Services
 
         private async Task<string> CreateTokenAsync()
         {
-            var response = await new Url(baseUrl).AppendPathSegment("api/v1/users/current/token")
-                                                 .WithBasicAuth(serviceLogin, servicePassword)
-                                                 .GetJsonAsync<TokenDto>();
-
-            return response.Token;
+            return await new Url(baseUrl).AppendPathSegment("api/v1/users/current/token")
+                                         .WithBasicAuth(serviceLogin, servicePassword)
+                                         .GetStringAsync();
         }
     }
 }
