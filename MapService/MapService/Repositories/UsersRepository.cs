@@ -1,13 +1,5 @@
 ﻿using MapDomain.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MapDomain.Entities;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using System.Security.Claims;
-using Newtonsoft.Json.Linq;
 using MapDomain.ValueObjects;
 
 namespace MapService.Repositories

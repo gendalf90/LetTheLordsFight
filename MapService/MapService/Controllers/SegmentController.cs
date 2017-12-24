@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 using MapService.Queries;
 using MapDomain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -28,7 +24,7 @@ namespace MapService.Controllers
 
             try
             {
-                return Ok(await query.GetJsonAsync());
+                return Json(await query.GetJsonAsync());
             }
             catch(NotFoundException)
             {
@@ -43,7 +39,7 @@ namespace MapService.Controllers
 
             try
             {
-                return Ok(await query.GetJsonAsync());
+                return Json(await query.GetJsonAsync());
             }
             catch (NotFoundException)
             {
@@ -58,7 +54,7 @@ namespace MapService.Controllers
 
             try
             {
-                return Ok(await query.GetJsonAsync());
+                return Json(await query.GetJsonAsync());
             }
             catch (NotFoundException)
             {

@@ -1,14 +1,11 @@
-﻿using MapDomain.Repositories;
-using MapDomain.ValueObjects;
+﻿using MapDomain.ValueObjects;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Threading.Tasks;
 using System.Linq;
 using MapDomain.Factories;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Collections.Generic;
-using MapDomain.Exceptions;
 
 namespace MapService.Queries
 {
@@ -31,7 +28,7 @@ namespace MapService.Queries
             this.j = j;
         }
 
-        public async Task<string> GetJsonAsync()
+        public async Task<JObject> GetJsonAsync()
         {
             CreateMap();
             CreateSquare();
@@ -48,20 +45,18 @@ namespace MapService.Queries
             square = new Square5(map, i, j);
         }
 
-        private async Task<string> CreateResultAsync()
+        private async Task<JObject> CreateResultAsync()
         {
             var segments = LoadSegments();
             var objects = await LoadObjectsAsync();
             var segmentsData = segments.Select(CreateSegmentData);
             var objectsData = objects.Select(CreateObjectData);
 
-            var result = new JObject
+            return new JObject
             {
                 ["segments"] = JArray.FromObject(segmentsData),
                 ["objects"] = JArray.FromObject(objectsData)
             };
-
-            return result.ToString();
         }
 
         private IEnumerable<Segment> LoadSegments()

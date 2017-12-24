@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MapService.Common;
@@ -53,7 +51,7 @@ namespace MapService.Controllers
 
             try
             {
-                return Ok(await query.GetJsonAsync());
+                return Json(await query.GetJsonAsync());
             }
             catch(NoPermissionException)
             {

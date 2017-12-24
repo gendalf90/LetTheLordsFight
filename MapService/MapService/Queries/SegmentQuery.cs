@@ -1,5 +1,4 @@
-﻿using MapDomain.Repositories;
-using MapDomain.ValueObjects;
+﻿using MapDomain.ValueObjects;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Threading.Tasks;
@@ -46,7 +45,7 @@ namespace MapService.Queries
             };
         }
 
-        public async Task<string> GetJsonAsync()
+        public async Task<JObject> GetJsonAsync()
         {
             LoadSegment();
             CreateSegmentData();
@@ -105,14 +104,13 @@ namespace MapService.Queries
             objectsData = JArray.FromObject(convertedFromBsonObjects);
         }
 
-        private string GetResult()
+        private JObject GetResult()
         {
-            var result = new JObject
+            return new JObject
             {
                 { "segment", segmentData },
                 { "objects", objectsData }
             };
-            return result.ToString();
         }
     }
 }

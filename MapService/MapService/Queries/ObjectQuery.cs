@@ -3,11 +3,7 @@ using MapDomain.Services;
 using MapDomain.ValueObjects;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace MapService.Queries
@@ -32,7 +28,7 @@ namespace MapService.Queries
             this.id = id;
         }
 
-        public async Task<string> GetJsonAsync()
+        public async Task<JObject> GetJsonAsync()
         {
             Validate();
             await LoadObjectDataAsync();
@@ -89,9 +85,9 @@ namespace MapService.Queries
             };
         }
 
-        private string GetResult()
+        private JObject GetResult()
         {
-            return objectJson.ToString();
+            return objectJson;
         }
     }
 }

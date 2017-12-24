@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 
 namespace MapService.Queries
 {
     public interface IQuery
     {
-        Task<string> GetJsonAsync();
+        Task<JObject> GetJsonAsync();
     }
 }

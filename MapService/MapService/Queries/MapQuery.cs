@@ -1,10 +1,6 @@
-﻿using MapDomain.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using System.Threading.Tasks;
 using MapDomain.Factories;
+using Newtonsoft.Json.Linq;
 
 namespace MapService.Queries
 {
@@ -17,11 +13,11 @@ namespace MapService.Queries
             this.factory = factory;
         }
 
-        public Task<string> GetJsonAsync()
+        public Task<JObject> GetJsonAsync()
         {
             var map = factory.GetMap();
             var result = new { Segments = new { Width = map.SegmentsWidth, Height = map.SegmentsHeight } };
-            var json = JsonConvert.SerializeObject(result);
+            var json = JObject.FromObject(result);
             return Task.FromResult(json);
         }
     }
