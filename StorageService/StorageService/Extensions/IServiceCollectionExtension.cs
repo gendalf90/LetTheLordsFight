@@ -10,11 +10,12 @@ using StorageDomain.Services;
 using StorageService.Commands;
 using StorageService.Events;
 using StorageService.Options;
-using StorageService.Queries;
 using StorageService.Services;
 using StorageService.Storages;
 using System;
 using System.Text;
+using IQueryFactory = StorageService.Queries.IFactory;
+using QueryFactory = StorageService.Queries.Factory;
 
 namespace StorageService.Extensions
 {

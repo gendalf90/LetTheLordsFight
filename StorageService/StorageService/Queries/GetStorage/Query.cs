@@ -1,34 +1,30 @@
-﻿using Newtonsoft.Json;
-using StorageDomain.Entities;
-using StorageDomain.Services;
+﻿using StorageDomain.Services;
 using StorageService.Storages;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using StorageEntity = StorageDomain.Entities.Storage;
 
-namespace StorageService.Queries
+namespace StorageService.Queries.GetStorage
 {
-    public class StorageQuery : IQuery
+    public class Query : IQuery<Storage>
     {
         private readonly IStorageStore storageStore;
         private readonly IUserValidationService userValidationService;
         private readonly string storageId;
 
-        private Storage restoredStorage;
+        private StorageEntity restoredStorage;
 
-        public StorageQuery(IStorageStore storageStore, IUserValidationService userValidationService, string storageId)
+        public Query(IStorageStore storageStore, IUserValidationService userValidationService, string storageId)
         {
             this.storageStore = storageStore;
             this.userValidationService = userValidationService;
             this.storageId = storageId;
         }
 
-        public async Task<string> AskAsync()
+        public async Task<Storage> AskAsync()
         {
             ValidateQuery();
             await RestoreStorage();
-            return GetJson();
+            return CreateResult();
         }
 
         private void ValidateQuery()
@@ -41,11 +37,10 @@ namespace StorageService.Queries
             restoredStorage = await storageStore.RestoreStorageToLastEventAsync(storageId);
         }
 
-        private string GetJson()
+        private Storage CreateResult()
         {
             var data = restoredStorage.GetRepositoryData();
-            var dto = new { Id = data.Id, Items = data.Items.Select(item => new { Name = item.Name, Count = item.Quantity }) };
-            return JsonConvert.SerializeObject(dto);
+            return data.ToDto();
         }
     }
 }

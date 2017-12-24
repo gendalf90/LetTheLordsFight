@@ -11,6 +11,7 @@ using StorageService.Queries;
 using Microsoft.AspNetCore.Authorization;
 using StorageService.Extensions;
 using StorageDomain.Exceptions;
+using IQueryFactory = StorageService.Queries.IFactory;
 
 namespace StorageService.Controllers
 {
@@ -47,11 +48,11 @@ namespace StorageService.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetStorageAsync(string id)
         {
-            var query = queryFactory.CreateStorageQuery(id);
+            var query = queryFactory.CreateGetStorageQuery(id);
 
             try
             {
-                return Ok(await query.AskAsync());
+                return Json(await query.AskAsync());
             }
             catch (NotAuthorizedException)
             {
