@@ -74,6 +74,6 @@ server.patch('/api/v1/map/objects/:id', (req, res) => {
     res.sendStatus(200);
 });
 
-server.listen(25000, () => {
+server.listen(25100, () => {
     console.log('Server is running')
 });

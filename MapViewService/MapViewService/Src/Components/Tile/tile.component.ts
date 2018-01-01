@@ -5,8 +5,8 @@ import { UserService } from '../../Services/User/user.service';
 const grass = require('../../Img/grass.png');
 const forest = require('../../Img/forest.png');
 const empty = require('../../Img/empty.png');
-const user = require('../../Img/knight-black.png');
-const knight = require('../../Img/knight-red.png');
+const user = require('../../Img/knight-red.png');
+const knight = require('../../Img/knight-black.png');
 
 @Component({
     selector: 'tile',
@@ -98,13 +98,13 @@ export class TileComponent {
         return empty;
     }
 
-    private async onclick(e) {
+    private onclick(e) {
         let tileRectangle = e.currentTarget.getBoundingClientRect();
         let clickedPixelX = e.clientX - tileRectangle.left;
         let clickedPixelY = e.clientY - tileRectangle.top;
         let clickedTileX = clickedPixelX * this.width / e.currentTarget.width + this.currentData.leftx;
         let clickedTileY = clickedPixelY * this.height / e.currentTarget.height + this.currentData.upy;
-        await this.user.currentMoveTo({ x: clickedTileX, y: clickedTileY });
+        this.user.currentMoveTo({ x: clickedTileX, y: clickedTileY });
     }
 
     private get width(): number {

@@ -1,5 +1,6 @@
 ﻿import { Component } from '@angular/core';
 import { SegmentData, SegmentType } from '../Segment/data';
+import { UserService } from '../../Services/User/user.service';
 
 @Component({
     selector: 'app',
@@ -7,6 +8,11 @@ import { SegmentData, SegmentType } from '../Segment/data';
 })
 export class AppComponent {
 
-    constructor() {
+    constructor(private user: UserService) {
+    }
+
+    private get currentUserId(): string {
+        let currentUserData = this.user.getCurrentData();
+        return currentUserData.id;
     }
 }
