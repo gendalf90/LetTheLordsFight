@@ -87,7 +87,7 @@ namespace Tests.Unit
             var password = new Password(TestPassword);
             var user = new User(login, password);
 
-            var checkingResult = user.IsCredentialsValid(login, password);
+            var checkingResult = user.ThisIsMyCredentials(login, password);
 
             Assert.True(checkingResult);
         }

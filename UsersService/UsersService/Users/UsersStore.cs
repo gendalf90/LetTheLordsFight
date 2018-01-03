@@ -1,14 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using MySql.Data.MySqlClient;
 using System.Threading.Tasks;
 using UsersDomain.Entities;
+using UsersDomain.Exceptions;
 
 namespace UsersService.Users
 {
     class UsersStore : IUsersStore
     {
+        private const int MySqlDublicateEntryErrorNumber = 1062;
+
         private readonly UsersContext context;
 
         public UsersStore(UsersContext context)
@@ -16,23 +17,45 @@ namespace UsersService.Users
             this.context = context;
         }
 
-        public async Task SaveAsync(User user)
+        public async Task AddAsync(User user)
         {
-            var data = await GetOrCreateByLoginAsync(user.Login);
+            var userData = CreateUserDataFrom(user);
+            await TrySaveUserDataAsync(userData);
+        }
+
+        private UserData CreateUserDataFrom(User user)
+        {
+            var data = new UserData();
             user.FillRepositoryData(data);
+            return data;
+        }
+
+        private async Task TrySaveUserDataAsync(UserData data)
+        {
+            try
+            {
+                await SaveUserDataAsync(data);
+            }
+            catch (DbUpdateException e)
+            {
+                ThrowIfThisExceptionIsDublicateEntryError(e);
+            }
+        }
+
+        private async Task SaveUserDataAsync(UserData data)
+        {
+            context.Users.Add(data);
             await context.SaveChangesAsync();
         }
 
-        private async Task<UserData> GetOrCreateByLoginAsync(string login)
+        private void ThrowIfThisExceptionIsDublicateEntryError(DbUpdateException exception)
         {
-            var current = await context.Users.SingleOrDefaultAsync(record => record.Login == login) ?? new UserData();
+            var inner = exception.InnerException as MySqlException;
 
-            if(current.Id == 0)
+            if (inner?.Number == MySqlDublicateEntryErrorNumber)
             {
-                context.Users.Add(current);
+                throw new UserAlreadyExistException($"login already exist");
             }
-
-            return current;
         }
 
         public async Task<User> GetAsync(string login)

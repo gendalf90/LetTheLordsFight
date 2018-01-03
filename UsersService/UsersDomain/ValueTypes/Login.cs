@@ -11,7 +11,7 @@ namespace UsersDomain.ValueTypes
     {
         private const int MaxLength = 256;
 
-        private readonly Regex pattern = new Regex(@"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex pattern = new Regex(@"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private readonly string address;
 
@@ -25,7 +25,7 @@ namespace UsersDomain.ValueTypes
         {
             if (IsNullOrEmpty || IsTooLong || IsNotMatchThePattern)
             {
-                throw new LoginInvalidException();
+                throw new LoginException("Bad login");
             }
         }
 

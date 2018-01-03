@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using UsersDomain.Entities;
+using UsersDomain.Exceptions;
 using UsersDomain.ValueTypes;
 using UsersService.Common;
 using UsersService.Users;
@@ -59,13 +57,13 @@ namespace UsersService.Commands
         {
             if (user == null)
             {
-                throw new ArgumentException();
+                throw new UserTypeException("type must be user or system");
             }
         }
 
         private async Task AddNewUserToStoreAsync()
         {
-            await store.SaveAsync(user);
+            await store.AddAsync(user);
         }
     }
 }

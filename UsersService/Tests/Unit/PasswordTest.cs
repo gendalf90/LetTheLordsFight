@@ -16,7 +16,7 @@ namespace Tests.Unit
         [InlineData("ass!76y")]
         public void Create_LessThanEightSymbolsOrEmpty_ThrowException(string value)
         {
-            Assert.Throws<PasswordInvalidException>(() => new Password(value));
+            Assert.Throws<PasswordException>(() => new Password(value));
         }
 
         [Theory]
@@ -24,7 +24,7 @@ namespace Tests.Unit
         [InlineData("asdf1234asdf78+=")]
         public void Create_MoreThanFifteenSymbols_ThrowException(string value)
         {
-            Assert.Throws<PasswordInvalidException>(() => new Password(value));
+            Assert.Throws<PasswordException>(() => new Password(value));
         }
 
         [Theory]
@@ -32,7 +32,7 @@ namespace Tests.Unit
         [InlineData("!_urul,_l")]
         public void Create_NoDigits_ThrowException(string value)
         {
-            Assert.Throws<PasswordInvalidException>(() => new Password(value));
+            Assert.Throws<PasswordException>(() => new Password(value));
         }
 
         [Theory]
@@ -40,7 +40,7 @@ namespace Tests.Unit
         [InlineData("5465^5432")]
         public void Create_NoLetters_ThrowException(string value)
         {
-            Assert.Throws<PasswordInvalidException>(() => new Password(value));
+            Assert.Throws<PasswordException>(() => new Password(value));
         }
 
         [Theory]
@@ -48,7 +48,7 @@ namespace Tests.Unit
         [InlineData("90as90df")]
         public void Create_NoSpecialSymbols_ThrowException(string value)
         {
-            Assert.Throws<PasswordInvalidException>(() => new Password(value));
+            Assert.Throws<PasswordException>(() => new Password(value));
         }
 
         [Fact]
@@ -56,7 +56,7 @@ namespace Tests.Unit
         {
             var withColonPassword = "(90asdf:90qwer)";
 
-            Assert.Throws<PasswordInvalidException>(() => new Password(withColonPassword));
+            Assert.Throws<PasswordException>(() => new Password(withColonPassword));
         }
 
         [Theory]

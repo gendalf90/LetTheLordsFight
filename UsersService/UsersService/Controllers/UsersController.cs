@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using System.IdentityModel.Tokens.Jwt;
 using UsersService.Common;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
 using UsersService.Commands;
-using UsersService.Queries;
 using UsersDomain.Exceptions;
 using IQueryFactory = UsersService.Queries.IFactory;
 
@@ -54,7 +47,6 @@ namespace UsersService.Controllers
             return Json(result);
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer", Roles = "System")]
         [HttpPost]
         public async Task<IActionResult> CreateUserAsync([FromBody] CreateUserData data)
         {
@@ -69,15 +61,28 @@ namespace UsersService.Controllers
             {
                 await command.ExecuteAsync();
             }
-            catch(LoginInvalidException)
+            catch(LoginException e)
             {
-                return BadRequest(new { Login = new[] { "Validation error" } });
+                ModelState.AddModelError("login", e.Message);
             }
-            catch(PasswordInvalidException)
+            catch(PasswordException e)
             {
-                return BadRequest(new { Password = new[] { "Validation error" } });
+                ModelState.AddModelError("password", e.Message);
             }
-                
+            catch(UserAlreadyExistException e)
+            {
+                ModelState.AddModelError("login", e.Message);
+            }
+            catch(UserTypeException e)
+            {
+                ModelState.AddModelError("type", e.Message);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             return Ok();
         }
     }

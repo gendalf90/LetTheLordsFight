@@ -31,7 +31,7 @@ namespace Tests.Unit
         [InlineData("asdfasdfasdfassdfasdfsdfadfasdfasdfasdfasdfasdfasdfasddasdfasdfasdfasdfddddasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfsadfasdfasdfasdfasdfasdfasdfsadfasdfasdfasdfasdfafdadfasdfasdfafasdfasdfasdfas@aasdfadfasdfasdfaasdfasdfasdfaasdfsddsfsdfsa.ru")]
         public void Create_IsInvalid_ShouldThrowException(string login)
         {
-            Assert.Throws<LoginInvalidException>(() => new Login(login));
+            Assert.Throws<LoginException>(() => new Login(login));
         }
 
         [Theory]

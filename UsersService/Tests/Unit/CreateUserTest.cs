@@ -24,7 +24,7 @@ namespace Tests.Unit
             var addedToStoreUsers = new List<User>();
             var allUserTypes = (UserType[])Enum.GetValues(typeof(UserType));
             var store = new Mock<IUsersStore>();
-            store.Setup(s => s.SaveAsync(It.IsAny<User>()))
+            store.Setup(s => s.AddAsync(It.IsAny<User>()))
                  .Callback<User>(addedToStoreUsers.Add)
                  .Returns(Task.CompletedTask);
 

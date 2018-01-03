@@ -23,7 +23,7 @@ namespace UsersDomain.ValueTypes
         {
             if (IsEmpty || LengthIsNotInRange || HasNoDigits || HasNoLetters || HasNoSpecial || HasColon)
             {
-                throw new PasswordInvalidException();
+                throw new PasswordException("Bad password");
             }
         }
 

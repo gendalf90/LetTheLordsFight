@@ -8,7 +8,7 @@ namespace UsersService.Users
 {
     public interface IUsersStore
     {
-        Task SaveAsync(User user);
+        Task AddAsync(User user);
 
         Task<User> GetAsync(string login);
     }

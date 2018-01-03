@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UsersDomain.Common;
-using UsersDomain.Exceptions;
 using UsersDomain.ValueTypes;
 
 namespace UsersDomain.Entities
@@ -36,7 +34,7 @@ namespace UsersDomain.Entities
             }
         }
 
-        public bool IsCredentialsValid(Login login, Password password)
+        public bool ThisIsMyCredentials(Login login, Password password)
         {
             return this.login == login.ToString() && this.password == password.ToString();
         }
