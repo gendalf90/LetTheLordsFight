@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using UsersDomain.Entities;
-using UsersDomain.Exceptions;
 using UsersDomain.ValueTypes;
 using UsersService.Common;
 using UsersService.Users;
@@ -25,9 +24,7 @@ namespace UsersService.Commands
         public async Task ExecuteAsync()
         {
             CreateCredentials();
-            CreateUserTypeIfNeeded();
-            CreateSystemTypeIfNeeded();
-            ErrorIfUserNotCreated();
+            CreateUser();
             await AddNewUserToStoreAsync();
         }
 
@@ -37,28 +34,9 @@ namespace UsersService.Commands
             password = new Password(data.Password);
         }
 
-        private void CreateUserTypeIfNeeded()
+        private void CreateUser()
         {
-            if(data.Type == UserType.User)
-            {
-                user = User.CreateUser(login, password);
-            }
-        }
-
-        private void CreateSystemTypeIfNeeded()
-        {
-            if(data.Type == UserType.System)
-            {
-                user = User.CreateSystem(login, password);
-            }
-        }
-
-        private void ErrorIfUserNotCreated()
-        {
-            if (user == null)
-            {
-                throw new UserTypeException("type must be user or system");
-            }
+            user = User.CreateUser(login, password);
         }
 
         private async Task AddNewUserToStoreAsync()

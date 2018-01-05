@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using UsersDomain.Common;
 using UsersDomain.Entities;
 using UsersService.Commands;
 using UsersService.Common;
@@ -19,24 +18,19 @@ namespace Tests.Unit
         private const string TestPassword = "1q2w3e4r!";
 
         [Fact]
-        public async Task CreateFromCommand_ValidCreateData_UserOfEachTypeAddedToStore()
+        public async Task CreateFromCommand_ValidCreateData_UserHasBeenAddedToStore()
         {
             var addedToStoreUsers = new List<User>();
-            var allUserTypes = (UserType[])Enum.GetValues(typeof(UserType));
             var store = new Mock<IUsersStore>();
             store.Setup(s => s.AddAsync(It.IsAny<User>()))
                  .Callback<User>(addedToStoreUsers.Add)
                  .Returns(Task.CompletedTask);
+            var data = new CreateUserData { Login = TestLogin, Password = TestPassword };
+            var command = new CreateUserCommand(store.Object, data);
 
-            foreach(var userType in allUserTypes)
-            {
-                var data = new CreateUserData { Login = TestLogin, Password = TestPassword, Type = userType };
-                var command = new CreateUserCommand(store.Object, data);
-                await command.ExecuteAsync();
-            }
+            await command.ExecuteAsync();
 
-            Assert.Equal(addedToStoreUsers.Count, allUserTypes.Length);
-            Assert.DoesNotContain(addedToStoreUsers, user => user.Login != TestLogin);
+            Assert.Contains(addedToStoreUsers, user => user.Login == TestLogin);
         }
     }
 }

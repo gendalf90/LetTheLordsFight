@@ -73,10 +73,6 @@ namespace UsersService.Controllers
             {
                 ModelState.AddModelError("login", e.Message);
             }
-            catch(UserTypeException e)
-            {
-                ModelState.AddModelError("type", e.Message);
-            }
 
             if (!ModelState.IsValid)
             {
