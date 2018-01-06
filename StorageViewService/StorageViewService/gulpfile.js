@@ -10,7 +10,8 @@ var gulp = require('gulp'),
     buffer = require('vinyl-buffer'),
     source = require('vinyl-source-stream'),
     server = require('gulp-json-srv'),
-    image = require('gulp-image');
+    image = require('gulp-image'),
+    runSequence = require('run-sequence');
 
 var config = {
     delPattern: '**/*',
@@ -25,7 +26,7 @@ gulp.task('clean', function () {
     del.sync(config.outputDir + config.delPattern);
 });
 
-gulp.task('image', ['clean'], function () {
+gulp.task('image', function () {
     gulp.src(config.images)
         .pipe(image())
         .pipe(gulp.dest(config.outputDir));
@@ -35,7 +36,7 @@ gulp.task('set-dev-env', function () {
     return process.env.NODE_ENV = 'development';
 });
 
-gulp.task('development', ['clean', 'set-dev-env'], function () {
+gulp.task('development', ['set-dev-env'], function () {
     return browserify(config.src)
         .transform(babelify.configure({
             presets: ['react', 'env'],
@@ -46,7 +47,7 @@ gulp.task('development', ['clean', 'set-dev-env'], function () {
         .pipe(gulp.dest(config.outputDir));
 });
 
-gulp.task('set-prod-env', ['development'], function () {
+gulp.task('set-prod-env', function () {
     return process.env.NODE_ENV = 'production';
 });
 
@@ -65,7 +66,14 @@ gulp.task('production', ['set-prod-env'], function () {
         .pipe(gulp.dest(config.outputDir));
 });
 
-gulp.task('build', ['production', 'image']);
+gulp.task('build', function () {
+    return runSequence(
+        'clean',
+        'development',
+        'production',
+        'image'
+    );
+});
 
 var testServer = server.create({
     port: 25000,
