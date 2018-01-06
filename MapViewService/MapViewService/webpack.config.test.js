@@ -3,7 +3,7 @@ var webpack = require('webpack');
 var clean = require('clean-webpack-plugin');
 
 const output = "./wwwroot/dist/";
-const src = "src";
+const src = "src/";
 
 module.exports = {
     entry: './src/main.ts',
@@ -19,15 +19,17 @@ module.exports = {
             {
               test: /\.ts$/,
               use: ['awesome-typescript-loader', 'angular2-template-loader'],
-              include: [path.resolve(__dirname, src)]
+              include: path.resolve(__dirname, src)
             },
             {
               test: /\.(png|jpg|gif)$/,
-              use: 'url-loader'
+              use: 'url-loader',
+              include: path.resolve(__dirname, src)
             },
             {
               test: /\.html$/,
-              use: 'html-loader?minimize=false'
+              use: 'html-loader?minimize=false',
+              include: path.resolve(__dirname, src)
             },
             {
                 test: /\.css$/,
