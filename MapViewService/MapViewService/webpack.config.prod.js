@@ -1,12 +1,12 @@
 ﻿var path = require('path');
 var webpack = require('webpack');
-var clean = require('clean-webpack-plugin');
 var uglify = require('uglifyjs-webpack-plugin');
 
 const output = "./wwwroot/dist/";
+const src = "src/";
 
 module.exports = {
-    entry: './src/testthree.ts',
+    entry: './src/main.ts',
     output: {
         path: path.join(__dirname, output),
         filename: 'bundle.min.js'
@@ -15,16 +15,32 @@ module.exports = {
         extensions: ['.ts', '.js']
     },
     module: {
-          rules: [
+        rules: [
             {
-              test: /\.ts$/,
-              use: ['awesome-typescript-loader', 'angular2-template-loader'],
-              exclude: [path.resolve(__dirname, 'node_modules')]
+                test: /\.ts$/,
+                use: ['awesome-typescript-loader', 'angular2-template-loader'],
+                include: path.resolve(__dirname, src)
             },
-          ]
-        },
+            {
+                test: /\.(png|jpg|gif)$/,
+                use: 'url-loader',
+                include: path.resolve(__dirname, src)
+            },
+            {
+                test: /\.html$/,
+                use: 'html-loader?minimize=false',
+                include: path.resolve(__dirname, src)
+            },
+            {
+                test: /\.css$/,
+                include: path.resolve(__dirname, src),
+                loader: 'raw-loader'
+            }
+        ]
+    },
     plugins: [
-        new clean(output),
-        new uglify({ uglifyOptions: { output: { comments: false } } })
+        new uglify({
+            parallel: true
+        })
     ]
 }

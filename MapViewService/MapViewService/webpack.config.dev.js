@@ -1,6 +1,4 @@
 ﻿var path = require('path');
-var webpack = require('webpack');
-var clean = require('clean-webpack-plugin');
 
 const output = "./wwwroot/dist/";
 const src = "src/";
@@ -37,8 +35,5 @@ module.exports = {
                 loader: 'raw-loader'
             }
           ]
-        },
-    plugins: [
-        new clean(output)
-    ]
+        }
 }

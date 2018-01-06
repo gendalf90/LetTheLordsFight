@@ -3,8 +3,10 @@
   "name": "mapview",
   "private": true,
   "scripts": {
-    "build-test": "webpack --config webpack.config.test.js",
-    "build-prod": "webpack --config webpack.config.prod.js",
+    "clean": "rimraf ./wwwroot/dist/",
+    "build-dev": "webpack --env.development --config webpack.config.dev.js",
+    "build-prod": "webpack --env.production --config webpack.config.prod.js",
+    "build": "npm run clean && npm run build-dev && npm run build-prod",
     "test-server": "node server.js"
   },
   "dependencies": {
@@ -28,7 +30,8 @@
     "json-server": "^0.12.1",
     "url-loader": "^0.6.2",
     "html-loader": "^0.5.1",
-    "raw-loader": "^0.5.1"
+    "raw-loader": "^0.5.1",
+    "clean-dir": "^1.0.3"
   },
-  "-vs-binding": { "BeforeBuild": [ "build-test" ] }
+  "-vs-binding": { "BeforeBuild": [ "build" ] }
 }
