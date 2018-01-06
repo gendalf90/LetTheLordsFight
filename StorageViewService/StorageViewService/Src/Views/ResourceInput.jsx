@@ -32,7 +32,7 @@ class ResourceInputView extends React.Component {
     }
 
     renderStorage(storageId, sendAction) {
-        return <button className="dropdown-item" type="button" onClick={() => sendAction(storageId)}>{storageId}</button>
+        return <button className="dropdown-item" key={storageId} type="button" onClick={() => sendAction(storageId)}>{storageId}</button>
     }
 
     renderSeparatorIfNeeded() {

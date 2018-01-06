@@ -31,7 +31,11 @@ gulp.task('image', ['clean'], function () {
         .pipe(gulp.dest(config.outputDir));
 });
 
-gulp.task('test', ['clean'], function () {
+gulp.task('set-dev-env', function () {
+    return process.env.NODE_ENV = 'development';
+});
+
+gulp.task('development', ['clean', 'set-dev-env'], function () {
     return browserify(config.src)
         .transform(babelify.configure({
             presets: ['react', 'env'],
@@ -42,19 +46,26 @@ gulp.task('test', ['clean'], function () {
         .pipe(gulp.dest(config.outputDir));
 });
 
-gulp.task('production', ['clean'], function () {
+gulp.task('set-prod-env', ['development'], function () {
+    return process.env.NODE_ENV = 'production';
+});
+
+gulp.task('production', ['set-prod-env'], function () {
     return browserify(config.src)
         .transform(babelify.configure({
-            presets: ['react', 'env']
+            presets: ['react', 'env'],
+            plugins: ["transform-runtime"]
         }))
         .bundle()
         .pipe(source(config.prodOutputFile))
         .pipe(buffer())
-        .pipe(uglify())
+        .pipe(uglify({
+            mangle: false
+        }))
         .pipe(gulp.dest(config.outputDir));
 });
 
-gulp.task('build', ['test', 'production', 'image']);
+gulp.task('build', ['production', 'image']);
 
 var testServer = server.create({
     port: 25000,
