@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "clean": "rimraf ./wwwroot/dist/",
-    "build-dev": "webpack --env.development --config webpack.config.dev.js",
-    "build-prod": "webpack --env.production --config webpack.config.prod.js",
+    "build-dev": "webpack --env.development --config webpack.config.js",
+    "build-prod": "webpack --env.production --config webpack.config.js",
     "build": "npm run clean && npm run build-dev && npm run build-prod",
     "test-server": "node server.js"
   },
