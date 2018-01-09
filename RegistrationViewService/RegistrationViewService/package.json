@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "name": "registrationview",
+  "private": true,
+  "scripts": {
+    "clean": "rimraf ./wwwroot/dist/",
+    "build-dev": "webpack --env.NODE_ENV=development --env.development --config webpack.config.js",
+    "build": "npm run clean && npm run build-dev"
+  },
+  "dependencies": {
+    "react": "16.0.0",
+    "react-dom": "16.0.0",
+    "redux": "3.7.2",
+    "react-redux": "5.0.6",
+    "redux-thunk": "2.2.0"
+  },
+  "devDependencies": {
+    "webpack": "^3.10.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "clean-webpack-plugin": "^0.1.17"
+  }
+, "-vs-binding":{"BeforeBuild":["build"]}
+}
