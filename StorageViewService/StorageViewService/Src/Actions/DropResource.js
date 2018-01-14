@@ -1,17 +1,15 @@
 ﻿var validator = require('validator');
 var setInputError = require('./SetInputError.js');
 var reloadResources = require('./ReloadResources.js');
+var axios = require('axios');
 
 module.exports = function (name, count) {
     return async function (dispatch, getState) {
-        let state = getState();
-        let id = state.id;
-        let api = state.api;
+        let { id } = getState();
 
         try {
             validateCount(count);
-            let response = await fetch(`${api}api/v1/storage/${id}/item/${name}/quantity/${count}/decrease`, { method: "POST" });
-            throwErrorIfNotOk(response);
+            await dropResource(id, name, count);
             dispatch(reloadResources());
         } catch (error) {
             handleError(dispatch, error);
@@ -28,20 +26,19 @@ var validateCount = function (count) {
     }
 };
 
-var throwErrorIfNotOk = function (response) {
-    if (!response.ok) {
-        throw response;
-    }
-};
+var dropResource = async function (id, name, count) {
+    await axios.post(`api/v1/storage/${id}/item/${name}/quantity/${count}/decrease`);
+}
 
 var handleError = function (dispatch, error) {
-    var inputError = {};
-    
-    if (error.status === 403) {
+    let inputError = {};
+    let status = error.response && error.response.status;
+
+    if (status === 403) {
         inputError.type = 'NOT_AUTHORIZED';
-    } else if (error.status === 404) {
+    } else if (status === 404) {
         inputError.type = 'NOT_FOUND';
-    } else if (error.status === 400 || error.validation === true) {
+    } else if (status === 400 || error.validation) {
         inputError.type = 'VALIDATION';
         inputError.description = error.description;
     }

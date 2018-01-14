@@ -1,17 +1,14 @@
 ﻿var setStorages = require('./SetStorages.js');
 var setStorageError = require('./SetStorageError.js');
+var axios = require('axios');
 
 module.exports = function () {
     return async function (dispatch, getState) {
-        let state = getState();
-        let id = state.id;
-        let api = state.api;
+        let { id } = getState();
 
         try {
-            let mapObjectRepsonse = await fetch(`${api}api/v1/map/objects/${id}`);
-            let mapObject = await getJsonOrThrowError(mapObjectRepsonse);
-            let segmentResponse = await fetch(`${api}api/v1/map/segments/i/${mapObject.segment.i}/j/${mapObject.segment.j}`);
-            let segment = await getJsonOrThrowError(segmentResponse);
+            let mapObject = await getMapObject(id);
+            let segment = await getSegment(mapObject.segment.i, mapObject.segment.j);
             let storages = segment.objects.filter(obj => obj.id != id).map(obj => obj.id);
             dispatch(setStorages(storages));
         } catch (error) {
@@ -20,20 +17,23 @@ module.exports = function () {
     }
 };
 
-var getJsonOrThrowError = function (response) {
-    if (!response.ok) {
-        throw response;
-    }
+var getMapObject = async function (id) {
+    let { data } = await axios.get(`api/v1/map/objects/${id}`);
+    return data;
+}
 
-    return response.json();
+var getSegment = async function (i, j) {
+    let { data } = await axios.get(`api/v1/map/segments/i/${i}/j/${j}`);
+    return data;
 };
 
 var handleError = function (dispatch, error) {
-    var storageError = {};
+    let storageError = {};
+    let status = error.response && error.response.status;
 
-    if (error.status === 403) {
+    if (status === 403) {
         storageError.type = 'NOT_AUTHORIZED';
-    } else if (error.status === 404) {
+    } else if (status === 404) {
         storageError.type = 'NOT_FOUND';
     }
 

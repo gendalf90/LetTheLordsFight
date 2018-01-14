@@ -1,15 +1,13 @@
 ﻿var setResources = require('./SetResources.js');
 var setStorageError = require('./SetStorageError.js');
+var axios = require('axios');
 
 module.exports = function () {
     return async function (dispatch, getState) {
-        let state = getState();
-        let id = state.id;
-        let api = state.api;
+        let { id } = getState();
 
         try {
-            let storageResponse = await fetch(`${api}api/v1/storage/${id}`);
-            let storage = await getJsonOrThrowError(storageResponse);
+            let storage = await getStorage(id);
             let resources = storage.items;
             dispatch(setResources(resources));
         } catch (error) {
@@ -18,20 +16,18 @@ module.exports = function () {
     }
 };
 
-var getJsonOrThrowError = function (response) {
-    if (!response.ok) {
-        throw response;
-    }
-
-    return response.json();
+var getStorage = async function (id) {
+    let { data } = await axios.get(`api/v1/storage/${id}`);
+    return data;
 };
 
 var handleError = function (dispatch, error) {
-    var storageError = {};
+    let storageError = {};
+    let status = error.response && error.response.status;
 
-    if (error.status === 403) {
+    if (status === 403) {
         storageError.type = 'NOT_AUTHORIZED';
-    } else if (error.status === 404) {
+    } else if (status === 404) {
         storageError.type = 'NOT_FOUND';
     }
 
