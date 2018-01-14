@@ -5,8 +5,11 @@ import { Provider } from 'react-redux';
 import ReduxThunk from 'redux-thunk';
 import combineReducers from './Reducers/combine';
 import App from './components/app';
+import showSignUp from './Actions/ShowSignUp';
 
 const store = createStore(combineReducers, applyMiddleware(ReduxThunk));
+
+store.dispatch(showSignUp());
 
 render(
     <Provider store={store}>

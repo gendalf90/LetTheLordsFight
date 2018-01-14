@@ -1,40 +1,90 @@
 ﻿import React from 'react';
 
-export default class SignIn extends React.Component {
+export default class SignUp extends React.Component {
     render() {
         return (
             <div className="card">
-                <div className="card-header text-center">
-                    <h3>Sign un</h3>
-                </div>
-                <div className="card-body">
-                    <form>
-                        <div>
-                            <label for="email">Email</label>
-                            <input type="text" className="form-control is-invalid" id="email" />
-                            <div className="invalid-feedback">
-                                <ul>
-                                    <li>error 1</li>
-                                    <li>error 2</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div>
-                            <label for="password">Password</label>
-                            <input type="password" className="form-control" id="password" />
-                            <div className="invalid-feedback">
-                                <ul>
-                                    <li>error 1</li>
-                                    <li>error 2</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </form>
-                    <div className="mt-3 text-center">
-                        <button type="button" className="btn btn-primary">Submit</button>
-                    </div>
-                </div>
+                {this.renderHead()}
+                {this.renderBody()}
             </div>
         );
+    }
+
+    renderHead() {
+        return (
+            <div className="card-header text-center">
+                <h3>Sign up</h3>
+            </div>
+        );
+    }
+
+    renderBody() {
+        return (
+            <div className="card-body">
+                <form>
+                    {this.renderLoginInput()}
+                    {this.renderPasswordInput()}
+                </form>
+                {this.renderSubmitInput()}
+            </div>
+        );
+    }
+
+    renderLoginInput() {
+        let errors = this.props.errors.login;
+        let hasErrors = errors.length > 0;
+        let invalidClassName = hasErrors ? 'is-invalid' : '';
+
+        return (
+            <div>
+                <label htmlFor="email">Email</label>
+                <input type="text" className={'form-control ' + invalidClassName} id="email" ref="login" />
+                {this.renderInputErrorsIfExist(errors)}
+            </div>
+        );
+    }
+
+    renderPasswordInput() {
+        let errors = this.props.errors.password;
+        let hasErrors = errors.length > 0;
+        let invalidClassName = hasErrors ? 'is-invalid' : '';
+
+        return (
+            <div>
+                <label htmlFor="password">Password</label>
+                <input type="password" className={'form-control ' + invalidClassName} id="password" ref="password"/>
+                {this.renderInputErrorsIfExist(errors)}
+            </div>
+        );
+    }
+
+    renderInputErrorsIfExist(errors) {
+        if (errors.length == 0) {
+            return;
+        }
+
+        let set = new Set(errors);
+
+        return (
+            <div className="invalid-feedback">
+                <ul>
+                    {errors.map(error => <li key={error}>{error}</li>)}
+                </ul>
+            </div>
+        );
+    }
+
+    renderSubmitInput() {
+        return (
+            <div className="mt-3 text-center">
+                <button type="button" className="btn btn-primary" onClick={this.signUpCurrentUser.bind(this)}>Submit</button>
+            </div>
+        );
+    }
+
+    signUpCurrentUser() {
+        let login = this.refs.login.value;
+        let password = this.refs.password.value;
+        this.props.actions.signUp(login, password);
     }
 };

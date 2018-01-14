@@ -5,22 +5,27 @@
   "scripts": {
     "clean": "rimraf ./wwwroot/dist/",
     "build-dev": "webpack --env.NODE_ENV=development --env.development --config webpack.config.js",
-    "build": "npm run clean && npm run build-dev"
+    "build-prod": "webpack --env.NODE_ENV=production --env.production --config webpack.config.js",
+    "build": "npm run clean && npm run build-dev && npm run build-prod",
+    "mockServer": "node mockServer.js"
   },
   "dependencies": {
     "react": "16.0.0",
     "react-dom": "16.0.0",
     "redux": "3.7.2",
     "react-redux": "5.0.6",
-    "redux-thunk": "2.2.0"
+    "redux-thunk": "2.2.0",
+    "axios": "^0.17.1"
   },
   "devDependencies": {
     "webpack": "^3.10.0",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-react": "^6.24.1",
-    "clean-webpack-plugin": "^0.1.17"
-  }
-, "-vs-binding":{"BeforeBuild":["build"]}
+    "uglifyjs-webpack-plugin": "^1.1.6",
+    "json-server": "^0.12.1"
+  }, "-vs-binding":{"BeforeBuild":["build"]}
 }

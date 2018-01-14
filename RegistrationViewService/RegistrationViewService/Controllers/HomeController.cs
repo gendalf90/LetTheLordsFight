@@ -17,7 +17,7 @@ namespace RegistrationViewService.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            //ViewBag.Api = options.Value.BaseUri.AbsoluteUri;
+            ViewBag.Api = options.Value.BaseUri.AbsoluteUri;
             return View();
         }
     }
