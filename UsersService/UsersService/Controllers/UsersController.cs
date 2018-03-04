@@ -5,6 +5,7 @@ using UsersService.Common;
 using UsersService.Commands;
 using UsersDomain.Exceptions;
 using IQueryFactory = UsersService.Queries.IFactory;
+using System;
 
 namespace UsersService.Controllers
 {
@@ -29,22 +30,16 @@ namespace UsersService.Controllers
             return Ok(result);
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer")]
-        [HttpGet("current")]
-        public async Task<IActionResult> GetCurrentAsync()
+        [HttpPost("registration/request")]
+        public async Task<IActionResult> CreateRegistrationRequestAsync([FromBody] RegistrationData data)
         {
-            var query = queries.CreateGetCurrentUserQuery();
-            var result = await query.AskAsync();
-            return Json(result);
+            throw new NotImplementedException();
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer", Roles = "System")]
-        [HttpGet("{login}")]
-        public async Task<IActionResult> GetByLoginAsync(string login)
+        [HttpPost("confirmation/request/{id:guid}")]
+        public async Task<IActionResult> CreateUserAsync(Guid id)
         {
-            var query = queries.CreateGetUserByLoginQuery(login);
-            var result = await query.AskAsync();
-            return Json(result);
+            throw new NotImplementedException();
         }
 
         [HttpPost]
@@ -73,7 +68,7 @@ namespace UsersService.Controllers
             {
                 ModelState.AddModelError("login", e.Message);
             }
-
+            
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

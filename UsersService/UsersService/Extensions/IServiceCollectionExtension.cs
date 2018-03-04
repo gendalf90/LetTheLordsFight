@@ -13,7 +13,7 @@ using UsersService.Users;
 
 namespace UsersService.Extensions
 {
-    static class IServiceCollectionExtension
+    public static class IServiceCollectionExtension
     {
         public static IServiceCollection AddMySql(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
