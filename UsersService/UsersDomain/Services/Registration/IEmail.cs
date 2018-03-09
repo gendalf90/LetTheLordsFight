@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Threading.Tasks;
 
 namespace UsersDomain.Services.Registration
 {
     public interface IEmail
     {
-        void Send(EmailDto data);
+        Task SendAsync(EmailDto data);
     }
 }

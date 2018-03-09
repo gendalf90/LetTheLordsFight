@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using UsersService.Common;
 using UsersService.Commands;
 using UsersDomain.Exceptions;
+using ICommandFactory = UsersService.Commands.IFactory;
 using IQueryFactory = UsersService.Queries.IFactory;
 using System;
 
@@ -21,7 +22,7 @@ namespace UsersService.Controllers
             this.queries = queries;
         }
 
-        [Authorize(AuthenticationSchemes = "Basic")]
+        [Authorize]
         [HttpGet("current/token")]
         public async Task<IActionResult> GetTokenAsync()
         {
@@ -31,50 +32,50 @@ namespace UsersService.Controllers
         }
 
         [HttpPost("registration/request")]
-        public async Task<IActionResult> CreateRegistrationRequestAsync([FromBody] RegistrationData data)
+        public Task<IActionResult> CreateRegistrationRequestAsync([FromBody] RegistrationData data)
         {
             throw new NotImplementedException();
         }
 
-        [HttpPost("confirmation/request/{id:guid}")]
-        public async Task<IActionResult> CreateUserAsync(Guid id)
+        [HttpPost("confirmation/request/{requestId:guid}")]
+        public Task<IActionResult> RegisterUserAsync(Guid requestId)
         {
             throw new NotImplementedException();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateUserAsync([FromBody] CreateUserData data)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //[HttpPost]
+        //public async Task<IActionResult> CreateUserAsync([FromBody] CreateUserData data)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            var command = commands.GetCreateUserCommand(data);
+        //    var command = commands.GetCreateUserCommand(data);
 
-            try
-            {
-                await command.ExecuteAsync();
-            }
-            catch(LoginException e)
-            {
-                ModelState.AddModelError("login", e.Message);
-            }
-            catch(PasswordException e)
-            {
-                ModelState.AddModelError("password", e.Message);
-            }
-            catch(UserAlreadyExistException e)
-            {
-                ModelState.AddModelError("login", e.Message);
-            }
+        //    try
+        //    {
+        //        await command.ExecuteAsync();
+        //    }
+        //    catch(LoginException e)
+        //    {
+        //        ModelState.AddModelError("login", e.Message);
+        //    }
+        //    catch(PasswordException e)
+        //    {
+        //        ModelState.AddModelError("password", e.Message);
+        //    }
+        //    catch(UserAlreadyExistException e)
+        //    {
+        //        ModelState.AddModelError("login", e.Message);
+        //    }
             
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            return Ok();
-        }
+        //    return Ok();
+        //}
     }
 }

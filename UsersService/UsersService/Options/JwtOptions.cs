@@ -1,13 +1,7 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace UsersService.Options
+﻿namespace UsersService.Options
 {
     public class JwtOptions
     {
-        public SigningCredentials Sign { get; set; }
+        public string SigningKey { get; set; }
     }
 }

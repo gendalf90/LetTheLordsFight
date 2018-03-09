@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace UsersDomain.Repositories.Registration
 {
     public interface IRequests
     {
-        void Save(RequestDto data); //unique index on login field and throw exception if exist!
+        Task SaveAsync(RequestDto data); //unique index on login field and throw exception if exist!
+
+        Task<RequestDto> GetByIdAsync(Guid id); //throw RequestException if not found
     }
 }

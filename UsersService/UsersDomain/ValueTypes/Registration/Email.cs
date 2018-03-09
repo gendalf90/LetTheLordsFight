@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using UsersDomain.Services.Registration;
 using UsersDomain.ValueTypes.Confirmation;
 
@@ -13,9 +14,10 @@ namespace UsersDomain.ValueTypes.Registration
 
         }
 
-        public void Send(IEmail service)
+        public Task SendAsync(IEmail service)
         {
             //body in dto: (login + password + request confirm PAGE path)
+            throw new NotImplementedException();
         }
     }
 }

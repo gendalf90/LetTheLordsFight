@@ -1,52 +1,74 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
-using UsersService.Options;
 
 namespace UsersService.Queries.GetCurrentToken
 {
     public class Query : IQuery<string>
     {
-        private readonly IHttpContextAccessor context;
-        private readonly IOptions<JwtOptions> options;
+        private readonly IGetCurrentUserStrategy currentUser;
+        private readonly IGetTokenSigningKeyStrategy signingKey;
 
-        public Query(IOptions<JwtOptions> options, IHttpContextAccessor context)
+        private UserDto currentUserData;
+        private SigningCredentials signingCredentials;
+        private IEnumerable<Claim> claims;
+        private string resultToken;
+
+        public Query(IGetCurrentUserStrategy currentUser, IGetTokenSigningKeyStrategy signingKey)
         {
-            this.options = options;
-            this.context = context;
+            this.currentUser = currentUser;
+            this.signingKey = signingKey;
         }
 
         public Task<string> AskAsync()
         {
-            var token = CreateToken();
-            return Task.FromResult(token);
+            LoadCurrentUser();
+            CreateSigningCredentials();
+            CreateClaims();
+            CreateToken();
+            return Task.FromResult(resultToken);
         }
 
-        private string CreateToken()
+        private void LoadCurrentUser()
+        {
+            currentUserData = currentUser.Get();
+        }
+
+        private void CreateSigningCredentials()
+        {
+            var key = signingKey.Get();
+            signingCredentials = CreateSigningCredentialsByKey(key);
+        }
+
+        private void CreateClaims()
+        {
+            claims = CreateClaimsForUser(currentUserData);
+        }
+
+        private void CreateToken()
         {
             var handler = new JwtSecurityTokenHandler();
-            var jwt = new JwtSecurityToken(signingCredentials: TokenSign, claims: TokenClaims);
-            return handler.WriteToken(jwt);
+            var jwt = new JwtSecurityToken(signingCredentials: signingCredentials, claims: claims);
+            resultToken = handler.WriteToken(jwt);
         }
 
-        private IEnumerable<Claim> TokenClaims
+        private SigningCredentials CreateSigningCredentialsByKey(string signingKey)
         {
-            get
-            {
-                return context.HttpContext.User.Claims.Where(claim => claim.Type == ClaimTypes.Name || claim.Type == ClaimTypes.Role);
-            }
+            var bytes = Encoding.ASCII.GetBytes(signingKey);
+            var key = new SymmetricSecurityKey(bytes);
+            return new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         }
 
-        private SigningCredentials TokenSign
+        private IEnumerable<Claim> CreateClaimsForUser(UserDto dto)
         {
-            get
+            yield return new Claim(ClaimTypes.Name, dto.Login);
+
+            foreach(var role in dto.Roles)
             {
-                return options.Value.Sign;
+                yield return new Claim(ClaimTypes.Role, role);
             }
         }
     }

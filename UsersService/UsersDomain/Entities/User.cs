@@ -1,64 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using UsersDomain.Common;
+using System.Threading.Tasks;
+using UsersDomain.Repositories;
 using UsersDomain.ValueTypes;
 
 namespace UsersDomain.Entities
 {
     public class User
     {
-        private string login;
-        private string password;
-        private HashSet<Role> roles;
+        public Guid Id { get; private set; }
 
-        public User(Login login, Password password)
+        public Task SaveAsync(IUsers repository)
         {
-            this.login = login.ToString();
-            this.password = password.ToString();
-            roles = new HashSet<Role>();
+            throw new NotImplementedException();
         }
 
-        public User(IUserRepositoryData data)
+        public static User CreateSimple(Login login, Password password)
         {
-            login = data.Login;
-            password = data.Password;
-            roles = data.Roles.Select(Enum.Parse<Role>).ToHashSet();
-        }
-
-        public string Login
-        {
-            get
-            {
-                return login;
-            }
-        }
-
-        public bool ThisIsMyCredentials(Login login, Password password)
-        {
-            return this.login == login.ToString() && this.password == password.ToString();
-        }
-
-        public void FillRepositoryData(IUserRepositoryData repositoryData)
-        {
-            repositoryData.Login = login;
-            repositoryData.Password = password;
-            repositoryData.Roles = roles.Select(role => role.ToString());
-        }
-
-        public static User CreateSystem(Login login, Password password)
-        {
-            var result = new User(login, password);
-            result.roles.Add(Role.User);
-            result.roles.Add(Role.System);
-            return result;
-        }
-
-        public static User CreateUser(Login login, Password password)
-        {
-            var result = new User(login, password);
-            result.roles.Add(Role.User);
-            return result;
+            throw new NotImplementedException();
         }
     }
 }

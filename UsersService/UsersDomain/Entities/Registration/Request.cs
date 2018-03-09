@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 using UsersDomain.Repositories.Registration;
 using UsersDomain.ValueTypes;
 using UsersDomain.ValueTypes.Registration;
@@ -16,9 +15,19 @@ namespace UsersDomain.Entities.Registration
 
         public Guid Id { get; private set; }
 
-        public void Save(IRequests repository)
+        public Task SaveAsync(IRequests repository)
         {
+            throw new NotImplementedException();
+        }
 
+        public static Task<Request> LoadAsync(Guid id, IRequests repository)
+        {
+            throw new NotImplementedException();
+        }
+
+        public User CreateSimpleUser()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,28 +1,31 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using UsersService.Controllers;
 using Xunit;
-using UsersService.Extensions;
 using Moq;
-using Microsoft.Extensions.Configuration;
 using IQueryFactory = UsersService.Queries.IFactory;
 using System.Threading.Tasks;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using System.IdentityModel.Tokens.Jwt;
 using System;
+using UsersService.Queries.GetCurrentToken;
+using System.Linq;
 
 namespace Tests.Unit
 {
     public class CreateTokenTests
     {
-        private const string Name = "TestName";
-        private const string Role = "TestRole";
+        private const string TestLogin = "test@test.com";
+        private const string TestRole = "role";
 
         [Fact]
         public async Task GetToken_ItIsOkResult()
         {
-            var controller = CreateController();
+            var provider = CreateServiceProvider();
+            var controller = new UsersController(null, provider.GetService<IQueryFactory>());
+            var mockOfGetCurrentUserStrategy = provider.GetService<Mock<IGetCurrentUserStrategy>>();
+            var userToReturn = new UserDto { Login = TestLogin, Roles = new[] { TestRole } };
+            mockOfGetCurrentUserStrategy.Setup(mock => mock.Get()).Returns(userToReturn);
 
             var result = await controller.GetTokenAsync();
 
@@ -30,69 +33,58 @@ namespace Tests.Unit
         }
 
         [Fact]
-        public async Task GetToken_NameFromTokenIsExpected()
+        public async Task GetToken_NameFromTokenIsEqualLoginFromCurrentUser()
         {
-            var controller = CreateController();
+            var provider = CreateServiceProvider();
+            var controller = new UsersController(null, provider.GetService<IQueryFactory>());
+            var mockOfGetCurrentUserStrategy = provider.GetService<Mock<IGetCurrentUserStrategy>>();
+            var userToReturn = new UserDto { Login = TestLogin, Roles = new[] { TestRole } };
+            mockOfGetCurrentUserStrategy.Setup(mock => mock.Get()).Returns(userToReturn);
 
             var result = await controller.GetTokenAsync();
             var token = GetTokenFromResult(result);
 
             Assert.NotNull(token);
-            Assert.Contains(token.Claims, claim => claim.Type == ClaimTypes.Name);
-            Assert.Contains(token.Claims, claim => claim.Value == Name);
+            Assert.Single(token.Claims, claim => claim.Type == ClaimTypes.Name && claim.Value == userToReturn.Login);
         }
 
         [Fact]
-        public async Task GetToken_RoleFromTokenIsExpected()
+        public async Task GetToken_RoleFromTokenIsEqualFromCurrentUser()
         {
-            var controller = CreateController();
+            var provider = CreateServiceProvider();
+            var controller = new UsersController(null, provider.GetService<IQueryFactory>());
+            var mockOfGetCurrentUserStrategy = provider.GetService<Mock<IGetCurrentUserStrategy>>();
+            var userToReturn = new UserDto { Login = TestLogin, Roles = new[] { TestRole } };
+            mockOfGetCurrentUserStrategy.Setup(mock => mock.Get()).Returns(userToReturn);
 
             var result = await controller.GetTokenAsync();
             var token = GetTokenFromResult(result);
 
             Assert.NotNull(token);
-            Assert.Contains(token.Claims, claim => claim.Type == ClaimTypes.Role);
-            Assert.Contains(token.Claims, claim => claim.Value == Role);
-        }
-
-        private UsersController CreateController()
-        {
-            var provider = CreateServiceProvider();
-            return new UsersController(null, provider.GetService<IQueryFactory>());
+            Assert.Contains(token.Claims, claim => claim.Type == ClaimTypes.Role && claim.Value == userToReturn.Roles.First());
         }
 
         private IServiceProvider CreateServiceProvider()
         {
-            var configuration = MockConfiguration();
-            var httpContextAccessor = MockHttpContextAccessor();
             var services = new ServiceCollection();
-            services.AddAuthentication(configuration);
-            services.AddQueries();
-            services.AddSingleton(httpContextAccessor);
+            MockGetCurrentUserStrategy(services);
+            MockGetTokenSigningKeyStrategy(services);
             return services.BuildServiceProvider();
         }
 
-        private IConfiguration MockConfiguration()
+        private void MockGetCurrentUserStrategy(ServiceCollection services)
         {
-            var configuration = new Mock<IConfiguration>();
-            configuration.SetupGet(c => c[It.IsAny<string>()]).Returns("testtesttesttest");
-            return configuration.Object;
+            var strategy = new Mock<IGetCurrentUserStrategy>();
+            services.AddSingleton(strategy)
+                    .AddSingleton(strategy.Object);
         }
 
-        private IHttpContextAccessor MockHttpContextAccessor()
+        private void MockGetTokenSigningKeyStrategy(ServiceCollection services)
         {
-            var user = MockUser();
-            var context = new DefaultHttpContext { User = user };
-            var accessor = new Mock<IHttpContextAccessor>();
-            accessor.SetupProperty(a => a.HttpContext, context);
-            return accessor.Object;
-        }
-
-        private ClaimsPrincipal MockUser()
-        {
-            var claims = new Claim[] { new Claim(ClaimTypes.Name, Name), new Claim(ClaimTypes.Role, Role) };
-            var identity = new ClaimsIdentity(claims);
-            return new ClaimsPrincipal(identity);
+            var strategy = new Mock<IGetTokenSigningKeyStrategy>();
+            var testKey = "keykeykeykeykeykeykeykey";
+            strategy.Setup(mock => mock.Get()).Returns(testKey);
+            services.AddSingleton(strategy.Object);
         }
 
         private JwtSecurityToken GetTokenFromResult(IActionResult result)
@@ -103,7 +95,7 @@ namespace Tests.Unit
             {
                 return null;
             }
-
+            
             var token = okResult.Value.ToString();
             var handler = new JwtSecurityTokenHandler();
             return handler.ReadJwtToken(token);

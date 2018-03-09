@@ -1,26 +1,22 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
-using UsersService.Options;
+﻿using UsersService.Queries.GetCurrentToken;
 using TokenQuery = UsersService.Queries.GetCurrentToken.Query;
 
 namespace UsersService.Queries
 {
     class Factory : IFactory
     {
-        private readonly IOptions<SqlOptions> sqlOptions;
-        private readonly IHttpContextAccessor httpContext;
-        private readonly IOptions<JwtOptions> jwtOptions;
+        private readonly IGetCurrentUserStrategy currentUser;
+        private readonly IGetTokenSigningKeyStrategy signingKey;
 
-        public Factory(IOptions<SqlOptions> sqlOptions, IHttpContextAccessor httpContext, IOptions<JwtOptions> jwtOptions)
+        public Factory(IGetCurrentUserStrategy currentUser, IGetTokenSigningKeyStrategy signingKey)
         {
-            this.sqlOptions = sqlOptions;
-            this.httpContext = httpContext;
-            this.jwtOptions = jwtOptions;
+            this.currentUser = currentUser;
+            this.signingKey = signingKey;
         }
 
         public IQuery<string> CreateGetTokenQuery()
         {
-            return new TokenQuery(jwtOptions, httpContext);
+            return new TokenQuery(currentUser, signingKey);
         }
     }
 }
