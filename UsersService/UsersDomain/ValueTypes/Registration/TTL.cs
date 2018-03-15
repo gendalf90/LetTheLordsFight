@@ -1,19 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace UsersDomain.ValueTypes.Registration
 {
     public class TTL
     {
-        public TTL()
+        private static readonly TimeSpan defaultTime = TimeSpan.FromHours(24);
+
+        private readonly TimeSpan time;
+
+        public TTL(TimeSpan time)
         {
-            //set defaults
+            this.time = time;
         }
 
         public TimeSpan ToTimeSpan()
         {
-            return new TimeSpan();
+            return time;
+        }
+
+        public static TTL CreateDefault()
+        {
+            return new TTL(defaultTime);
         }
     }
 }

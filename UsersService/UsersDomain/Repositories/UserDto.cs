@@ -1,4 +1,5 @@
 ﻿using System;
+using UsersDomain.ValueTypes;
 
 namespace UsersDomain.Repositories
 {
@@ -9,5 +10,7 @@ namespace UsersDomain.Repositories
         public string Login { get; set; }
 
         public string Password { get; set; }
+
+        public Role[] Roles { get; set; }
     }
 }

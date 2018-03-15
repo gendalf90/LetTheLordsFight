@@ -8,26 +8,58 @@ namespace UsersDomain.Entities.Registration
 {
     public class Request
     {
-        public Request(Login login, Password password, TTL ttl)
-        {
+        private readonly Guid id;
+        private readonly Login login;
+        private readonly Password password;
+        private readonly TTL ttl;
 
+        private Request(Guid id, Login login, Password password, TTL ttl)
+        {
+            this.login = login;
+            this.password = password;
+            this.ttl = ttl;
+            this.id = id;
         }
 
-        public Guid Id { get; private set; }
+        public Guid Id { get => id; }
 
-        public Task SaveAsync(IRequests repository)
+        public async Task SaveAsync(IRequests repository)
         {
-            throw new NotImplementedException();
+            var dto = CreateDtoToSave();
+            await repository.SaveAsync(dto);
         }
 
-        public static Task<Request> LoadAsync(Guid id, IRequests repository)
+        private RequestDto CreateDtoToSave()
         {
-            throw new NotImplementedException();
+            return new RequestDto
+            {
+                Id = Id,
+                Login = login.ToString(),
+                Password = password.ToString(),
+                TTL = ttl.ToTimeSpan()
+            };
+        }
+
+        public static Request Create(Login login, Password password)
+        {
+            return new Request(Guid.NewGuid(),
+                               login,
+                               password,
+                               TTL.CreateDefault());
+        }
+
+        public static async Task<Request> LoadAsync(Guid id, IRequests repository)
+        {
+            var dto = await repository.GetByIdAsync(id);
+            return new Request(dto.Id,
+                               new Login(dto.Login),
+                               new Password(dto.Password),
+                               new TTL(dto.TTL));
         }
 
         public User CreateSimpleUser()
         {
-            throw new NotImplementedException();
+            return User.CreateSimple(login, password);
         }
     }
 }
