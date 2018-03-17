@@ -1,0 +1,66 @@
+﻿using System;
+using System.Threading.Tasks;
+using UsersDomain.Entities.Registration;
+using UsersDomain.Repositories.Registration;
+using UsersDomain.Services.Registration;
+using UsersDomain.ValueTypes;
+using UsersDomain.ValueTypes.Confirmation;
+using UsersDomain.ValueTypes.Registration;
+using UsersService.Common;
+
+namespace UsersService.Commands.CreateRegistrationRequest
+{
+    public class Command : ICommand
+    {
+        private readonly IConfirmationUrl confirmationUrl;
+        private readonly IRequests requestsRepository;
+        private readonly IEmail emailService;
+
+        private RegistrationData registrationData;
+        private Request registrationRequest;
+        private Email registrationEmail;
+
+        public Command(IConfirmationUrl confirmationUrl, 
+                       IRequests requestsRepository, 
+                       IEmail emailService,
+                       RegistrationData registrationData)
+        {
+            this.confirmationUrl = confirmationUrl;
+            this.requestsRepository = requestsRepository;
+            this.emailService = emailService;
+            this.registrationData = registrationData;
+        }
+
+        public async Task ExecuteAsync()
+        {
+            CreateRegistrationRequest();
+            await SaveRegistrationRequestAsync();
+            CreateRegistrationEmail();
+            await SendRegistrationEmailAsync();
+        }
+
+        private void CreateRegistrationRequest()
+        {
+            var login = new Login(registrationData.Login);
+            var password = new Password(registrationData.Password);
+            registrationRequest = Request.Create(login, password);
+        }
+
+        private async Task SaveRegistrationRequestAsync()
+        {
+            await registrationRequest.SaveAsync(requestsRepository);
+        }
+
+        private void CreateRegistrationEmail()
+        {
+            var url = confirmationUrl.GetForRequestId(registrationRequest.Id);
+            var link = new Link(url);
+            registrationEmail = registrationRequest.CreateEmailWithConfirmationLink(link);
+        }
+
+        private async Task SendRegistrationEmailAsync()
+        {
+            await registrationEmail.SendAsync(emailService);
+        }
+    }
+}

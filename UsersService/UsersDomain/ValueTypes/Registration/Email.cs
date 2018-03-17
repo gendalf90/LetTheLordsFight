@@ -23,8 +23,6 @@ namespace UsersDomain.ValueTypes.Registration
         {
             var dto = CreateDto();
             await service.SendAsync(dto);
-            
-            //body in dto: (login + password + request confirm PAGE path)
         }
 
         private EmailDto CreateDto()
@@ -44,12 +42,15 @@ namespace UsersDomain.ValueTypes.Registration
 
         private string GetHead()
         {
-            return "test";
+            return "Welcome to 'Let the lords fight'";
         }
 
         private string GetBody()
         {
-            return "test";
+            return $"Your login: {login.ToString()}/n" +
+                $"Your password: {password.ToString()}/n" +
+                $"Confirm your registration: {confirmationLink.ToString()} " +
+                $"link valid within {requestTTL.ToHours()} hours";
         }
     }
 }

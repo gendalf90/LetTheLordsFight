@@ -8,6 +8,10 @@ using CommandFactory = UsersService.Commands.Factory;
 using UsersService.Options;
 using ZNetCS.AspNetCore.Authentication.Basic;
 using UsersService.BasicAuthentication;
+using UsersDomain.Repositories;
+using UsersService.Domain;
+using UsersDomain.Services.Registration;
+using UsersService.Commands.CreateRegistrationRequest;
 
 namespace UsersService.Extensions
 {
@@ -21,7 +25,14 @@ namespace UsersService.Extensions
 
         public static IServiceCollection AddCommands(this IServiceCollection services)
         {
-            return services.AddTransient<ICommandFactory, CommandFactory>();
+            return services.AddTransient<ICommandFactory, CommandFactory>()
+                           .AddTransient<IConfirmationUrl, ConfirmationUrl>();
+        }
+
+        public static IServiceCollection AddDomain(this IServiceCollection services)
+        {
+            return services.AddTransient<IUsers, UsersRepository>()
+                           .AddTransient<IEmail, EmailService>();
         }
 
         public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)

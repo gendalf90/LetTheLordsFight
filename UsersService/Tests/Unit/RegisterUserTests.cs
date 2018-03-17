@@ -10,6 +10,7 @@ using UsersDomain.Repositories.Registration;
 using ICommandFactory = UsersService.Commands.IFactory;
 using UsersService.Controllers;
 using Xunit;
+using UsersService.Extensions;
 
 namespace Tests.Unit
 {
@@ -93,12 +94,13 @@ namespace Tests.Unit
 
             var result = await controller.RegisterUserAsync(Guid.Empty);
 
-            Assert.IsAssignableFrom<OkObjectResult>(result);
+            Assert.IsAssignableFrom<OkResult>(result);
         }
 
         private IServiceProvider CreateServiceProvider()
         {
             var services = new ServiceCollection();
+            services.AddCommands().AddDomain();
             MockRequestsRepository(services);
             MockUsersRepository(services);
             return services.BuildServiceProvider();

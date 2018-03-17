@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using UsersDomain.Repositories.Registration;
 using UsersDomain.ValueTypes;
+using UsersDomain.ValueTypes.Confirmation;
 using UsersDomain.ValueTypes.Registration;
 
 namespace UsersDomain.Entities.Registration
@@ -60,6 +61,11 @@ namespace UsersDomain.Entities.Registration
         public User CreateSimpleUser()
         {
             return User.CreateSimple(login, password);
+        }
+
+        public Email CreateEmailWithConfirmationLink(Link link)
+        {
+            return new Email(login, password, link, ttl);
         }
     }
 }

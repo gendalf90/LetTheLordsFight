@@ -10,6 +10,8 @@ using ICommandFactory = UsersService.Commands.IFactory;
 using UsersService.Common;
 using UsersService.Controllers;
 using Xunit;
+using UsersService.Commands.CreateRegistrationRequest;
+using UsersService.Extensions;
 
 namespace Tests.Unit
 {
@@ -17,6 +19,7 @@ namespace Tests.Unit
     {
         private const string TestLogin = "test@test.com";
         private const string TestPassword = "1q2w3e4r!";
+        private const string TestConfirmationLink = "http://test.com";
 
         [Theory]
         [InlineData("yandex@yandex.ru")]
@@ -31,7 +34,7 @@ namespace Tests.Unit
 
             var result = await controller.CreateRegistrationRequestAsync(data);
 
-            Assert.IsAssignableFrom<OkObjectResult>(result);
+            Assert.IsAssignableFrom<OkResult>(result);
         }
 
         [Theory]
@@ -65,7 +68,7 @@ namespace Tests.Unit
 
             var result = await controller.CreateRegistrationRequestAsync(data);
 
-            Assert.IsAssignableFrom<OkObjectResult>(result);
+            Assert.IsAssignableFrom<OkResult>(result);
         }
 
         [Theory]
@@ -232,7 +235,7 @@ namespace Tests.Unit
         }
 
         [Fact]
-        public async Task Email_RequestSavedToRepository_CallSendWitNotNullOrEmptyBody()
+        public async Task Email_RequestSavedToRepository_CallSendWithCredentialsInBody()
         {
             var services = CreateServiceProvider();
             var controller = new UsersController(services.GetService<ICommandFactory>(), null);
@@ -241,7 +244,20 @@ namespace Tests.Unit
 
             await controller.CreateRegistrationRequestAsync(data);
 
-            mockOfEmailService.Verify(service => service.SendAsync(It.Is<EmailDto>(dto => !string.IsNullOrEmpty(dto.Body))), Times.Once);
+            mockOfEmailService.Verify(service => service.SendAsync(It.Is<EmailDto>(dto => dto.Body.Contains(TestLogin) && dto.Body.Contains(TestPassword))), Times.Once);
+        }
+
+        [Fact]
+        public async Task Email_RequestSavedToRepository_CallSendWitConfirmationLinkInBody()
+        {
+            var services = CreateServiceProvider();
+            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var data = new RegistrationData { Login = TestLogin, Password = TestPassword };
+            var mockOfEmailService = services.GetService<Mock<IEmail>>();
+
+            await controller.CreateRegistrationRequestAsync(data);
+
+            mockOfEmailService.Verify(service => service.SendAsync(It.Is<EmailDto>(dto => dto.Body.Contains(TestConfirmationLink))), Times.Once);
         }
 
         [Fact]
@@ -268,18 +284,20 @@ namespace Tests.Unit
 
             var result = await controller.CreateRegistrationRequestAsync(data);
 
-            Assert.IsAssignableFrom<OkObjectResult>(result);
+            Assert.IsAssignableFrom<OkResult>(result);
         }
 
         private IServiceProvider CreateServiceProvider()
         {
             var services = new ServiceCollection();
+            services.AddCommands().AddDomain();
             MockRequestsRepository(services);
             MockEmailService(services);
+            MockConfirmationLink(services);
             return services.BuildServiceProvider();
         }
 
-        private void MockRequestsRepository(ServiceCollection services)
+        private void MockRequestsRepository(IServiceCollection services)
         {
             var repository = new Mock<IRequests>();
             repository.Setup(mock => mock.SaveAsync(It.IsAny<RequestDto>())).Returns(Task.CompletedTask);
@@ -287,10 +305,18 @@ namespace Tests.Unit
                     .AddSingleton(repository);
         }
 
-        private void MockEmailService(ServiceCollection services)
+        private void MockEmailService(IServiceCollection services)
         {
             var service = new Mock<IEmail>();
             service.Setup(mock => mock.SendAsync(It.IsAny<EmailDto>())).Returns(Task.CompletedTask);
+            services.AddSingleton(service.Object)
+                    .AddSingleton(service);
+        }
+
+        private void MockConfirmationLink(IServiceCollection services)
+        {
+            var service = new Mock<IConfirmationUrl>();
+            service.Setup(mock => mock.GetForRequestId(It.IsAny<Guid>())).Returns(TestConfirmationLink);
             services.AddSingleton(service.Object)
                     .AddSingleton(service);
         }

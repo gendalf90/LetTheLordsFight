@@ -13,6 +13,11 @@ namespace UsersDomain.ValueTypes.Registration
             this.time = time;
         }
 
+        public int ToHours()
+        {
+            return (int)time.TotalHours;
+        }
+
         public TimeSpan ToTimeSpan()
         {
             return time;

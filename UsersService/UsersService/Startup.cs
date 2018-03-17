@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using UsersService.Extensions;
 
 namespace UsersService
@@ -23,10 +17,10 @@ namespace UsersService
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMySql(configuration)
-                    .AddAuthentication(configuration)
+            services.AddAuthentication(configuration)
                     .AddCommands()
                     .AddQueries()
+                    .AddDomain()
                     .AddMvc();
         }
 

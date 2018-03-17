@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System;
 using UsersService.Queries.GetCurrentToken;
 using System.Linq;
+using UsersService.Extensions;
 
 namespace Tests.Unit
 {
@@ -61,12 +62,13 @@ namespace Tests.Unit
             var token = GetTokenFromResult(result);
 
             Assert.NotNull(token);
-            Assert.Contains(token.Claims, claim => claim.Type == ClaimTypes.Role && claim.Value == userToReturn.Roles.First());
+            Assert.Contains(token.Claims, claim => claim.Type == ClaimTypes.Role && claim.Value == userToReturn.Roles.Single());
         }
 
         private IServiceProvider CreateServiceProvider()
         {
             var services = new ServiceCollection();
+            services.AddQueries();
             MockGetCurrentUserStrategy(services);
             MockGetTokenSigningKeyStrategy(services);
             return services.BuildServiceProvider();

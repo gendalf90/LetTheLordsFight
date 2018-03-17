@@ -5,8 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Commands\CreateRegistrationRequest\" />
-    <Folder Include="Commands\RegisterUser\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
