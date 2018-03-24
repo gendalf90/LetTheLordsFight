@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using UsersDomain.Entities.Registration;
 using UsersDomain.Repositories.Registration;
 using UsersDomain.Services.Registration;
@@ -7,6 +6,7 @@ using UsersDomain.ValueTypes;
 using UsersDomain.ValueTypes.Confirmation;
 using UsersDomain.ValueTypes.Registration;
 using UsersService.Common;
+using UsersService.Logs;
 
 namespace UsersService.Commands.CreateRegistrationRequest
 {
@@ -15,6 +15,7 @@ namespace UsersService.Commands.CreateRegistrationRequest
         private readonly IConfirmationUrl confirmationUrl;
         private readonly IRequests requestsRepository;
         private readonly IEmail emailService;
+        private readonly ILog log;
 
         private RegistrationData registrationData;
         private Request registrationRequest;
@@ -23,20 +24,30 @@ namespace UsersService.Commands.CreateRegistrationRequest
         public Command(IConfirmationUrl confirmationUrl, 
                        IRequests requestsRepository, 
                        IEmail emailService,
+                       ILog log,
                        RegistrationData registrationData)
         {
             this.confirmationUrl = confirmationUrl;
             this.requestsRepository = requestsRepository;
             this.emailService = emailService;
+            this.log = log;
             this.registrationData = registrationData;
         }
 
         public async Task ExecuteAsync()
         {
+            LogStart();
             CreateRegistrationRequest();
             await SaveRegistrationRequestAsync();
+            LogRequestSave();
             CreateRegistrationEmail();
             await SendRegistrationEmailAsync();
+            LogEmailSend();
+        }
+
+        private void LogStart()
+        {
+            log.Information($"Start registration request creating for login: {registrationData.Login}");
         }
 
         private void CreateRegistrationRequest()
@@ -51,6 +62,11 @@ namespace UsersService.Commands.CreateRegistrationRequest
             await registrationRequest.SaveAsync(requestsRepository);
         }
 
+        private void LogRequestSave()
+        {
+            log.Information($"Registration request with id {registrationRequest.Id} has saved for login {registrationData.Login}");
+        }
+
         private void CreateRegistrationEmail()
         {
             var url = confirmationUrl.GetForRequestId(registrationRequest.Id);
@@ -61,6 +77,11 @@ namespace UsersService.Commands.CreateRegistrationRequest
         private async Task SendRegistrationEmailAsync()
         {
             await registrationEmail.SendAsync(emailService);
+        }
+
+        private void LogEmailSend()
+        {
+            log.Information($"Email for login {registrationData.Login} has sent");
         }
     }
 }

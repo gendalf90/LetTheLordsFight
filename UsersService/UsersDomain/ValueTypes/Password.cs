@@ -21,7 +21,7 @@ namespace UsersDomain.ValueTypes
         {
             if (IsEmpty || LengthIsNotInRange || HasNoDigits || HasNoLetters || HasNoSpecial || HasColon)
             {
-                throw new PasswordException("Bad password");
+                throw new PasswordException($"{password} is not valid password");
             }
         }
 

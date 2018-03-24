@@ -1,8 +1,9 @@
 ﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using Microsoft.AspNetCore.Builder;
+using System;
 
 namespace UsersService
 {
@@ -31,11 +32,25 @@ namespace UsersService
                         config.AddCommandLine(args);
                     }
                 })
-                .ConfigureLogging((hostingContext, logging) =>
+                .UseSerilog((hostingContext, loggerConfiguration) =>
                 {
-                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    logging.AddConsole();
-                    logging.AddDebug();
+                    loggerConfiguration.ReadFrom
+                                       .Configuration(hostingContext.Configuration)
+                                       .Enrich
+                                       .WithMachineName()
+                                       .Enrich
+                                       .WithProcessId()
+                                       .Enrich
+                                       .WithProperty("ApplicationName", "UsersService")
+                                       .WriteTo
+                                       .Async(configuration => configuration.File(@"Logs\Log.txt",
+                                                                                  outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {MachineName} {ProcessId} {ApplicationName} {Message}{NewLine}{Exception}",
+                                                                                  fileSizeLimitBytes: 1L * 100 * 1024 * 1024,
+                                                                                  rollOnFileSizeLimit: true,
+                                                                                  retainedFileCountLimit: 10,
+                                                                                  flushToDiskInterval: TimeSpan.FromSeconds(1)),
+                                              blockWhenFull: true);
+
                 })
                 .UseDefaultServiceProvider((context, options) =>
                 {

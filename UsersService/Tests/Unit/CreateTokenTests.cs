@@ -23,12 +23,12 @@ namespace Tests.Unit
         public async Task GetToken_ItIsOkResult()
         {
             var provider = CreateServiceProvider();
-            var controller = new UsersController(null, provider.GetService<IQueryFactory>());
+            var controller = new TokensController(provider.GetService<IQueryFactory>());
             var mockOfGetCurrentUserStrategy = provider.GetService<Mock<IGetCurrentUserStrategy>>();
             var userToReturn = new UserDto { Login = TestLogin, Roles = new[] { TestRole } };
             mockOfGetCurrentUserStrategy.Setup(mock => mock.Get()).Returns(userToReturn);
 
-            var result = await controller.GetTokenAsync();
+            var result = await controller.GetAsync();
 
             Assert.IsAssignableFrom<OkObjectResult>(result);
         }
@@ -37,12 +37,12 @@ namespace Tests.Unit
         public async Task GetToken_NameFromTokenIsEqualLoginFromCurrentUser()
         {
             var provider = CreateServiceProvider();
-            var controller = new UsersController(null, provider.GetService<IQueryFactory>());
+            var controller = new TokensController(provider.GetService<IQueryFactory>());
             var mockOfGetCurrentUserStrategy = provider.GetService<Mock<IGetCurrentUserStrategy>>();
             var userToReturn = new UserDto { Login = TestLogin, Roles = new[] { TestRole } };
             mockOfGetCurrentUserStrategy.Setup(mock => mock.Get()).Returns(userToReturn);
 
-            var result = await controller.GetTokenAsync();
+            var result = await controller.GetAsync();
             var token = GetTokenFromResult(result);
 
             Assert.NotNull(token);
@@ -53,12 +53,12 @@ namespace Tests.Unit
         public async Task GetToken_RoleFromTokenIsEqualFromCurrentUser()
         {
             var provider = CreateServiceProvider();
-            var controller = new UsersController(null, provider.GetService<IQueryFactory>());
+            var controller = new TokensController(provider.GetService<IQueryFactory>());
             var mockOfGetCurrentUserStrategy = provider.GetService<Mock<IGetCurrentUserStrategy>>();
             var userToReturn = new UserDto { Login = TestLogin, Roles = new[] { TestRole } };
             mockOfGetCurrentUserStrategy.Setup(mock => mock.Get()).Returns(userToReturn);
 
-            var result = await controller.GetTokenAsync();
+            var result = await controller.GetAsync();
             var token = GetTokenFromResult(result);
 
             Assert.NotNull(token);

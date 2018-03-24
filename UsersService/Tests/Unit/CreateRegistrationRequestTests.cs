@@ -12,6 +12,7 @@ using UsersService.Controllers;
 using Xunit;
 using UsersService.Commands.CreateRegistrationRequest;
 using UsersService.Extensions;
+using UsersService.Logs;
 
 namespace Tests.Unit
 {
@@ -29,10 +30,10 @@ namespace Tests.Unit
         public async Task Login_IsEmail_Ok(string login)
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = login, Password = TestPassword };
 
-            var result = await controller.CreateRegistrationRequestAsync(data);
+            var result = await controller.CreateAsync(data);
 
             Assert.IsAssignableFrom<OkResult>(result);
         }
@@ -48,10 +49,10 @@ namespace Tests.Unit
         public async Task Login_IsNotEmail_BadRequest(string login)
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = login, Password = TestPassword };
 
-            var result = await controller.CreateRegistrationRequestAsync(data);
+            var result = await controller.CreateAsync(data);
 
             Assert.IsAssignableFrom<BadRequestObjectResult>(result);
         }
@@ -63,10 +64,10 @@ namespace Tests.Unit
         public async Task Password_IsValid_Ok(string password)
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = password };
 
-            var result = await controller.CreateRegistrationRequestAsync(data);
+            var result = await controller.CreateAsync(data);
 
             Assert.IsAssignableFrom<OkResult>(result);
         }
@@ -79,10 +80,10 @@ namespace Tests.Unit
         public async Task Password_LessThanEightSymbolsOrEmpty_BadRequest(string password)
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = password };
 
-            var result = await controller.CreateRegistrationRequestAsync(data);
+            var result = await controller.CreateAsync(data);
 
             Assert.IsAssignableFrom<BadRequestObjectResult>(result);
         }
@@ -93,10 +94,10 @@ namespace Tests.Unit
         public async Task Password_MoreThanFifteenSymbols_BadRequest(string password)
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = password };
 
-            var result = await controller.CreateRegistrationRequestAsync(data);
+            var result = await controller.CreateAsync(data);
 
             Assert.IsAssignableFrom<BadRequestObjectResult>(result);
         }
@@ -107,10 +108,10 @@ namespace Tests.Unit
         public async Task Password_NoDigits_BadRequest(string password)
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = password };
 
-            var result = await controller.CreateRegistrationRequestAsync(data);
+            var result = await controller.CreateAsync(data);
 
             Assert.IsAssignableFrom<BadRequestObjectResult>(result);
         }
@@ -121,10 +122,10 @@ namespace Tests.Unit
         public async Task Password_NoLetters_BadRequest(string password)
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = password };
 
-            var result = await controller.CreateRegistrationRequestAsync(data);
+            var result = await controller.CreateAsync(data);
 
             Assert.IsAssignableFrom<BadRequestObjectResult>(result);
         }
@@ -135,10 +136,10 @@ namespace Tests.Unit
         public async Task Password_NoSpecialSymbols_BadRequest(string password)
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = password };
 
-            var result = await controller.CreateRegistrationRequestAsync(data);
+            var result = await controller.CreateAsync(data);
 
             Assert.IsAssignableFrom<BadRequestObjectResult>(result);
         }
@@ -147,10 +148,10 @@ namespace Tests.Unit
         public async Task Password_HasColon_BadRequest()
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = "(90asdf:90qwer)" };
 
-            var result = await controller.CreateRegistrationRequestAsync(data);
+            var result = await controller.CreateAsync(data);
 
             Assert.IsAssignableFrom<BadRequestObjectResult>(result);
         }
@@ -159,11 +160,11 @@ namespace Tests.Unit
         public async Task Request_Valid_CallSaveToRepositoryWithCredentialsFromInputData()
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = TestPassword };
             var mockOfRequestsRepository = services.GetService<Mock<IRequests>>();
 
-            await controller.CreateRegistrationRequestAsync(data);
+            await controller.CreateAsync(data);
 
             mockOfRequestsRepository.Verify(repository => repository.SaveAsync(It.Is<RequestDto>(dto => dto.Login == data.Login && dto.Password == data.Password)), Times.Once);
         }
@@ -172,11 +173,11 @@ namespace Tests.Unit
         public async Task Request_Valid_CallSaveToRepositoryWithNoEmptyId()
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = TestPassword };
             var mockOfRequestsRepository = services.GetService<Mock<IRequests>>();
 
-            await controller.CreateRegistrationRequestAsync(data);
+            await controller.CreateAsync(data);
 
             mockOfRequestsRepository.Verify(repository => repository.SaveAsync(It.Is<RequestDto>(dto => dto.Id != Guid.Empty)), Times.Once);
         }
@@ -185,11 +186,11 @@ namespace Tests.Unit
         public async Task Request_Valid_CallSaveToRepositoryWith24HoursTTL()
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = TestPassword };
             var mockOfRequestsRepository = services.GetService<Mock<IRequests>>();
 
-            await controller.CreateRegistrationRequestAsync(data);
+            await controller.CreateAsync(data);
 
             mockOfRequestsRepository.Verify(repository => repository.SaveAsync(It.Is<RequestDto>(dto => dto.TTL == TimeSpan.FromHours(24))), Times.Once);
         }
@@ -198,12 +199,12 @@ namespace Tests.Unit
         public async Task Request_ThrowRequestExceptionWithinSaveToRepository_BadRequest()
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = TestPassword };
             var mockOfRequestsRepository = services.GetService<Mock<IRequests>>();
             mockOfRequestsRepository.Setup(repository => repository.SaveAsync(It.IsAny<RequestDto>())).Throws<RequestException>();
 
-            var result = await controller.CreateRegistrationRequestAsync(data);
+            var result = await controller.CreateAsync(data);
 
             Assert.IsAssignableFrom<BadRequestObjectResult>(result);
         }
@@ -212,11 +213,11 @@ namespace Tests.Unit
         public async Task Email_RequestSavedToRepository_CallSendWitAddressIsTheSameAsTheLogin()
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = TestPassword };
             var mockOfEmailService = services.GetService<Mock<IEmail>>();
 
-            await controller.CreateRegistrationRequestAsync(data);
+            await controller.CreateAsync(data);
 
             mockOfEmailService.Verify(service => service.SendAsync(It.Is<EmailDto>(dto => dto.Address == data.Login)), Times.Once);
         }
@@ -225,11 +226,11 @@ namespace Tests.Unit
         public async Task Email_RequestSavedToRepository_CallSendWitNotNullOrEmptyHead()
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = TestPassword };
             var mockOfEmailService = services.GetService<Mock<IEmail>>();
 
-            await controller.CreateRegistrationRequestAsync(data);
+            await controller.CreateAsync(data);
 
             mockOfEmailService.Verify(service => service.SendAsync(It.Is<EmailDto>(dto => !string.IsNullOrEmpty(dto.Head))), Times.Once);
         }
@@ -238,11 +239,11 @@ namespace Tests.Unit
         public async Task Email_RequestSavedToRepository_CallSendWithCredentialsInBody()
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = TestPassword };
             var mockOfEmailService = services.GetService<Mock<IEmail>>();
 
-            await controller.CreateRegistrationRequestAsync(data);
+            await controller.CreateAsync(data);
 
             mockOfEmailService.Verify(service => service.SendAsync(It.Is<EmailDto>(dto => dto.Body.Contains(TestLogin) && dto.Body.Contains(TestPassword))), Times.Once);
         }
@@ -251,11 +252,11 @@ namespace Tests.Unit
         public async Task Email_RequestSavedToRepository_CallSendWitConfirmationLinkInBody()
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = TestPassword };
             var mockOfEmailService = services.GetService<Mock<IEmail>>();
 
-            await controller.CreateRegistrationRequestAsync(data);
+            await controller.CreateAsync(data);
 
             mockOfEmailService.Verify(service => service.SendAsync(It.Is<EmailDto>(dto => dto.Body.Contains(TestConfirmationLink))), Times.Once);
         }
@@ -264,13 +265,13 @@ namespace Tests.Unit
         public async Task Email_ThrowRequestExceptionWithinSaveToRequestRepository_DoesNotSend()
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = TestPassword };
             var mockOfRequestsRepository = services.GetService<Mock<IRequests>>();
             mockOfRequestsRepository.Setup(repository => repository.SaveAsync(It.IsAny<RequestDto>())).Throws<RequestException>();
             var mockOfEmailService = services.GetService<Mock<IEmail>>();
 
-            await controller.CreateRegistrationRequestAsync(data);
+            await controller.CreateAsync(data);
 
             mockOfEmailService.Verify(service => service.SendAsync(It.IsAny<EmailDto>()), Times.Never);
         }
@@ -279,10 +280,10 @@ namespace Tests.Unit
         public async Task Registration_Valid_Ok()
         {
             var services = CreateServiceProvider();
-            var controller = new UsersController(services.GetService<ICommandFactory>(), null);
+            var controller = new RegistrationRequestsController(services.GetService<ICommandFactory>(), services.GetService<ILog>());
             var data = new RegistrationData { Login = TestLogin, Password = TestPassword };
 
-            var result = await controller.CreateRegistrationRequestAsync(data);
+            var result = await controller.CreateAsync(data);
 
             Assert.IsAssignableFrom<OkResult>(result);
         }
@@ -294,6 +295,7 @@ namespace Tests.Unit
             MockRequestsRepository(services);
             MockEmailService(services);
             MockConfirmationLink(services);
+            MockLogs(services);
             return services.BuildServiceProvider();
         }
 
@@ -319,6 +321,12 @@ namespace Tests.Unit
             service.Setup(mock => mock.GetForRequestId(It.IsAny<Guid>())).Returns(TestConfirmationLink);
             services.AddSingleton(service.Object)
                     .AddSingleton(service);
+        }
+
+        private void MockLogs(IServiceCollection services)
+        {
+            var log = new Mock<ILog>();
+            services.AddSingleton(log.Object);
         }
     }
 }

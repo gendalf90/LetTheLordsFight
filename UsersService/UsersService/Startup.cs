@@ -21,6 +21,7 @@ namespace UsersService
                     .AddCommands()
                     .AddQueries()
                     .AddDomain()
+                    .AddLog()
                     .AddMvc();
         }
 

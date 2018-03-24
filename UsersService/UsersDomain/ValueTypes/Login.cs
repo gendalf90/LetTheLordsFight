@@ -22,7 +22,7 @@ namespace UsersDomain.ValueTypes
         {
             if (IsNullOrEmpty || IsTooLong || IsNotMatchThePattern)
             {
-                throw new LoginException("Bad login");
+                throw new LoginException($"{address} is not valid login");
             }
         }
 

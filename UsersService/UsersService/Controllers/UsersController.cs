@@ -2,62 +2,39 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using UsersService.Common;
-using UsersService.Commands;
 using UsersDomain.Exceptions;
-using ICommandFactory = UsersService.Commands.IFactory;
-using IQueryFactory = UsersService.Queries.IFactory;
 using System;
 using UsersDomain.Exceptions.Registration;
+using UsersService.Logs;
+using UsersService.Commands;
 
 namespace UsersService.Controllers
 {
-    [Route("api/v1/users")]
+    [Route("api/v1/users/confirmation/request")]
     public class UsersController : Controller
     {
-        private readonly ICommandFactory commands;
-        private readonly IQueryFactory queries;
+        private readonly IFactory commands;
+        private readonly ILog log;
 
-        public UsersController(ICommandFactory commands, IQueryFactory queries)
+        private Guid requestId;
+        private ICommand registerCommand;
+
+        public UsersController(IFactory commands, ILog log)
         {
             this.commands = commands;
-            this.queries = queries;
+            this.log = log;
         }
 
-        [Authorize]
-        [HttpGet("current/token")]
-        public async Task<IActionResult> GetTokenAsync()
-        {
-            var query = queries.CreateGetTokenQuery();
-            var result = await query.AskAsync();
-            return Ok(result);
-        }
-
-        [HttpPost("registration/request")]
-        public async Task<IActionResult> CreateRegistrationRequestAsync([FromBody] RegistrationData data)
+        [HttpPost("{requestId:guid}")]
+        public async Task<IActionResult> RegisterByRequestIdAsync(Guid requestId)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var command = commands.GetCreateRegistrationRequestCommand(data);
-
-            try
-            {
-                await command.ExecuteAsync();
-            }
-            catch (LoginException e)
-            {
-                ModelState.AddModelError("login", e.Message);
-            }
-            catch (PasswordException e)
-            {
-                ModelState.AddModelError("password", e.Message);
-            }
-            catch(RequestException e)
-            {
-                ModelState.AddModelError("request", e.Message);
-            }
+            InitializeRequestById(requestId);
+            await TryExecuteRegisterCommandAsync();
 
             if (!ModelState.IsValid)
             {
@@ -67,35 +44,28 @@ namespace UsersService.Controllers
             return Ok();
         }
 
-        [HttpPost("confirmation/request/{requestId:guid}")]
-        public async Task<IActionResult> RegisterUserAsync(Guid requestId)
+        private void InitializeRequestById(Guid guid)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            requestId = guid;
+            registerCommand = commands.GetRegisterUserCommand(guid);
+        }
 
-            var command = commands.GetRegisterUserCommand(requestId);
-
+        private async Task TryExecuteRegisterCommandAsync()
+        {
             try
             {
-                await command.ExecuteAsync();
+                await registerCommand.ExecuteAsync();
             }
             catch (RequestException e)
             {
                 ModelState.AddModelError("request", e.Message);
+                log.Warning(e.Message);
             }
             catch (UserException e)
             {
                 ModelState.AddModelError("user", e.Message);
+                log.Warning($"Request {requestId}: {e.Message}");
             }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            return Ok();
         }
     }
 }

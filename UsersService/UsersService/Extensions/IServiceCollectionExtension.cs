@@ -12,6 +12,7 @@ using UsersDomain.Repositories;
 using UsersService.Domain;
 using UsersDomain.Services.Registration;
 using UsersService.Commands.CreateRegistrationRequest;
+using UsersService.Logs;
 
 namespace UsersService.Extensions
 {
@@ -33,6 +34,11 @@ namespace UsersService.Extensions
         {
             return services.AddTransient<IUsers, UsersRepository>()
                            .AddTransient<IEmail, EmailService>();
+        }
+
+        public static IServiceCollection AddLog(this IServiceCollection services)
+        {
+            return services.AddTransient<ILog, Log>();
         }
 
         public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
