@@ -6,6 +6,6 @@ namespace UsersService.BasicAuthentication
     {
         public string Login { get; set; }
 
-        public IEnumerable<string> Roles { get; set; }
+        public string[] Roles { get; set; }
     }
 }

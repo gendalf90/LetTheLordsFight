@@ -13,6 +13,7 @@ using UsersService.Domain;
 using UsersDomain.Services.Registration;
 using UsersService.Commands.CreateRegistrationRequest;
 using UsersService.Logs;
+using UsersService.Queries.GetCurrentToken;
 
 namespace UsersService.Extensions
 {
@@ -21,6 +22,8 @@ namespace UsersService.Extensions
         public static IServiceCollection AddQueries(this IServiceCollection services)
         {
             return services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
+                           .AddTransient<IGetTokenSigningKeyStrategy, GetTokenSigningKeyStrategy>()
+                           .AddTransient<IGetCurrentUserStrategy, GetCurrentUserStrategy>()
                            .AddTransient<IQueryFactory, QueryFactory>();
         }
 
