@@ -12,6 +12,8 @@ using UsersService.Controllers;
 using Xunit;
 using UsersService.Extensions;
 using UsersService.Logs;
+using Microsoft.Extensions.Configuration;
+using UsersService;
 
 namespace Tests.Unit
 {
@@ -100,15 +102,17 @@ namespace Tests.Unit
 
         private IServiceProvider CreateServiceProvider()
         {
+            var configuration = new Mock<IConfiguration>();
             var services = new ServiceCollection();
-            services.AddCommands().AddDomain();
+            var startup = new Startup(configuration.Object);
+            startup.ConfigureServices(services);
             MockRequestsRepository(services);
             MockUsersRepository(services);
             MockLogs(services);
             return services.BuildServiceProvider();
         }
 
-        private void MockRequestsRepository(ServiceCollection services)
+        private void MockRequestsRepository(IServiceCollection services)
         {
             var defaultRequest = new RequestDto { Id = Guid.Empty, Login = TestLogin, Password = TestPassword, TTL = TimeSpan.Zero };
             var repository = new Mock<IRequests>();
@@ -118,7 +122,7 @@ namespace Tests.Unit
                     .AddSingleton(repository);
         }
 
-        private void MockUsersRepository(ServiceCollection services)
+        private void MockUsersRepository(IServiceCollection services)
         {
             var repository = new Mock<IUsers>();
             repository.Setup(mock => mock.SaveAsync(It.IsAny<UserDto>())).Returns(Task.CompletedTask);

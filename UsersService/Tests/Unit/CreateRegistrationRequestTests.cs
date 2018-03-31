@@ -13,6 +13,8 @@ using Xunit;
 using UsersService.Commands.CreateRegistrationRequest;
 using UsersService.Extensions;
 using UsersService.Logs;
+using Microsoft.Extensions.Configuration;
+using UsersService;
 
 namespace Tests.Unit
 {
@@ -290,8 +292,10 @@ namespace Tests.Unit
 
         private IServiceProvider CreateServiceProvider()
         {
+            var configuration = new Mock<IConfiguration>();
             var services = new ServiceCollection();
-            services.AddCommands().AddDomain();
+            var startup = new Startup(configuration.Object);
+            startup.ConfigureServices(services);
             MockRequestsRepository(services);
             MockEmailService(services);
             MockConfirmationLink(services);
@@ -317,7 +321,7 @@ namespace Tests.Unit
 
         private void MockConfirmationLink(IServiceCollection services)
         {
-            var service = new Mock<IConfirmationUrl>();
+            var service = new Mock<IConfirmationLink>();
             service.Setup(mock => mock.GetForRequestId(It.IsAny<Guid>())).Returns(TestConfirmationLink);
             services.AddSingleton(service.Object)
                     .AddSingleton(service);

@@ -18,9 +18,10 @@ namespace UsersService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(configuration)
-                    .AddCommands()
+                    .AddCommands(configuration)
+                    .AddMySql(configuration)
                     .AddQueries()
-                    .AddDomain()
+                    .AddDomain(configuration)
                     .AddLog()
                     .AddMvc();
         }

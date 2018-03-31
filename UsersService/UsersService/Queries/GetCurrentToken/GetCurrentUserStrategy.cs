@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 
@@ -9,10 +8,6 @@ namespace UsersService.Queries.GetCurrentToken
     {
         private readonly IHttpContextAccessor httpContextAccessor;
 
-        private ClaimsPrincipal user;
-        private string name;
-        private List<string> roles;
-
         public GetCurrentUserStrategy(IHttpContextAccessor httpContextAccessor)
         {
             this.httpContextAccessor = httpContextAccessor;
@@ -20,35 +15,14 @@ namespace UsersService.Queries.GetCurrentToken
 
         public UserDto Get()
         {
-            Initialize();
-            FillName();
-            FillRoles();
-            return CreateDto();
-        }
+            var httpContextUser = httpContextAccessor.HttpContext.User;
+            var httpContextLogin = httpContextUser.FindFirst(ClaimTypes.Name);
+            var httpContextRoles = httpContextUser.FindAll(ClaimTypes.Role);
 
-        private void Initialize()
-        {
-            user = httpContextAccessor.HttpContext.User;
-        }
-
-        private void FillName()
-        {
-            name = user.Identity.Name;
-        }
-
-        private void FillRoles()
-        {
-            roles = user.Claims.Where(claim => claim.Type == ClaimTypes.Role)
-                               .Select(claim => claim.Value)
-                               .ToList();
-        }
-
-        private UserDto CreateDto()
-        {
             return new UserDto
             {
-                Login = name,
-                Roles = roles
+                Login = httpContextLogin.Value,
+                Roles = httpContextRoles.Select(role => role.Value).ToArray()
             };
         }
     }

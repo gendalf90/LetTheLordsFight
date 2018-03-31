@@ -12,7 +12,7 @@ namespace UsersService.Commands.CreateRegistrationRequest
 {
     public class Command : ICommand
     {
-        private readonly IConfirmationUrl confirmationUrl;
+        private readonly IConfirmationLink confirmationLink;
         private readonly IRequests requestsRepository;
         private readonly IEmail emailService;
         private readonly ILog log;
@@ -21,13 +21,13 @@ namespace UsersService.Commands.CreateRegistrationRequest
         private Request registrationRequest;
         private Email registrationEmail;
 
-        public Command(IConfirmationUrl confirmationUrl, 
+        public Command(IConfirmationLink confirmationLink, 
                        IRequests requestsRepository, 
                        IEmail emailService,
                        ILog log,
                        RegistrationData registrationData)
         {
-            this.confirmationUrl = confirmationUrl;
+            this.confirmationLink = confirmationLink;
             this.requestsRepository = requestsRepository;
             this.emailService = emailService;
             this.log = log;
@@ -69,7 +69,7 @@ namespace UsersService.Commands.CreateRegistrationRequest
 
         private void CreateRegistrationEmail()
         {
-            var url = confirmationUrl.GetForRequestId(registrationRequest.Id);
+            var url = confirmationLink.GetForRequestId(registrationRequest.Id);
             var link = new Link(url);
             registrationEmail = registrationRequest.CreateEmailWithConfirmationLink(link);
         }
