@@ -15,6 +15,7 @@ using UsersService.Extensions;
 using UsersService.Logs;
 using Microsoft.Extensions.Configuration;
 using UsersService;
+using UsersDomain.Repositories;
 
 namespace Tests.Unit
 {
@@ -297,6 +298,7 @@ namespace Tests.Unit
             var startup = new Startup(configuration.Object);
             startup.ConfigureServices(services);
             MockRequestsRepository(services);
+            MockUsersRepository(services);
             MockEmailService(services);
             MockConfirmationLink(services);
             MockLogs(services);
@@ -309,6 +311,12 @@ namespace Tests.Unit
             repository.Setup(mock => mock.SaveAsync(It.IsAny<RequestDto>())).Returns(Task.CompletedTask);
             services.AddSingleton(repository.Object)
                     .AddSingleton(repository);
+        }
+
+        private void MockUsersRepository(IServiceCollection services)
+        {
+            var repository = new Mock<IUsers>();
+            services.AddSingleton(repository.Object);
         }
 
         private void MockEmailService(IServiceCollection services)

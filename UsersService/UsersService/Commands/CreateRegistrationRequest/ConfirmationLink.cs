@@ -15,9 +15,7 @@ namespace UsersService.Commands.CreateRegistrationRequest
 
         public string GetForRequestId(Guid requestId)
         {
-            var builder = new UriBuilder(options.Value.Link);
-            builder.Path = requestId.ToString();
-            return builder.ToString();
+            return $"{options.Value.Link}/{requestId.ToString()}";
         }
     }
 }

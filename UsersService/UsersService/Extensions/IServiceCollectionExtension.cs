@@ -16,6 +16,7 @@ using UsersService.Logs;
 using UsersService.Queries.GetCurrentToken;
 using Microsoft.EntityFrameworkCore;
 using UsersService.Database;
+using UsersDomain.Repositories.Registration;
 
 namespace UsersService.Extensions
 {
@@ -54,6 +55,7 @@ namespace UsersService.Extensions
                                options.Login = configuration["SMTP_LOGIN"];
                                options.Password = configuration["SMTP_PASSWORD"];
                            })
+                           .AddTransient<IRequests, RequestsRepository>()
                            .AddTransient<IUsers, UsersRepository>()
                            .AddTransient<IEmail, EmailService>();
         }
