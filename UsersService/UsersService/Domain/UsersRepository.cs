@@ -46,7 +46,7 @@ namespace UsersService.Domain
             }
             catch (DbUpdateException e)
             {
-                e.ThrowIfDublicateEntry(new UserException($"Attempt to save dublicate of user with id {dto.Id}"));
+                e.ThrowIfDublicateEntry(new UserException($"Attempt to save dublicate of user with login {dto.Login}"));
                 throw;
             }
         }

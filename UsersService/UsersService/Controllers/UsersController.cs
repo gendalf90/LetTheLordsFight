@@ -1,7 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using UsersService.Common;
 using UsersDomain.Exceptions;
 using System;
 using UsersDomain.Exceptions.Registration;

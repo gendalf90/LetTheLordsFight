@@ -65,7 +65,7 @@ namespace UsersService.Domain
             }
             catch(DbUpdateException e)
             {
-                e.ThrowIfDublicateEntry(new RequestException($"Attempt to save dublicate of registration request with id {dto.Id}"));
+                e.ThrowIfDublicateEntry(new RequestException($"Attempt to save dublicate of registration request for login {dto.Login}"));
                 throw;
             }
         }
