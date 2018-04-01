@@ -18,7 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using UsersService.Database;
 using UsersDomain.Repositories.Registration;
 
-namespace UsersService.Extensions
+namespace UsersService.Initialization
 {
     public static class IServiceCollectionExtension
     {

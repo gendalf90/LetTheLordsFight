@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace UsersService.Database
 {
@@ -10,6 +11,6 @@ namespace UsersService.Database
 
         public string Password { get; set; }
 
-        public RoleDto[] Roles { get; set; }
+        public List<RoleDto> Roles { get; set; }
     }
 }

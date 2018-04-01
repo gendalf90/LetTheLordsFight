@@ -33,7 +33,7 @@ namespace UsersService.Domain
                 Id = dto.Id,
                 Login = dto.Login,
                 Password = dto.Password,
-                Roles = roles.ToArray()
+                Roles = roles.ToList()
             };
         }
 

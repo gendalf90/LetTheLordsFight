@@ -12,10 +12,9 @@ namespace UsersService.Queries.GetCurrentToken
         private readonly IGetCurrentUserStrategy currentUser;
         private readonly IGetTokenSigningKeyStrategy signingKey;
 
-        private UserDto currentUserData;
-        private SigningCredentials signingCredentials;
         private IEnumerable<Claim> claims;
-        private string resultToken;
+        private SigningCredentials signingCredentials;
+        private string tokenString;
 
         public Query(IGetCurrentUserStrategy currentUser, IGetTokenSigningKeyStrategy signingKey)
         {
@@ -25,51 +24,41 @@ namespace UsersService.Queries.GetCurrentToken
 
         public Task<string> AskAsync()
         {
-            LoadCurrentUser();
-            CreateSigningCredentials();
             CreateClaims();
+            CreateCredentials();
             CreateToken();
-            return Task.FromResult(resultToken);
-        }
-
-        private void LoadCurrentUser()
-        {
-            currentUserData = currentUser.Get();
-        }
-
-        private void CreateSigningCredentials()
-        {
-            var key = signingKey.Get();
-            signingCredentials = CreateSigningCredentialsByKey(key);
+            return Task.FromResult(tokenString);
         }
 
         private void CreateClaims()
         {
-            claims = CreateClaimsForUser(currentUserData);
+            var currentUserData = currentUser.Get();
+            claims = GetClaimsForUser(currentUserData);
+        }
+
+        private IEnumerable<Claim> GetClaimsForUser(UserDto dto)
+        {
+            yield return new Claim(ClaimTypes.Name, dto.Login);
+
+            foreach (var role in dto.Roles)
+            {
+                yield return new Claim(ClaimTypes.Role, role);
+            }
+        }
+
+        private void CreateCredentials()
+        {
+            var signingKeyString = signingKey.Get();
+            var signingKeyBytes = Encoding.ASCII.GetBytes(signingKeyString);
+            var securityKey = new SymmetricSecurityKey(signingKeyBytes);
+            signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         }
 
         private void CreateToken()
         {
-            var handler = new JwtSecurityTokenHandler();
-            var jwt = new JwtSecurityToken(signingCredentials: signingCredentials, claims: claims);
-            resultToken = handler.WriteToken(jwt);
-        }
-
-        private SigningCredentials CreateSigningCredentialsByKey(string signingKey)
-        {
-            var bytes = Encoding.ASCII.GetBytes(signingKey);
-            var key = new SymmetricSecurityKey(bytes);
-            return new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        }
-
-        private IEnumerable<Claim> CreateClaimsForUser(UserDto dto)
-        {
-            yield return new Claim(ClaimTypes.Name, dto.Login);
-
-            foreach(var role in dto.Roles)
-            {
-                yield return new Claim(ClaimTypes.Role, role);
-            }
+            var jwtToken = new JwtSecurityToken(signingCredentials: signingCredentials, claims: claims);
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+            tokenString = jwtTokenHandler.WriteToken(jwtToken);
         }
     }
 }

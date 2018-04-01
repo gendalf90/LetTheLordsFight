@@ -10,7 +10,7 @@ using UsersDomain.Repositories.Registration;
 using ICommandFactory = UsersService.Commands.IFactory;
 using UsersService.Controllers;
 using Xunit;
-using UsersService.Extensions;
+using UsersService.Initialization;
 using UsersService.Logs;
 using Microsoft.Extensions.Configuration;
 using UsersService;

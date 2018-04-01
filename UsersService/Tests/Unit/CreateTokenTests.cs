@@ -10,7 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System;
 using UsersService.Queries.GetCurrentToken;
 using System.Linq;
-using UsersService.Extensions;
+using UsersService.Initialization;
 
 namespace Tests.Unit
 {

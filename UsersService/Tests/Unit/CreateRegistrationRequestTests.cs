@@ -11,7 +11,7 @@ using UsersService.Common;
 using UsersService.Controllers;
 using Xunit;
 using UsersService.Commands.CreateRegistrationRequest;
-using UsersService.Extensions;
+using UsersService.Initialization;
 using UsersService.Logs;
 using Microsoft.Extensions.Configuration;
 using UsersService;
