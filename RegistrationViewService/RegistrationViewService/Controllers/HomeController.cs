@@ -4,7 +4,7 @@ using RegistrationViewService.Options;
 
 namespace RegistrationViewService.Controllers
 {
-    [Route("/")]
+    [Route("registration")]
     public class HomeController : Controller
     {
         private readonly IOptions<ApiOptions> options;
@@ -15,6 +15,9 @@ namespace RegistrationViewService.Controllers
         }
 
         [HttpGet]
+        [HttpGet("confirm/{requestId}")]
+        [HttpGet("signin")]
+        [HttpGet("signup")]
         public IActionResult Index()
         {
             ViewBag.Api = options.Value.BaseUri.AbsoluteUri;

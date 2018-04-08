@@ -2,11 +2,11 @@
     result: null
 };
 
-export default function signin(state = initialState, action) {
+export default function confirm(state = initialState, action) {
     switch (action.type) {
-        case 'SIGNIN_FAILED':
+        case 'CONFIRMATION_FAILED':
             return { ...state, result: { isSuccess: false, errors: action.errors } };
-        case 'SIGNIN_SUCCESS':
+        case 'CONFIRMATION_SUCCESS':
             return { ...state, result: { isSuccess: true } };
         default:
             return state;

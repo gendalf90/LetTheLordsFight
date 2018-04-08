@@ -1,7 +1,20 @@
 ﻿import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import signUp from '../Actions/SignUp';
 
-export default class SignUp extends React.Component {
+class SignUp extends React.Component {
     render() {
+        return (
+            <div>
+                {this.renderErrorsIfExist()}
+                {this.renderSuccessIfExist()}
+                {this.renderInput()}
+            </div>
+        );
+    }
+
+    renderInput() {
         return (
             <div className="card">
                 {this.renderHead()}
@@ -31,45 +44,53 @@ export default class SignUp extends React.Component {
     }
 
     renderLoginInput() {
-        let errors = this.props.errors.login;
-        let hasErrors = errors.length > 0;
-        let invalidClassName = hasErrors ? 'is-invalid' : '';
-
         return (
             <div>
                 <label htmlFor="email">Email</label>
-                <input type="text" className={'form-control ' + invalidClassName} id="email" ref="login" />
-                {this.renderInputErrorsIfExist(errors)}
+                <input type="text" className="form-control" id="email" ref="login" />
             </div>
         );
     }
 
     renderPasswordInput() {
-        let errors = this.props.errors.password;
-        let hasErrors = errors.length > 0;
-        let invalidClassName = hasErrors ? 'is-invalid' : '';
-
         return (
             <div>
                 <label htmlFor="password">Password</label>
-                <input type="password" className={'form-control ' + invalidClassName} id="password" ref="password"/>
-                {this.renderInputErrorsIfExist(errors)}
+                <input type="password" className="form-control" id="password" ref="password"/>
             </div>
         );
     }
 
-    renderInputErrorsIfExist(errors) {
-        if (errors.length == 0) {
+    renderErrorsIfExist() {
+        let result = this.props.result;
+
+        if (!result || result.isSuccess) {
             return;
         }
 
-        let set = new Set(errors);
+        return (
+            <div className="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error</h4>
+                <p>
+                    <ul>
+                        {result.errors.map(error => <li key={error}>{error}</li>)}
+                    </ul>
+                </p>
+            </div>
+        );
+    }
+
+    renderSuccessIfExist() {
+        let result = this.props.result;
+
+        if (!result || !result.isSuccess) {
+            return;
+        }
 
         return (
-            <div className="invalid-feedback">
-                <ul>
-                    {errors.map(error => <li key={error}>{error}</li>)}
-                </ul>
+            <div className="alert alert-success" role="alert">
+                <h4 className="alert-heading">Success</h4>
+                <p>Please go in your email <strong>{result.email}</strong> and confirm your registration request</p>
             </div>
         );
     }
@@ -88,3 +109,5 @@ export default class SignUp extends React.Component {
         this.props.actions.signUp(login, password);
     }
 };
+
+export default connect(state => ({ result: state.signup.result }), dispatch => ({ actions: bindActionCreators({ signUp }, dispatch) }))(SignUp);

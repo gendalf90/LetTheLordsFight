@@ -1,7 +1,20 @@
 ﻿import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import signIn from '../Actions/SignIn';
 
-export default class SignIn extends React.Component {
+class SignIn extends React.Component {
     render() {
+        return (
+            <div>
+                {this.renderErrorsIfExist()}
+                {this.renderSuccessIfExist()}
+                {this.renderInput()}
+            </div>
+        );
+    }
+
+    renderInput() {
         return (
             <div className="card">
                 <div className="card-header text-center">
@@ -22,9 +35,45 @@ export default class SignIn extends React.Component {
         );
     }
 
+    renderErrorsIfExist() {
+        let result = this.props.result;
+
+        if (!result || result.isSuccess) {
+            return;
+        }
+
+        return (
+            <div className="alert alert-danger" role="alert">
+                <h4 className="alert-heading">Error</h4>
+                <p>
+                    <ul>
+                        {result.errors.map(error => <li key={error}>{error}</li>)}
+                    </ul>
+                </p>
+            </div>
+        );
+    }
+
+    renderSuccessIfExist() {
+        let result = this.props.result;
+
+        if (!result || !result.isSuccess) {
+            return;
+        }
+
+        return (
+            <div className="alert alert-success" role="alert">
+                <h4 class="alert-heading">Success</h4>
+                <p>You have signed in</p>
+            </div>
+        );
+    }
+
     signInCurrentUser() {
         let login = this.refs.login.value;
         let password = this.refs.password.value;
         this.props.actions.signIn(login, password);
     }
 };
+
+export default connect(state => ({ result: state.signin.result }), dispatch => ({ actions: bindActionCreators({ signIn }, dispatch) }))(SignIn);

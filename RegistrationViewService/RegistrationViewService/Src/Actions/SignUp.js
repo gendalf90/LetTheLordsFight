@@ -1,53 +1,45 @@
-﻿import showSignIn from './ShowSignIn';
-import setSignUpErrors from './SetSignUpErrors';
-import clearSignUpErrors from './ClearSignUpErrors';
-import showError from './ShowError';
+﻿import signUpSuccess from './SignUpSuccess';
+import signUpFailed from './SignUpFailed';
 import axios from 'axios';
 
 export default function signUp(login, password) {
     return async function (dispatch) {
         try {
-            await postNewUser(login, password);
-            dispatch(showSignIn());
+            await postRegistrationRequest(login, password);
+            showSuccess(dispatch, login);
         } catch (exception) {
             showErrors(dispatch, exception);
         };
     };
 };
 
-var postNewUser = async function (login, password) {
+var postRegistrationRequest = async function (login, password) {
     let request = createRequest(login, password);
     await axios.request(request);
 };
 
 var createRequest = function (login, password) {
     return {
-        url: 'api/v1/users',
+        url: '/api/v1/users/registration/requests',
         method: 'post',
         baseURL: sessionStorage['api'],
         data: { login, password }
     };
 };
 
-var showErrors = function (dispatch, exception) {
-    let errors = createErrorsFromException(exception);
-
-    if (errors) {
-        dispatch(setSignUpErrors(errors));
-    } else {
-        dispatch(showError());
-    };
+var showSuccess = function (dispatch, login) {
+    dispatch(signUpSuccess(login));
 };
 
-var createErrorsFromException = function (exception) {
+var showErrors = function (dispatch, exception) {
+    let errors;
     let data = exception.response && exception.response.data;
 
     if (!data) {
-        return;
+        errors = ['Something went wrong'];
+    } else {
+        errors = [...data.login, ...data.password, ...data.request];
     }
 
-    return {
-        login: data.login,
-        password: data.password
-    };
+    dispatch(signUpFailed(errors));
 };

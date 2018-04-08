@@ -5,15 +5,20 @@ import { Provider } from 'react-redux';
 import ReduxThunk from 'redux-thunk';
 import combineReducers from './Reducers/combine';
 import App from './components/app';
-import showSignUp from './Actions/ShowSignUp';
+import { Route, Router } from 'react-router';
+import { BrowserRouter } from 'react-router-dom';
+import { routerMiddleware } from 'react-router-redux';
+import { createBrowserHistory } from 'history';
 
-const store = createStore(combineReducers, applyMiddleware(ReduxThunk));
+const history = createBrowserHistory();
 
-store.dispatch(showSignUp());
+const store = createStore(combineReducers, applyMiddleware(ReduxThunk, routerMiddleware(history)));
 
 render(
     <Provider store={store}>
-        <App />
+        <Router history={history}>
+            <Route path="/" component={App} />
+        </Router>
     </Provider>,
     document.getElementById('content')
 )

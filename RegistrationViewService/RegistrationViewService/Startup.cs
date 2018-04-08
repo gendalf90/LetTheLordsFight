@@ -34,7 +34,7 @@ namespace RegistrationViewService
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseStaticFiles();
+            app.UseStaticFiles("/registration");
             app.UseMvc();
         }
     }

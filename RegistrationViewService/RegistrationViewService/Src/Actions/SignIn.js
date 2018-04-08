@@ -1,4 +1,5 @@
-﻿import showError from './ShowError';
+﻿import signInFailed from './SignInFailed';
+import signInSuccess from './SignInSuccess';
 import axios from 'axios';
 
 export default function signIn(login, password) {
@@ -6,9 +7,9 @@ export default function signIn(login, password) {
         try {
             let token = await getToken(login, password);
             setTokenToLocalStorage(token);
-            goToMapPage();
+            showSuccess(dispatch);
         } catch (exception) {
-            handleError(dispatch, exception);
+            showErrors(dispatch, exception);
         };
     }
 };
@@ -23,14 +24,11 @@ var setTokenToLocalStorage = function (token) {
     localStorage.setItem('token', 'Bearer ' + token);
 }
 
-var goToMapPage = function () {
-     window.location = 'map';
-};
-
 var createRequest = function (login, password) {
     return {
         url: 'api/v1/users/current/token',
         baseURL: sessionStorage['api'],
+        method: 'get',
         auth: {
             username: login,
             password: password
@@ -38,12 +36,19 @@ var createRequest = function (login, password) {
     };
 };
 
-var handleError = function (dispatch, exception) {
+var showSuccess = function (dispatch) {
+    dispatch(signInSuccess());
+};
+
+var showErrors = function (dispatch, exception) {
+    let errors;
     let status = exception.response && exception.response.status;
 
     if (status === 401) {
-        dispatch(showError('not authorized'));
+        errors = ['Not Authorized'];
     } else {
-        dispatch(showError());
+        errors = ['Something went wrong'];
     }
+
+    dispatch(signInFailed(errors));
 };

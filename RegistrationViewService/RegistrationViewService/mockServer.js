@@ -4,12 +4,22 @@ const middlewares = jsonServer.defaults();
 
 server.use(middlewares);
 
-server.post('/api/v1/users', (req, res) => {
+server.post('/api/v1/users/registration/requests', (req, res) => {
     res.sendStatus(200);
 
     //res.status(400).json({
     //    login: ['error1', 'error2'],
-    //    password: ['error3']
+    //    password: ['error3'],
+    //    request: ['error4', 'error5']
+    //});
+});
+
+server.post('/api/v1/users/confirmation/request/:id', (req, res) => {
+    res.sendStatus(200);
+
+    //res.status(400).json({
+    //    user: ['error1', 'error2'],
+    //    request: ['error3', 'error4']
     //});
 });
 
