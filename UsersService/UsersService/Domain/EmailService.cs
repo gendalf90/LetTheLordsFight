@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Options;
-using System.Net;
-using System.Net.Mail;
+using MailKit.Net.Smtp;
+using MimeKit;
 using System.Threading.Tasks;
 using UsersDomain.Services.Registration;
 using UsersService.Options;
+using MimeKit.Text;
 
 namespace UsersService.Domain
 {
@@ -18,12 +19,22 @@ namespace UsersService.Domain
 
         public async Task SendAsync(EmailDto data)
         {
-            var client = new SmtpClient(options.Value.Host, options.Value.Port)
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(options.Value.Login));
+            message.To.Add(new MailboxAddress(data.Address));
+            message.Subject = data.Head;
+            message.Body = new TextPart(TextFormat.Html)
             {
-                Credentials = new NetworkCredential(options.Value.Login, options.Value.Password),
-                EnableSsl = true
+                Text = data.Body
             };
-            await client.SendMailAsync(options.Value.Login, data.Address, data.Head, data.Body);
+
+            using (var client = new SmtpClient())
+            {
+                await client.ConnectAsync(options.Value.Host, options.Value.Port);
+                await client.AuthenticateAsync(options.Value.Login, options.Value.Password);
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+            }
         }
     }
 }
