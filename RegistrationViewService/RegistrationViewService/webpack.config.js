@@ -4,7 +4,7 @@ var uglify = require('uglifyjs-webpack-plugin');
 const entryFilePath = "./src/main.jsx";
 const devOutputFileName = "bundle.js";
 const prodOutputFileName = "bundle.min.js";
-const outputPath = "./wwwroot/dist/";
+const outputPath = "./wwwroot/registration/dist/";
 const srcPath = "src/";
 
 module.exports = env => {

@@ -3,7 +3,7 @@
   "name": "registrationview",
   "private": true,
   "scripts": {
-    "clean": "rimraf ./wwwroot/dist/",
+    "clean": "rimraf ./wwwroot/registration/",
     "build-dev": "webpack --env.NODE_ENV=development --env.development --config webpack.config.js",
     "build-prod": "webpack --env.NODE_ENV=production --env.production --config webpack.config.js",
     "build": "npm run clean && npm run build-dev && npm run build-prod",
