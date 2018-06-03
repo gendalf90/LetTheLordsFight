@@ -34,22 +34,7 @@ namespace UsersService
                 })
                 .UseSerilog((hostingContext, loggerConfiguration) =>
                 {
-                    loggerConfiguration.ReadFrom
-                                       .Configuration(hostingContext.Configuration)
-                                       .Enrich
-                                       .WithMachineName()
-                                       .Enrich
-                                       .WithProcessId()
-                                       .Enrich
-                                       .WithProperty("ApplicationName", "UsersService")
-                                       .WriteTo
-                                       .Async(configuration => configuration.File(@"Logs\Log.txt",
-                                                                                  outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {MachineName} {ProcessId} {ApplicationName} {Message}{NewLine}{Exception}",
-                                                                                  fileSizeLimitBytes: 1L * 100 * 1024 * 1024,
-                                                                                  rollOnFileSizeLimit: true,
-                                                                                  retainedFileCountLimit: 10,
-                                                                                  flushToDiskInterval: TimeSpan.FromSeconds(1)),
-                                              blockWhenFull: true);
+                    loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration);
 
                 })
                 .UseDefaultServiceProvider((context, options) =>
