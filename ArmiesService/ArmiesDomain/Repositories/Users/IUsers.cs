@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Threading.Tasks;
 
 namespace ArmiesDomain.Repositories.Users
 {
     public interface IUsers
     {
-        //load and save
+        Task<UserDto> GetByLoginAsync(string login);
+
+        Task SaveAsync(UserDto data);
     }
 }

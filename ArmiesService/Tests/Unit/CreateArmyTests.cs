@@ -58,5 +58,11 @@ namespace Tests.Unit
         {
 
         }
+
+        [Fact]
+        public async Task Army_Valid_Ok()
+        {
+
+        }
     }
 }

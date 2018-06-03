@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ArmiesService.Controllers.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace ArmiesService.Controllers
     public class CreateArmyController : Controller
     {
         [HttpPost]
-        public async Task<IActionResult> CreateAsync()
+        public async Task<IActionResult> CreateAsync([FromBody] ArmyDto data)
         {
             throw new NotImplementedException();
         }

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Threading.Tasks;
 
 namespace ArmiesDomain.Repositories.Armies
 {
-    interface IArmies
+    public interface IArmies
     {
-        //save only
+        Task SaveAsync(ArmyDto data);
     }
 }

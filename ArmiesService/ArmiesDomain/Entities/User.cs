@@ -1,16 +1,23 @@
 ﻿using ArmiesDomain.Repositories.Users;
 using ArmiesDomain.ValueObjects;
-using System;
+using System.Threading.Tasks;
 
 namespace ArmiesDomain.Entities
 {
     public class User
     {
-        private Cost armyCostLimit;
+        private int armyCostLimit;
+
+        private User(string login, int armyCostLimit)
+        {
+            Login = login;
+            this.armyCostLimit = armyCostLimit;
+        }
 
         public bool IsArmyCostLimitExceeded(Cost armyCost)
         {
-            return armyCost.IsGreaterThan(armyCostLimit);
+            var currentArmyCostLimit = new Cost(armyCostLimit);
+            return armyCost.IsGreaterThan(currentArmyCostLimit);
         }
 
         public string Login { get; private set; }
@@ -18,14 +25,21 @@ namespace ArmiesDomain.Entities
         //здесь также хранится опыт
         //методы для повышения лимита стоимости
 
-        public void Save(IUsers repository)
+        public async Task SaveAsync(IUsers repository)
         {
-            throw new NotImplementedException();
+            var data = new UserDto
+            {
+                Login = Login,
+                ArmyCostLimit = armyCostLimit
+            };
+
+            await repository.SaveAsync(data);
         }
 
-        public static User LoadByLogin(IUsers repository, string login)
+        public static async Task<User> LoadByLoginAsync(IUsers repository, string login)
         {
-            throw new NotImplementedException();
+            var data = await repository.GetByLoginAsync(login);
+            return new User(data.Login, data.ArmyCostLimit);
         }
     }
 }

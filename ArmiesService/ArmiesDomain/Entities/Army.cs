@@ -3,6 +3,7 @@ using ArmiesDomain.Services.Costs;
 using ArmiesDomain.ValueObjects;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ArmiesDomain.Entities
 {
@@ -18,7 +19,7 @@ namespace ArmiesDomain.Entities
             throw new NotImplementedException();
         }
 
-        public void Save(IArmies repository)
+        public async Task SaveAsync(IArmies repository)
         {
             throw new NotImplementedException();
         }
