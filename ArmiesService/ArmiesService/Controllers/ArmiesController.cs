@@ -8,7 +8,7 @@ namespace ArmiesService.Controllers
 {
     [Authorize]
     [Route("api/v1/armies")]
-    public class CreateArmyController : Controller
+    public class ArmiesController : Controller
     {
         [HttpPost]
         public async Task<IActionResult> CreateAsync([FromBody] ArmyDto data)

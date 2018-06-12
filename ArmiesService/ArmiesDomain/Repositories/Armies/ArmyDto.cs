@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace ArmiesDomain.Repositories.Armies
 {
     public class ArmyDto
     {
+        public string Owner { get; set; }
+
         public List<SquadDto> Squads { get; set; }
     }
 }

@@ -6,40 +6,36 @@ namespace ArmiesDomain.Entities
 {
     public class User
     {
-        private int armyCostLimit;
+        private Cost armyLimit;
 
-        private User(string login, int armyCostLimit)
+        private User()
         {
-            Login = login;
-            this.armyCostLimit = armyCostLimit;
         }
 
         public bool IsArmyCostLimitExceeded(Cost armyCost)
         {
-            var currentArmyCostLimit = new Cost(armyCostLimit);
-            return armyCost.IsGreaterThan(currentArmyCostLimit);
+            return armyCost.IsGreaterThan(armyLimit);
         }
 
         public string Login { get; private set; }
 
-        //здесь также хранится опыт
-        //методы для повышения лимита стоимости
-
         public async Task SaveAsync(IUsers repository)
         {
-            var data = new UserDto
-            {
-                Login = Login,
-                ArmyCostLimit = armyCostLimit
-            };
-
+            var data = new UserDto();
+            data.Login = Login;
+            armyLimit.FillUserData(data);
             await repository.SaveAsync(data);
         }
 
         public static async Task<User> LoadByLoginAsync(IUsers repository, string login)
         {
             var data = await repository.GetByLoginAsync(login);
-            return new User(data.Login, data.ArmyCostLimit);
+
+            return new User
+            {
+                Login = data.Login,
+                armyLimit = new Cost(data.ArmyCostLimit)
+            };
         }
     }
 }

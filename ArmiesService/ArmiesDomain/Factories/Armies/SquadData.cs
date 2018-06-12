@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace ArmiesDomain.Repositories.Armies
+namespace ArmiesDomain.Factories.Armies
 {
-    public class SquadDto
+    public class SquadData
     {
         public string Type { get; set; }
 

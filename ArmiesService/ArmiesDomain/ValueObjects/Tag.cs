@@ -1,10 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ArmiesDomain.ValueObjects
 {
-    class Tag
+    public class Tag
     {
+        private readonly string value;
+
+        public Tag(string value)
+        {
+            if(string.IsNullOrEmpty(value))
+            {
+                throw new ArgumentException("Tag value is null or empty");
+            }
+
+            this.value = value;
+        }
     }
 }
