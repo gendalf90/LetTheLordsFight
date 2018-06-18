@@ -1,5 +1,5 @@
 ﻿using ArmiesDomain.Repositories.Weapons;
-using ArmiesDomain.Services.Costs;
+using ArmiesDomain.Services;
 using ArmiesDomain.ValueObjects;
 using System;
 using System.Collections.Generic;
@@ -29,9 +29,9 @@ namespace ArmiesDomain.Entities
 
         public string Name { get; private set; }
 
-        public void ApplyCostService(ICost service)
+        public void ApplyService(IArmyCostLimit service)
         {
-            service.Add(cost);
+            service.AccumulateCost(cost);
         }
 
         public static async Task<Weapon> LoadAsync(IWeapons repository, string name)

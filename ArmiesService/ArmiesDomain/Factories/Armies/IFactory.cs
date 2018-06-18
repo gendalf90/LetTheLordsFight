@@ -1,9 +1,10 @@
 ﻿using ArmiesDomain.Entities;
+using System.Threading.Tasks;
 
 namespace ArmiesDomain.Factories.Armies
 {
     public interface IFactory
     {
-        Army Build(ArmyData data);
+        Task<Army> BuildAsync(ArmyData data);
     }
 }

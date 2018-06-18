@@ -1,7 +1,5 @@
-﻿using ArmiesDomain.Factories.Armies;
-using ArmiesDomain.Repositories.Armies;
-using ArmiesDomain.Services.Costs;
-using ArmiesDomain.ValueObjects;
+﻿using ArmiesDomain.Repositories.Armies;
+using ArmiesDomain.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +11,9 @@ namespace ArmiesDomain.Entities
     {
         private List<Squad> squads;
 
-        public Army(string owner, IEnumerable<Squad> squads)
+        public Army(string ownerLogin, IEnumerable<Squad> squads)
         {
-            if(string.IsNullOrEmpty(owner))
+            if(string.IsNullOrEmpty(ownerLogin))
             {
                 throw new ArgumentException("Owner must be set");
             }
@@ -25,24 +23,24 @@ namespace ArmiesDomain.Entities
                 throw new ArgumentException("Squads list is empty");
             }
 
-            Owner = owner;
+            OwnerLogin = ownerLogin;
             this.squads = squads.ToList();
         }
 
-        public string Owner { get; private set; }
+        public string OwnerLogin { get; private set; }
 
-        public void ApplyCostService(ICost service)
+        public void ApplyService(IArmyCostLimit service)
         {
             foreach(var squad in squads)
             {
-                squad.ApplyCostService(service);
+                squad.ApplyService(service);
             }
         }
 
         public async Task SaveAsync(IArmies repository)
         {
             var data = new ArmyDto();
-            data.Owner = Owner;
+            data.OwnerLogin = OwnerLogin;
             squads.ForEach(squad => squad.FillArmyData(data));
             await repository.SaveAsync(data);
         }

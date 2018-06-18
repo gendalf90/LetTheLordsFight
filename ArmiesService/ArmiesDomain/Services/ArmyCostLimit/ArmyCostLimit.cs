@@ -1,24 +1,25 @@
 ﻿using ArmiesDomain.Entities;
 using ArmiesDomain.ValueObjects;
 
-namespace ArmiesDomain.Services.Costs
+namespace ArmiesDomain.Services
 {
-    public class ArmyLimitForUser : ICost
+    public class ArmyCostLimit : IArmyCostLimit
     {
-        private User currentUser;
         private Cost currentCost;
 
-        public ArmyLimitForUser(User user)
+        public ArmyCostLimit()
         {
-            currentUser = user;
             currentCost = new Cost();
         }
 
-        public void Add(Cost cost)
+        public void AccumulateCost(Cost cost)
         {
             currentCost = currentCost.Add(cost);
+        }
 
-            if(currentUser.IsArmyCostLimitExceeded(currentCost))
+        public void CheckForUser(User user)
+        {
+            if (user.IsArmyCostLimitExceeded(currentCost))
             {
                 //throw
             }

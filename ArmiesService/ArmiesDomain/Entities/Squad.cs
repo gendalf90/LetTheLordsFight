@@ -1,6 +1,6 @@
 ﻿using ArmiesDomain.Repositories.Armies;
 using ArmiesDomain.Repositories.Squads;
-using ArmiesDomain.Services.Costs;
+using ArmiesDomain.Services;
 using ArmiesDomain.ValueObjects;
 using System;
 using System.Collections.Generic;
@@ -35,14 +35,14 @@ namespace ArmiesDomain.Entities
 
         public string Type { get; private set; }
 
-        public void ApplyCostService(ICost service)
+        public void ApplyService(IArmyCostLimit service)
         {
             foreach(var weapon in weapons)
             {
-                weapon.ApplyCostService(service);
+                weapon.ApplyService(service);
             }
 
-            service.Add(cost);
+            service.AccumulateCost(cost);
         }
 
         public void AddWeapon(Weapon weapon)

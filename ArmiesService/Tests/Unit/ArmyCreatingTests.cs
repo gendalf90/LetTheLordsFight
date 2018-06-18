@@ -30,10 +30,9 @@ namespace Tests.Unit
             var services = CreateServiceProvider();
             var controller = new ArmiesController();
             var mockOfArmiesRepository = services.GetService<Mock<IArmiesRepository>>();
-            mockOfArmiesRepository
-                .Setup(repository => repository.SaveAsync(It.IsAny<ArmyDtoOfRepository>()))
-                .Callback<ArmyDtoOfRepository>(ValidateResult)
-                .Returns(Task.CompletedTask);
+            mockOfArmiesRepository.Setup(repository => repository.SaveAsync(It.IsAny<ArmyDtoOfRepository>()))
+                                  .Callback<ArmyDtoOfRepository>(ValidateResult)
+                                  .Returns(Task.CompletedTask);
                 
             await controller.CreateAsync(new ArmyDtoOfController
             {
@@ -51,18 +50,17 @@ namespace Tests.Unit
 
             void ValidateResult(ArmyDtoOfRepository dto)
             {
-                dto.Squads
-                    .Should()
-                    .ContainSingle()
-                    .Which
-                    .Should()
-                    .BeEquivalentTo(new
-                    {
-                        Type = "SquadOne",
-                        Quantity = 1,
-                        Weapons = new[] { "WeaponOne" },
-                        Armors = new[] { "ArmorOne" }
-                    }, options => options.ExcludingMissingMembers());
+                dto.Squads.Should()
+                          .ContainSingle()
+                          .Which
+                          .Should()
+                          .BeEquivalentTo(new
+                          {
+                              Type = "SquadOne",
+                              Quantity = 1,
+                              Weapons = new[] { "WeaponOne" },
+                              Armors = new[] { "ArmorOne" }
+                          }, options => options.ExcludingMissingMembers());
             }
         }
 
