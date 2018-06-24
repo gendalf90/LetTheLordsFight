@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ArmiesDomain.ValueObjects
@@ -8,14 +9,17 @@ namespace ArmiesDomain.ValueObjects
         private Range range;
         private Tag[] tags;
 
-        public Offence()
+        public Offence() : this(new Range(), new Tag[0])
         {
-            range = new Range();
-            tags = new Tag[0];
         }
 
         public Offence(Range range, IEnumerable<Tag> tags)
         {
+            if(range == null || tags == null)
+            {
+                throw new ArgumentNullException($"Some argument in offence is null");
+            }
+
             this.range = range;
             this.tags = tags.ToArray();
         }

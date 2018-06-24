@@ -42,7 +42,13 @@ namespace ArmiesDomain.Entities
                 weapon.ApplyService(service);
             }
 
-            service.AccumulateCost(cost);
+            foreach(var armor in armors)
+            {
+                armor.ApplyService(service);
+            }
+
+            var costRelatedOnQuantity = quantity.Multiply(cost);
+            service.AccumulateCost(costRelatedOnQuantity);
         }
 
         public void AddWeapon(Weapon weapon)

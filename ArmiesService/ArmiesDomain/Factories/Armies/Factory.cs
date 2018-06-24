@@ -20,6 +20,11 @@ namespace ArmiesDomain.Factories.Armies
         private readonly IUsers users;
         private readonly IArmyCostLimit costLimit;
 
+        private ArmyData armyData;
+        private User armyOwner;
+        private Squad[] armySquads;
+        private Army army;
+
         public Factory(ISquads squads, 
                        IWeapons weapons, 
                        IArmors armors, 
@@ -35,44 +40,58 @@ namespace ArmiesDomain.Factories.Armies
 
         public async Task<Army> BuildAsync(ArmyData data)
         {
-            var owner = await GetOwnerAsync(data);
-            var squads = await BuildSquadsAsync(data);
-            var army = new Army(owner.Login, squads);
-            army.ApplyService(costLimit);
-            costLimit.CheckForUser(owner);
-            return army;
+            SetArmyData(data);
+            await CreateArmyAsync();
+            CheckArmyCostLimit();
+            return GetResult();
         }
 
-        private async Task<User> GetOwnerAsync(ArmyData data)
+        private void SetArmyData(ArmyData data)
         {
-            return await User.LoadByLoginAsync(users, data.OwnerLogin);
+            armyData = data ?? throw new ArgumentNullException($"Army factory data is null");
         }
 
-        private async Task<IEnumerable<Squad>> BuildSquadsAsync(ArmyData data)
+        private async Task CreateArmyAsync()
         {
-            if(data.Squads == null || !data.Squads.Any())
+            await Task.WhenAll(LoadOwnerAsync(), BuildSquadsAsync());
+            army = new Army(armyOwner.Login, armySquads);
+        }
+
+        private async Task LoadOwnerAsync()
+        {
+            armyOwner = await User.LoadByLoginAsync(users, armyData.OwnerLogin);
+        }
+
+        private async Task BuildSquadsAsync()
+        {
+            if(armyData.Squads == null || !armyData.Squads.Any())
             {
-                return Enumerable.Empty<Squad>();
+                armySquads = new Squad[0];
             }
-
-            return await Task.WhenAll(data.Squads.Select(BuildSquadAsync));
+            else
+            {
+                armySquads = await Task.WhenAll(armyData.Squads.Select(BuildSquadAsync));
+            }
         }
 
         private async Task<Squad> BuildSquadAsync(SquadData data)
         {
-            var quantity = new Quantity(data.Quantity);
-            var weapons = await GetWeaponsAsync(data);
-            var armors = await GetArmorsAsync(data);
-            var squad = await GetSquadAsync(data);
+            var squadTask = GetSquadAsync(data);
+            var weaponsTask = GetWeaponsAsync(data);
+            var armorsTask = GetArmorsAsync(data);
 
+            await Task.WhenAll(squadTask, weaponsTask, armorsTask);
+
+            var squad = squadTask.Result;
+            var quantity = new Quantity(data.Quantity);
             squad.SetQuantity(quantity);
 
-            foreach(var weapon in weapons)
+            foreach (var weapon in weaponsTask.Result)
             {
                 squad.AddWeapon(weapon);
             }
 
-            foreach(var armor in armors)
+            foreach(var armor in armorsTask.Result)
             {
                 squad.AddArmor(armor);
             }
@@ -113,6 +132,17 @@ namespace ArmiesDomain.Factories.Armies
         private async Task<Armor> GetArmorAsync(string name)
         {
             return await Armor.LoadAsync(armors, name);
+        }
+
+        private void CheckArmyCostLimit()
+        {
+            army.ApplyService(costLimit);
+            costLimit.CheckForUser(armyOwner);
+        }
+
+        private Army GetResult()
+        {
+            return army;
         }
     }
 }
