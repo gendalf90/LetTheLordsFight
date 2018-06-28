@@ -1,5 +1,5 @@
-﻿using ArmiesDomain.Repositories.Armies;
-using System;
+﻿using ArmiesDomain.Exceptions;
+using ArmiesDomain.Repositories.Armies;
 
 namespace ArmiesDomain.ValueObjects
 {
@@ -15,7 +15,7 @@ namespace ArmiesDomain.ValueObjects
         {
             if(value < 0)
             {
-                throw new ArgumentException("Quantity must be greater than or equal to 0");
+                throw new QuantityException("Quantity must be greater than or equal to 0");
             }
 
             this.value = value;
@@ -30,5 +30,12 @@ namespace ArmiesDomain.ValueObjects
         {
             data.Quantity = value;
         }
+
+        public bool IsZero
+        {
+            get => value == 0;
+        }
+
+        public static readonly Quantity Single = new Quantity(1);
     }
 }

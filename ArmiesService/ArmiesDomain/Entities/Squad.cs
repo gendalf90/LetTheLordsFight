@@ -1,8 +1,8 @@
-﻿using ArmiesDomain.Repositories.Armies;
+﻿using ArmiesDomain.Exceptions;
+using ArmiesDomain.Repositories.Armies;
 using ArmiesDomain.Repositories.Squads;
 using ArmiesDomain.Services;
 using ArmiesDomain.ValueObjects;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,13 +22,13 @@ namespace ArmiesDomain.Entities
         {
             if(string.IsNullOrEmpty(type))
             {
-                throw new ArgumentException("Squad type is empty");
+                throw new SquadException("Squad type is empty", "type");
             }
 
             Type = type;
             cost = new Cost();
             tags = new List<Tag>();
-            quantity = new Quantity();
+            quantity = Quantity.Single;
             weapons = new List<Weapon>();
             armors = new List<Armor>();
         }
@@ -63,6 +63,11 @@ namespace ArmiesDomain.Entities
 
         public void SetQuantity(Quantity quantity)
         {
+            if(quantity.IsZero)
+            {
+                throw new SquadException("Quantity of squad must be greater than 0", "quantity");
+            }
+
             this.quantity = quantity;
         }
 

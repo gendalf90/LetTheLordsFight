@@ -1,6 +1,6 @@
-﻿using ArmiesDomain.Repositories.Armies;
+﻿using ArmiesDomain.Exceptions;
+using ArmiesDomain.Repositories.Armies;
 using ArmiesDomain.Services;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,12 +15,12 @@ namespace ArmiesDomain.Entities
         {
             if(string.IsNullOrEmpty(ownerLogin))
             {
-                throw new ArgumentException("Owner must be set");
+                throw new ArmyException("Owner must be set", "owner");
             }
 
             if(squads == null || !squads.Any())
             {
-                throw new ArgumentException("Squads list is empty");
+                throw new ArmyException("Squads list is empty", "squads");
             }
 
             OwnerLogin = ownerLogin;
