@@ -7,6 +7,7 @@ using SquadDtoOfController = ArmiesService.Controllers.Data.SquadDto;
 using System.Linq;
 using System.Threading.Tasks;
 using ArmiesDomain.Entities;
+using ArmiesService.Users;
 
 namespace ArmiesService.Commands.CreateArmy
 {

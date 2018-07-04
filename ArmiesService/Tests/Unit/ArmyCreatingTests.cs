@@ -19,6 +19,7 @@ using FluentAssertions;
 using ArmiesDomain.Repositories.Armors;
 using ArmiesDomain.Repositories.Squads;
 using ArmiesDomain.Exceptions;
+using ArmiesService.Users;
 
 namespace Tests.Unit
 {
@@ -28,7 +29,7 @@ namespace Tests.Unit
         public async Task CreateArmy_FromControllerData_ArmyIsSavedToRepositoryWithExpectedFields()
         {
             var services = CreateServiceProvider();
-            var controller = new ArmiesController();
+            var controller = services.GetService<ArmiesController>();
             var mockOfArmiesRepository = services.GetService<Mock<IArmiesRepository>>();
             mockOfArmiesRepository.Setup(repository => repository.SaveAsync(It.IsAny<ArmyDtoOfRepository>()))
                                   .Callback<ArmyDtoOfRepository>(ValidateResult)
@@ -68,7 +69,7 @@ namespace Tests.Unit
         public async Task CreateArmy_CostForUserIsExceeded_BadRequest()
         {
             var services = CreateServiceProvider();
-            var controller = new ArmiesController();
+            var controller = services.GetService<ArmiesController>();
 
             var result = await controller.CreateAsync(new ArmyDtoOfController
             {
@@ -94,7 +95,7 @@ namespace Tests.Unit
         public async Task CreateArmy_SquadCreatingWithNonPositiveQuantity_BadRequest(int? quantity)
         {
             var services = CreateServiceProvider();
-            var controller = new ArmiesController();
+            var controller = services.GetService<ArmiesController>();
 
             var result = await controller.CreateAsync(new ArmyDtoOfController
             {
@@ -117,7 +118,7 @@ namespace Tests.Unit
         public async Task CreateArmy_SquadCreatingWithUnknownType_BadRequest()
         {
             var services = CreateServiceProvider();
-            var controller = new ArmiesController();
+            var controller = services.GetService<ArmiesController>();
             var mockOfSquadsRepository = services.GetService<Mock<ISquads>>();
             mockOfSquadsRepository.Setup(mock => mock.GetByTypeAsync(It.IsAny<string>()))
                                   .ThrowsAsync(new EntityNotFoundException());
@@ -143,7 +144,7 @@ namespace Tests.Unit
         public async Task CreateArmy_SquadCreatingWithUnknownWeaponName_BadRequest()
         {
             var services = CreateServiceProvider();
-            var controller = new ArmiesController();
+            var controller = services.GetService<ArmiesController>();
             var mockOfWeaponsRepository = services.GetService<Mock<IWeapons>>();
             mockOfWeaponsRepository.Setup(mock => mock.GetByNameAsync(It.IsAny<string>()))
                                    .ThrowsAsync(new EntityNotFoundException());
@@ -169,7 +170,7 @@ namespace Tests.Unit
         public async Task CreateArmy_SquadCreatingWithUnknownArmorName_BadRequest()
         {
             var services = CreateServiceProvider();
-            var controller = new ArmiesController();
+            var controller = services.GetService<ArmiesController>();
             var mockOfArmorsRepository = services.GetService<Mock<IArmors>>();
             mockOfArmorsRepository.Setup(mock => mock.GetByNameAsync(It.IsAny<string>()))
                                   .ThrowsAsync(new EntityNotFoundException());
@@ -195,7 +196,7 @@ namespace Tests.Unit
         public async Task CreateArmy_WithoutSquads_BadRequest()
         {
             var services = CreateServiceProvider();
-            var controller = new ArmiesController();
+            var controller = services.GetService<ArmiesController>();
             var data = new ArmyDtoOfController();
 
             var nullArrayResult = await controller.CreateAsync(data);
@@ -210,7 +211,7 @@ namespace Tests.Unit
         public async Task CreateArmy_FromControllerData_ResultIsOk()
         {
             var services = CreateServiceProvider();
-            var controller = new ArmiesController();
+            var controller = services.GetService<ArmiesController>();
 
             var result = await controller.CreateAsync(new ArmyDtoOfController
             {
@@ -235,13 +236,20 @@ namespace Tests.Unit
             var services = new ServiceCollection();
             var startup = new Startup(configuration.Object);
             startup.ConfigureServices(services);
+            ConfigureController(services);
             MockArmiesRepository(services);
             MockSquadsRepository(services);
             MockWeaponsRepository(services);
             MockArmorsRepository(services);
             MockUsersRepository(services);
             MockLogs(services);
+            MockUsers(services);
             return services.BuildServiceProvider();
+        }
+
+        private void ConfigureController(IServiceCollection services)
+        {
+            services.AddTransient<ArmiesController>();
         }
 
         private void MockArmiesRepository(IServiceCollection services)
@@ -334,6 +342,14 @@ namespace Tests.Unit
         {
             var log = new Mock<ILog>();
             services.AddSingleton(log.Object);
+        }
+
+        private void MockUsers(IServiceCollection services)
+        {
+            var getCurrentUserLoginStrategy = new Mock<IGetCurrentUserLoginStrategy>();
+            getCurrentUserLoginStrategy.SetReturnsDefault("UserOne");
+            services.AddSingleton(getCurrentUserLoginStrategy.Object)
+                    .AddSingleton(getCurrentUserLoginStrategy);
         }
     }
 }

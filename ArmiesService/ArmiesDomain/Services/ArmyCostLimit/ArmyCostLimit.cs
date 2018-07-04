@@ -1,4 +1,5 @@
 ﻿using ArmiesDomain.Entities;
+using ArmiesDomain.Exceptions;
 using ArmiesDomain.ValueObjects;
 
 namespace ArmiesDomain.Services
@@ -21,7 +22,7 @@ namespace ArmiesDomain.Services
         {
             if (user.IsArmyCostLimitExceeded(currentCost))
             {
-                //throw
+                throw new ArmyException("The army is too expensive", "cost");
             }
         }
     }

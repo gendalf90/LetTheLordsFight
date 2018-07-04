@@ -1,11 +1,10 @@
-﻿using System;
-using IArmyFactory = ArmiesDomain.Factories.Armies.IFactory;
+﻿using IArmyFactory = ArmiesDomain.Factories.Armies.IFactory;
 using ICommandFactory = ArmiesService.Commands.IFactory;
 using ArmiesService.Logs;
 using ArmyDtoOfController = ArmiesService.Controllers.Data.ArmyDto;
 using ArmiesDomain.Repositories.Armies;
-using ArmiesService.Commands.CreateArmy;
 using CreateArmyCommand = ArmiesService.Commands.CreateArmy.Command;
+using ArmiesService.Users;
 
 namespace ArmiesService.Commands
 {

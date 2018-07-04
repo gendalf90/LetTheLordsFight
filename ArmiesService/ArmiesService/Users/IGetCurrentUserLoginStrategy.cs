@@ -1,4 +1,4 @@
-﻿namespace ArmiesService.Commands.CreateArmy
+﻿namespace ArmiesService.Users
 {
     public interface IGetCurrentUserLoginStrategy
     {

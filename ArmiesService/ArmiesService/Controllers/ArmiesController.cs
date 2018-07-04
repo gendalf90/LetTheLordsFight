@@ -54,20 +54,20 @@ namespace ArmiesService.Controllers
                   .AddHandlers()
                   .Action<EntityNotFoundException>(HandleEntityNotFoundException)
                   .Action<QuantityException>(HandleQuantityException)
-                  .Predicate<SquadException>(TryHandleSquadException)
-                  .Predicate<ArmyException>(TryHandleArmyException)
+                  .Condition<SquadException>(TryHandleSquadException)
+                  .Condition<ArmyException>(TryHandleArmyException)
                   .Handle();
             }
         }
 
         private void HandleEntityNotFoundException(EntityNotFoundException e)
         {
-            HandleValidationError("entityName", e.Message);
+            HandleValidationError(e.Message);
         }
 
         private void HandleQuantityException(QuantityException e)
         {
-            HandleValidationError("squadQuantity", e.Message);
+            HandleValidationError(e.Message);
         }
 
         private bool TryHandleSquadException(SquadException e)
@@ -77,25 +77,25 @@ namespace ArmiesService.Controllers
                 return false;
             }
 
-            HandleValidationError("squadQuantity", e.Message);
+            HandleValidationError(e.Message);
             return true;
         }
 
         private bool TryHandleArmyException(ArmyException e)
         {
-            if(e.ParamName != "squads")
+            if(e.ParamName != "squads" || e.ParamName != "cost")
             {
                 return false;
             }
 
-            HandleValidationError("armySquads", e.Message);
+            HandleValidationError(e.Message);
             return true;
         }
 
-        private void HandleValidationError(string parameter, string description)
+        private void HandleValidationError(string message)
         {
-            ModelState.AddModelError("validation", parameter);
-            log.Warning($"Validation error '{description}' from user '{User.Identity.Name}' request");
+            ModelState.AddModelError("validation", message);
+            log.Warning($"Validation error '{message}' from user's '{User.Identity.Name}' request");
         }
     }
 }
