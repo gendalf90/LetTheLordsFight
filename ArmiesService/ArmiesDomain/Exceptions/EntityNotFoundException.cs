@@ -5,20 +5,26 @@ namespace ArmiesDomain.Exceptions
 {
     public class EntityNotFoundException : Exception
     {
-        public EntityNotFoundException()
+        public EntityNotFoundException() : base("Entity not found")
         {
         }
 
-        public EntityNotFoundException(string message) : base(message)
-        {
-        }
-
-        public EntityNotFoundException(string message, Exception innerException) : base(message, innerException)
+        protected EntityNotFoundException(string key, string name) : base($"'{name}' by '{key}' not found")
         {
         }
 
         protected EntityNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
+        }
+
+        public static EntityNotFoundException CreateUser(string key)
+        {
+            return new EntityNotFoundException(key, "User");
+        }
+
+        public static EntityNotFoundException CreateSquad(string key)
+        {
+            return new EntityNotFoundException(key, "Squad");
         }
     }
 }

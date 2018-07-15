@@ -208,7 +208,7 @@ namespace Tests.Unit
         }
 
         [Fact]
-        public async Task CreateArmy_FromControllerData_ResultIsOk()
+        public async Task CreateArmy_FromValidControllerData_ResultIsOk()
         {
             var services = CreateServiceProvider();
             var controller = services.GetService<ArmiesController>();

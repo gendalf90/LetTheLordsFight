@@ -5,15 +5,7 @@ namespace ArmiesDomain.Exceptions
 {
     public class QuantityException : Exception
     {
-        public QuantityException()
-        {
-        }
-
-        public QuantityException(string message) : base(message)
-        {
-        }
-
-        public QuantityException(string message, Exception innerException) : base(message, innerException)
+        public QuantityException() : base("Quantity must be greater than or equal to 0")
         {
         }
 

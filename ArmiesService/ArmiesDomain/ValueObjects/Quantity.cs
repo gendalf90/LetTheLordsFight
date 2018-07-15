@@ -15,7 +15,7 @@ namespace ArmiesDomain.ValueObjects
         {
             if(value < 0)
             {
-                throw new QuantityException("Quantity must be greater than or equal to 0");
+                throw new QuantityException();
             }
 
             this.value = value;

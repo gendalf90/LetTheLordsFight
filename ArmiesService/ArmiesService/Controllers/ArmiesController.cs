@@ -72,7 +72,7 @@ namespace ArmiesService.Controllers
 
         private bool TryHandleSquadException(SquadException e)
         {
-            if(e.ParamName != "quantity")
+            if(!e.IsQuantity)
             {
                 return false;
             }
@@ -83,7 +83,7 @@ namespace ArmiesService.Controllers
 
         private bool TryHandleArmyException(ArmyException e)
         {
-            if(e.ParamName != "squads" || e.ParamName != "cost")
+            if(!e.IsSquads || !e.IsCost)
             {
                 return false;
             }

@@ -22,7 +22,7 @@ namespace ArmiesDomain.Entities
         {
             if(string.IsNullOrEmpty(type))
             {
-                throw new SquadException("Squad type is empty", "type");
+                throw SquadException.CreateType();
             }
 
             Type = type;
@@ -65,7 +65,7 @@ namespace ArmiesDomain.Entities
         {
             if(quantity.IsZero)
             {
-                throw new SquadException("Quantity of squad must be greater than 0", "quantity");
+                throw SquadException.CreateQuantity();
             }
 
             this.quantity = quantity;

@@ -22,7 +22,7 @@ namespace ArmiesDomain.Services
         {
             if (user.IsArmyCostLimitExceeded(currentCost))
             {
-                throw new ArmyException("The army is too expensive", "cost");
+                throw ArmyException.CreateCost();
             }
         }
     }

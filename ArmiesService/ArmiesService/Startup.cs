@@ -18,6 +18,7 @@ namespace ArmiesService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(configuration)
+                    .AddHttpContextAccessor()
                     .AddMvc();
         }
 

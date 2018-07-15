@@ -3,30 +3,44 @@ using System.Runtime.Serialization;
 
 namespace ArmiesDomain.Exceptions
 {
-    public class ArmyException : ArgumentException
+    public class ArmyException : Exception
     {
-        public ArmyException()
-        {
-        }
-
-        public ArmyException(string message) : base(message)
-        {
-        }
-
-        public ArmyException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        public ArmyException(string message, string paramName) : base(message, paramName)
-        {
-        }
-
-        public ArmyException(string message, string paramName, Exception innerException) : base(message, paramName, innerException)
+        protected ArmyException(string message) : base(message)
         {
         }
 
         protected ArmyException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
+        }
+
+        public bool IsCost { get; private set; }
+
+        public bool IsSquads { get; private set; }
+
+        public bool IsOwner { get; private set; }
+
+        public static ArmyException CreateCost()
+        {
+            return new ArmyException("The army is too expensive")
+            {
+                IsCost = true
+            };
+        }
+
+        public static ArmyException CreateSquads()
+        {
+            return new ArmyException("Squads list is empty")
+            {
+                IsSquads = true
+            };
+        }
+
+        public static ArmyException CreateOwner()
+        {
+            return new ArmyException("Owner must be set")
+            {
+                IsOwner = true
+            };
         }
     }
 }

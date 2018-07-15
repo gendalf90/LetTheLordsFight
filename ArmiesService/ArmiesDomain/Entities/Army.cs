@@ -15,12 +15,12 @@ namespace ArmiesDomain.Entities
         {
             if(string.IsNullOrEmpty(ownerLogin))
             {
-                throw new ArmyException("Owner must be set", "owner");
+                throw ArmyException.CreateOwner();
             }
 
             if(squads == null || !squads.Any())
             {
-                throw new ArmyException("Squads list is empty", "squads");
+                throw ArmyException.CreateSquads();
             }
 
             OwnerLogin = ownerLogin;

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using ArmiesService.Domain.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -25,6 +26,19 @@ namespace ArmiesService.Initialization
                             IssuerSigningKey = tokenSigningKey
                         };
                     });
+
+            return services;
+        }
+
+        public static IServiceCollection AddDistributedCache(this IServiceCollection services, IConfiguration configuration)
+        {
+            var connection = configuration["REDIS_CONNECTION_STRING"];
+            return services.AddDistributedRedisCache(options => options.Configuration = connection);
+        }
+
+        public static IServiceCollection AddDomain(this IServiceCollection services)
+        {
+            Types.Register();
 
             return services;
         }
