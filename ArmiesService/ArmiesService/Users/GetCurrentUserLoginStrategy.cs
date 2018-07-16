@@ -1,12 +1,22 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace ArmiesService.Users
 {
     class GetCurrentUserLoginStrategy : IGetCurrentUserLoginStrategy
     {
+        private readonly IHttpContextAccessor contextAccessor;
+
+        public GetCurrentUserLoginStrategy(IHttpContextAccessor contextAccessor)
+        {
+            this.contextAccessor = contextAccessor;
+        }
+
         public string Get()
         {
-            throw new NotImplementedException();
+            return contextAccessor.HttpContext
+                                  .User
+                                  .Identity
+                                  .Name;
         }
     }
 }

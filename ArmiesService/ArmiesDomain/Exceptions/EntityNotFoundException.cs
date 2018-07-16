@@ -26,5 +26,15 @@ namespace ArmiesDomain.Exceptions
         {
             return new EntityNotFoundException(key, "Squad");
         }
+
+        public static EntityNotFoundException CreateWeapon(string key)
+        {
+            return new EntityNotFoundException(key, "Weapon");
+        }
+
+        public static EntityNotFoundException CreateArmor(string key)
+        {
+            return new EntityNotFoundException(key, "Armor");
+        }
     }
 }

@@ -1,9 +1,15 @@
-﻿using ArmiesService.Domain.Repositories;
+﻿using ArmiesDomain.Repositories.Armies;
+using ArmiesDomain.Repositories.Armors;
+using ArmiesDomain.Repositories.Squads;
+using ArmiesDomain.Repositories.Users;
+using ArmiesDomain.Repositories.Weapons;
+using ArmiesService.Domain.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using UsersRepository = ArmiesService.Domain.Repositories.Users;
 
 namespace ArmiesService.Initialization
 {
@@ -38,9 +44,17 @@ namespace ArmiesService.Initialization
 
         public static IServiceCollection AddDomain(this IServiceCollection services)
         {
-            Types.Register();
+            Armies.RegisterTypes();
+            UsersRepository.RegisterTypes();
+            Weapons.RegisterTypes();
+            Armors.RegisterTypes();
+            Squads.RegisterTypes();
 
-            return services;
+            return services.AddTransient<IArmies, Armies>()
+                           .AddTransient<IUsers, UsersRepository>()
+                           .AddTransient<IWeapons, Weapons>()
+                           .AddTransient<IArmors, Armors>()
+                           .AddTransient<ISquads, Squads>();
         }
 
         private static SecurityKey GetTokenSigningKey(IConfiguration configuration)
