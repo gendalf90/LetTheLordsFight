@@ -1,41 +1,14 @@
 ﻿using ArmiesDomain.Exceptions;
 using ArmiesDomain.Repositories.Squads;
-using Microsoft.Extensions.Caching.Distributed;
-using MongoDB.Bson;
+using ArmiesService.Common.CachingOperations;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
-using System;
 using System.Threading.Tasks;
 
 namespace ArmiesService.Domain.Repositories
 {
     class Squads : ISquads
     {
-        private readonly IDistributedCache cache;
-        private readonly IMongoDatabase database;
-
-        public Squads(IDistributedCache cache, IMongoDatabase database)
-        {
-            this.cache = cache;
-            this.database = database;
-        }
-
-        public async Task<SquadDto> GetByTypeAsync(string type)
-        {
-            var collection = database.GetCollection<SquadDto>("squads");
-            var bson = await cache.GetAsync(type);
-
-            if(bson != null)
-            {
-                return BsonSerializer.Deserialize<SquadDto>(bson);
-            }
-
-            var squad = await collection.Find(data => data.Type == type).FirstOrDefaultAsync() ?? throw EntityNotFoundException.CreateSquad(type);
-            await cache.SetAsync(type, squad.ToBson(), new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1) });
-            return squad;
-        }
-
-        public static void RegisterTypes()
+        static Squads()
         {
             BsonClassMap.RegisterClassMap<SquadDto>(cm =>
             {
@@ -44,5 +17,28 @@ namespace ArmiesService.Domain.Repositories
                 cm.MapProperty(e => e.Tags).SetElementName("tags");
             });
         }
+
+        private readonly IFactory cachingOperationsFactory;
+
+        public Squads(IFactory cachingOperationsFactory)
+        {
+            this.cachingOperationsFactory = cachingOperationsFactory;
+        }
+
+        public async Task<SquadDto> GetByTypeAsync(string type)
+        {
+            var searchParams = CreateSearchParamsFromSquadType(type);
+            var entityGettingStrategy = cachingOperationsFactory.CreateGetEntityStrategy<SquadDto>(searchParams);
+            return await entityGettingStrategy.GetAsync() ?? throw EntityNotFoundException.CreateSquad(type);
+        }
+
+        private SearchEntityParams CreateSearchParamsFromSquadType(string squadType) => new SearchEntityParams
+        {
+            EntityId = squadType,
+            CacheKey = GetCacheKeyFromType(squadType),
+            CollectionName = "squads"
+        };
+
+        private string GetCacheKeyFromType(string type) => $"squad:type:{type}";
     }
 }

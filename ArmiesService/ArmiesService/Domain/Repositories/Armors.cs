@@ -1,41 +1,15 @@
 ﻿using ArmiesDomain.Exceptions;
 using ArmiesDomain.Repositories.Armors;
-using Microsoft.Extensions.Caching.Distributed;
-using MongoDB.Bson;
+using ArmiesService.Common.CachingOperations;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
-using System;
 using System.Threading.Tasks;
+
 
 namespace ArmiesService.Domain.Repositories
 {
     class Armors : IArmors
     {
-        private readonly IDistributedCache cache;
-        private readonly IMongoDatabase database;
-
-        public Armors(IDistributedCache cache, IMongoDatabase database)
-        {
-            this.cache = cache;
-            this.database = database;
-        }
-
-        public async Task<ArmorDto> GetByNameAsync(string name)
-        {
-            var collection = database.GetCollection<ArmorDto>("armors");
-            var bson = await cache.GetAsync(name);
-
-            if (bson != null)
-            {
-                return BsonSerializer.Deserialize<ArmorDto>(bson);
-            }
-
-            var armor = await collection.Find(data => data.Name == name).FirstOrDefaultAsync() ?? throw EntityNotFoundException.CreateArmor(name);
-            await cache.SetAsync(name, armor.ToBson(), new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1) });
-            return armor;
-        }
-
-        public static void RegisterTypes()
+        static Armors()
         {
             BsonClassMap.RegisterClassMap<ArmorDto>(cm =>
             {
@@ -52,5 +26,28 @@ namespace ArmiesService.Domain.Repositories
                 cm.MapProperty(e => e.Tags).SetElementName("tags");
             });
         }
+
+        private readonly IFactory cachingOperationsFactory;
+
+        public Armors(IFactory cachingOperationsFactory)
+        {
+            this.cachingOperationsFactory = cachingOperationsFactory;
+        }
+
+        public async Task<ArmorDto> GetByNameAsync(string name)
+        {
+            var searchParams = CreateSearchParamsFromArmorName(name);
+            var entityGettingStrategy = cachingOperationsFactory.CreateGetEntityStrategy<ArmorDto>(searchParams);
+            return await entityGettingStrategy.GetAsync() ?? throw EntityNotFoundException.CreateArmor(name);
+        }
+
+        private SearchEntityParams CreateSearchParamsFromArmorName(string armorName) => new SearchEntityParams
+        {
+            EntityId = armorName,
+            CacheKey = GetCacheKeyFromName(armorName),
+            CollectionName = "armors"
+        };
+
+        private string GetCacheKeyFromName(string name) => $"armor:name:{name}";
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace ArmiesService.Users
+namespace ArmiesService.Common
 {
     class GetCurrentUserLoginStrategy : IGetCurrentUserLoginStrategy
     {

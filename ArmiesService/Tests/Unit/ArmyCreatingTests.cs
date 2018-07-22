@@ -19,7 +19,7 @@ using FluentAssertions;
 using ArmiesDomain.Repositories.Armors;
 using ArmiesDomain.Repositories.Squads;
 using ArmiesDomain.Exceptions;
-using ArmiesService.Users;
+using ArmiesService.Common;
 
 namespace Tests.Unit
 {

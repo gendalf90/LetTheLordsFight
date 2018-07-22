@@ -4,7 +4,7 @@ using ArmiesService.Logs;
 using ArmyDtoOfController = ArmiesService.Controllers.Data.ArmyDto;
 using ArmiesDomain.Repositories.Armies;
 using CreateArmyCommand = ArmiesService.Commands.CreateArmy.Command;
-using ArmiesService.Users;
+using ArmiesService.Common;
 
 namespace ArmiesService.Commands
 {

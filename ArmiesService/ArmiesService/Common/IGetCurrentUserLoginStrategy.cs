@@ -1,4 +1,4 @@
-﻿namespace ArmiesService.Users
+﻿namespace ArmiesService.Common
 {
     public interface IGetCurrentUserLoginStrategy
     {

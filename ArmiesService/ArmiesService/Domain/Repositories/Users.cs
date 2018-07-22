@@ -1,33 +1,14 @@
 ﻿using ArmiesDomain.Exceptions;
 using ArmiesDomain.Repositories.Users;
+using ArmiesService.Common.CachingOperations;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
 using System.Threading.Tasks;
 
 namespace ArmiesService.Domain.Repositories
 {
     class Users : IUsers
     {
-        private readonly IMongoDatabase database;
-
-        public Users(IMongoDatabase database)
-        {
-            this.database = database;
-        }
-
-        public async Task<UserDto> GetByLoginAsync(string login)
-        {
-            return await Collection.Find(data => data.Login == login).FirstOrDefaultAsync() ?? throw EntityNotFoundException.CreateUser(login);
-        }
-
-        public async Task SaveAsync(UserDto data)
-        {
-            await Collection.ReplaceOneAsync(user => user.Login == data.Login, data, new UpdateOptions { IsUpsert = true });
-        }
-
-        private IMongoCollection<UserDto> Collection => database.GetCollection<UserDto>("users");
-
-        public static void RegisterTypes()
+        static Users()
         {
             BsonClassMap.RegisterClassMap<UserDto>(cm =>
             {
@@ -35,5 +16,36 @@ namespace ArmiesService.Domain.Repositories
                 cm.MapProperty(e => e.ArmyCostLimit).SetElementName("army_cost_limit");
             });
         }
+
+        private readonly IFactory cachingOperationsFactory;
+
+        public Users(IFactory cachingOperationsFactory)
+        {
+            this.cachingOperationsFactory = cachingOperationsFactory;
+        }
+
+        public async Task<UserDto> GetByLoginAsync(string login)
+        {
+            var searchParams = CreateSearchParamsFromLogin(login);
+            var entityGettingStrategy = cachingOperationsFactory.CreateGetEntityStrategy<UserDto>(searchParams);
+            return await entityGettingStrategy.GetAsync() ?? throw EntityNotFoundException.CreateUser(login);
+        }
+
+        public async Task SaveAsync(UserDto data)
+        {
+            var searchParams = CreateSearchParamsFromLogin(data.Login);
+            var entityInsertingStrategy = cachingOperationsFactory.CreateInsertEntityStrategy<UserDto>(searchParams);
+            await entityInsertingStrategy.InsertAsync(data);
+        }
+
+        private SearchEntityParams CreateSearchParamsFromLogin(string login) => new SearchEntityParams
+        {
+            EntityId = login,
+            CacheKey = GetCacheKeyFromLogin(login),
+            CollectionName = "users"
+        };
+
+        private string GetCacheKeyFromLogin(string login) => $"user:login:{login}";
+        
     }
 }

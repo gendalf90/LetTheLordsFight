@@ -7,20 +7,7 @@ namespace ArmiesService.Domain.Repositories
 {
     class Armies : IArmies
     {
-        private readonly IMongoDatabase database;
-
-        public Armies(IMongoDatabase database)
-        {
-            this.database = database;
-        }
-
-        public async Task SaveAsync(ArmyDto data)
-        {
-            var collection = database.GetCollection<ArmyDto>("armies");
-            await collection.ReplaceOneAsync(army => army.OwnerLogin == data.OwnerLogin, data, new UpdateOptions { IsUpsert = true });
-        }
-
-        public static void RegisterTypes()
+        static Armies()
         {
             BsonClassMap.RegisterClassMap<ArmyDto>(cm =>
             {
@@ -35,6 +22,19 @@ namespace ArmiesService.Domain.Repositories
                 cm.MapProperty(e => e.Quantity).SetElementName("quantity");
                 cm.MapProperty(e => e.Type).SetElementName("type");
             });
+        }
+
+        private readonly IMongoDatabase database;
+
+        public Armies(IMongoDatabase database)
+        {
+            this.database = database;
+        }
+
+        public async Task SaveAsync(ArmyDto data)
+        {
+            var collection = database.GetCollection<ArmyDto>("armies");
+            await collection.ReplaceOneAsync(army => army.OwnerLogin == data.OwnerLogin, data, new UpdateOptions { IsUpsert = true });
         }
     }
 }
