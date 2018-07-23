@@ -1,6 +1,6 @@
 ﻿using ArmiesDomain.Exceptions;
 using ArmiesDomain.Repositories.Weapons;
-using ArmiesService.Common.CachingOperations;
+using ArmiesService.Common;
 using MongoDB.Bson.Serialization;
 using System.Threading.Tasks;
 
@@ -26,21 +26,20 @@ namespace ArmiesService.Domain.Repositories
             });
         }
 
-        private readonly IFactory cachingOperationsFactory;
+        private readonly IGetFromDatabaseWithCachingStrategy getEntityStrategy;
 
-        public Weapons(IFactory cachingOperationsFactory)
+        public Weapons(IGetFromDatabaseWithCachingStrategy getEntityStrategy)
         {
-            this.cachingOperationsFactory = cachingOperationsFactory;
+            this.getEntityStrategy = getEntityStrategy;
         }
 
         public async Task<WeaponDto> GetByNameAsync(string name)
         {
             var searchParams = CreateSearchParamsFromWeaponName(name);
-            var entityGettingStrategy = cachingOperationsFactory.CreateGetEntityStrategy<WeaponDto>(searchParams);
-            return await entityGettingStrategy.GetAsync() ?? throw EntityNotFoundException.CreateWeapon(name);
+            return await getEntityStrategy.GetAsync<WeaponDto>(searchParams) ?? throw EntityNotFoundException.CreateWeapon(name);
         }
 
-        private SearchEntityParams CreateSearchParamsFromWeaponName(string armorName) => new SearchEntityParams
+        private SearchParams CreateSearchParamsFromWeaponName(string armorName) => new SearchParams
         {
             EntityId = armorName,
             CacheKey = GetCacheKeyFromName(armorName),

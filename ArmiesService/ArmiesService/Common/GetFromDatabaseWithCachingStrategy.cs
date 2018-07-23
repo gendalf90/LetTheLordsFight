@@ -3,43 +3,49 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using System;
 using System.Threading.Tasks;
 
-namespace ArmiesService.Common.CachingOperations
+namespace ArmiesService.Common
 {
-    class GetEntityStrategy<T> : IGetEntityStrategy<T> where T: class
+    class GetFromDatabaseWithCachingStrategy : IGetFromDatabaseWithCachingStrategy
     {
         private readonly IDistributedCache cache;
         private readonly IMongoDatabase database;
         private readonly IOptions<DistributedCacheEntryOptions> cacheOptions;
-        private readonly SearchEntityParams searchParams;
 
-        public GetEntityStrategy(IDistributedCache cache, 
-                                 IMongoDatabase database, 
-                                 IOptions<DistributedCacheEntryOptions> cacheOptions,
-                                 SearchEntityParams searchParams)
+        private SearchParams searchParams;
+
+        public GetFromDatabaseWithCachingStrategy(IDistributedCache cache,
+                                                  IMongoDatabase database,
+                                                  IOptions<DistributedCacheEntryOptions> cacheOptions)
         {
             this.cache = cache;
             this.database = database;
             this.cacheOptions = cacheOptions;
-            this.searchParams = searchParams;
         }
 
-        public async Task<T> GetAsync()
+        public async Task<T> GetAsync<T>(SearchParams searchParams) where T : class
         {
-            var cachedValue = await GetFromCacheAsync();
+            InitializeSearch(searchParams);
+            var cachedValue = await GetFromCacheAsync<T>();
 
-            if(cachedValue != null)
+            if (cachedValue != null)
             {
                 return cachedValue;
             }
 
-            var storedValue = await GetFromDatabaseAsync();
+            var storedValue = await GetFromDatabaseAsync<T>();
             await AddToCacheAsync(storedValue);
             return storedValue;
         }
 
-        private async Task<T> GetFromCacheAsync()
+        private void InitializeSearch(SearchParams searchParams)
+        {
+            this.searchParams = searchParams ?? throw new ArgumentNullException(nameof(searchParams));
+        }
+
+        private async Task<T> GetFromCacheAsync<T>() where T : class
         {
             var bytes = await cache.GetAsync(searchParams.CacheKey);
 
@@ -51,12 +57,12 @@ namespace ArmiesService.Common.CachingOperations
             return BsonSerializer.Deserialize<T>(bytes);
         }
 
-        private async Task AddToCacheAsync(T entity)
+        private async Task AddToCacheAsync<T>(T entity) where T : class
         {
             await cache.SetAsync(searchParams.CacheKey, entity.ToBson(), cacheOptions.Value);
         }
 
-        private async Task<T> GetFromDatabaseAsync()
+        private async Task<T> GetFromDatabaseAsync<T>() where T : class
         {
             var filter = Builders<BsonDocument>.Filter.Eq("_id", searchParams.EntityId);
             var collection = database.GetCollection<BsonDocument>(searchParams.CollectionName);

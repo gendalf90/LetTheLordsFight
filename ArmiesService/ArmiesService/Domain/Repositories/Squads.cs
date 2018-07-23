@@ -1,6 +1,6 @@
 ﻿using ArmiesDomain.Exceptions;
 using ArmiesDomain.Repositories.Squads;
-using ArmiesService.Common.CachingOperations;
+using ArmiesService.Common;
 using MongoDB.Bson.Serialization;
 using System.Threading.Tasks;
 
@@ -18,21 +18,20 @@ namespace ArmiesService.Domain.Repositories
             });
         }
 
-        private readonly IFactory cachingOperationsFactory;
+        private readonly IGetFromDatabaseWithCachingStrategy getEntityStrategy;
 
-        public Squads(IFactory cachingOperationsFactory)
+        public Squads(IGetFromDatabaseWithCachingStrategy getEntityStrategy)
         {
-            this.cachingOperationsFactory = cachingOperationsFactory;
+            this.getEntityStrategy = getEntityStrategy;
         }
 
         public async Task<SquadDto> GetByTypeAsync(string type)
         {
             var searchParams = CreateSearchParamsFromSquadType(type);
-            var entityGettingStrategy = cachingOperationsFactory.CreateGetEntityStrategy<SquadDto>(searchParams);
-            return await entityGettingStrategy.GetAsync() ?? throw EntityNotFoundException.CreateSquad(type);
+            return await getEntityStrategy.GetAsync<SquadDto>(searchParams) ?? throw EntityNotFoundException.CreateSquad(type);
         }
 
-        private SearchEntityParams CreateSearchParamsFromSquadType(string squadType) => new SearchEntityParams
+        private SearchParams CreateSearchParamsFromSquadType(string squadType) => new SearchParams
         {
             EntityId = squadType,
             CacheKey = GetCacheKeyFromType(squadType),

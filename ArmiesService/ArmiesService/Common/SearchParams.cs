@@ -1,6 +1,6 @@
-﻿namespace ArmiesService.Common.CachingOperations
+﻿namespace ArmiesService.Common
 {
-    class SearchEntityParams
+    class SearchParams
     {
         public string EntityId { get; set; }
 

@@ -1,8 +1,7 @@
-﻿using ArmiesService.Common.CachingOperations;
-using MongoDB.Bson.Serialization;
+﻿using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ICachingOperationsFactory = ArmiesService.Common.CachingOperations.IFactory;
 
 namespace ArmiesService.Queries.AllWeapons
 {
@@ -26,24 +25,18 @@ namespace ArmiesService.Queries.AllWeapons
             });
         }
 
-        private readonly ICachingOperationsFactory cachingOperationsFactory;
+        private readonly IMongoDatabase database;
 
-        public Query(ICachingOperationsFactory cachingOperationsFactory)
+        public Query(IMongoDatabase database)
         {
-            this.cachingOperationsFactory = cachingOperationsFactory;
+            this.database = database;
         }
 
         public async Task<IEnumerable<WeaponDto>> AskAsync()
         {
-            var searchParams = CreateSearchParams();
-            var entityGettingStrategy = cachingOperationsFactory.CreateGetAllStrategy<WeaponDto>(searchParams);
-            return await entityGettingStrategy.GetAsync();
+            return await database.GetCollection<WeaponDto>("weapons")
+                                 .AsQueryable()
+                                 .ToListAsync();
         }
-
-        private SearchAllParams CreateSearchParams() => new SearchAllParams
-        {
-            CacheKey = "weapons:all",
-            CollectionName = "weapons"
-        };
     }
 }

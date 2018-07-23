@@ -1,7 +1,8 @@
 ﻿using ArmiesDomain.Exceptions;
 using ArmiesDomain.Repositories.Users;
-using ArmiesService.Common.CachingOperations;
+using ArmiesService.Common;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
 using System.Threading.Tasks;
 
 namespace ArmiesService.Domain.Repositories
@@ -17,32 +18,34 @@ namespace ArmiesService.Domain.Repositories
             });
         }
 
-        private readonly IFactory cachingOperationsFactory;
+        private readonly IGetFromDatabaseWithCachingStrategy getEntityStrategy;
+        private readonly IMongoDatabase database;
 
-        public Users(IFactory cachingOperationsFactory)
+        public Users(IMongoDatabase database, IGetFromDatabaseWithCachingStrategy getEntityStrategy)
         {
-            this.cachingOperationsFactory = cachingOperationsFactory;
+            this.database = database;
+            this.getEntityStrategy = getEntityStrategy;
         }
 
         public async Task<UserDto> GetByLoginAsync(string login)
         {
             var searchParams = CreateSearchParamsFromLogin(login);
-            var entityGettingStrategy = cachingOperationsFactory.CreateGetEntityStrategy<UserDto>(searchParams);
-            return await entityGettingStrategy.GetAsync() ?? throw EntityNotFoundException.CreateUser(login);
+            return await getEntityStrategy.GetAsync<UserDto>(searchParams) ?? throw EntityNotFoundException.CreateUser(login);
         }
 
         public async Task SaveAsync(UserDto data)
         {
-            var searchParams = CreateSearchParamsFromLogin(data.Login);
-            var entityInsertingStrategy = cachingOperationsFactory.CreateInsertEntityStrategy<UserDto>(searchParams);
-            await entityInsertingStrategy.InsertAsync(data);
+            var collection = database.GetCollection<UserDto>(CollectionName);
+            await collection.ReplaceOneAsync(user => user.Login == data.Login, data, new UpdateOptions { IsUpsert = true });
         }
 
-        private SearchEntityParams CreateSearchParamsFromLogin(string login) => new SearchEntityParams
+        private string CollectionName => "users";
+
+        private SearchParams CreateSearchParamsFromLogin(string login) => new SearchParams
         {
             EntityId = login,
             CacheKey = GetCacheKeyFromLogin(login),
-            CollectionName = "users"
+            CollectionName = CollectionName
         };
 
         private string GetCacheKeyFromLogin(string login) => $"user:login:{login}";
