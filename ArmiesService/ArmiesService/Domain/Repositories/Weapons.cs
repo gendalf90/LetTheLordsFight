@@ -1,7 +1,10 @@
 ﻿using ArmiesDomain.Exceptions;
 using ArmiesDomain.Repositories.Weapons;
-using ArmiesService.Common;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
 using System.Threading.Tasks;
 
 namespace ArmiesService.Domain.Repositories
@@ -26,25 +29,35 @@ namespace ArmiesService.Domain.Repositories
             });
         }
 
-        private readonly IGetFromDatabaseWithCachingStrategy getEntityStrategy;
+        private readonly IDistributedCache cache;
+        private readonly IMongoDatabase database;
+        private readonly IOptions<DistributedCacheEntryOptions> cacheOptions;
 
-        public Weapons(IGetFromDatabaseWithCachingStrategy getEntityStrategy)
+        public Weapons(IDistributedCache cache,
+                       IMongoDatabase database,
+                       IOptions<DistributedCacheEntryOptions> cacheOptions)
         {
-            this.getEntityStrategy = getEntityStrategy;
+            this.cache = cache;
+            this.database = database;
+            this.cacheOptions = cacheOptions;
         }
 
         public async Task<WeaponDto> GetByNameAsync(string name)
         {
-            var searchParams = CreateSearchParamsFromWeaponName(name);
-            return await getEntityStrategy.GetAsync<WeaponDto>(searchParams) ?? throw EntityNotFoundException.CreateWeapon(name);
+            var cacheKey = GetCacheKeyFromName(name);
+            var cached = await cache.GetAsync(cacheKey);
+
+            if (cached != null)
+            {
+                return BsonSerializer.Deserialize<WeaponDto>(cached);
+            }
+
+            var stored = await Collection.Find(weapon => weapon.Name == name).FirstOrDefaultAsync() ?? throw EntityNotFoundException.CreateWeapon(name);
+            await cache.SetAsync(cacheKey, stored.ToBson(), cacheOptions.Value);
+            return stored;
         }
 
-        private SearchParams CreateSearchParamsFromWeaponName(string armorName) => new SearchParams
-        {
-            EntityId = armorName,
-            CacheKey = GetCacheKeyFromName(armorName),
-            CollectionName = "weapons"
-        };
+        private IMongoCollection<WeaponDto> Collection => database.GetCollection<WeaponDto>("weapons");
 
         private string GetCacheKeyFromName(string name) => $"weapon:name:{name}";
     }

@@ -1,7 +1,10 @@
 ﻿using ArmiesDomain.Exceptions;
 using ArmiesDomain.Repositories.Squads;
-using ArmiesService.Common;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
 using System.Threading.Tasks;
 
 namespace ArmiesService.Domain.Repositories
@@ -18,25 +21,35 @@ namespace ArmiesService.Domain.Repositories
             });
         }
 
-        private readonly IGetFromDatabaseWithCachingStrategy getEntityStrategy;
+        private readonly IDistributedCache cache;
+        private readonly IMongoDatabase database;
+        private readonly IOptions<DistributedCacheEntryOptions> cacheOptions;
 
-        public Squads(IGetFromDatabaseWithCachingStrategy getEntityStrategy)
+        public Squads(IDistributedCache cache,
+                      IMongoDatabase database,
+                      IOptions<DistributedCacheEntryOptions> cacheOptions)
         {
-            this.getEntityStrategy = getEntityStrategy;
+            this.cache = cache;
+            this.database = database;
+            this.cacheOptions = cacheOptions;
         }
 
         public async Task<SquadDto> GetByTypeAsync(string type)
         {
-            var searchParams = CreateSearchParamsFromSquadType(type);
-            return await getEntityStrategy.GetAsync<SquadDto>(searchParams) ?? throw EntityNotFoundException.CreateSquad(type);
+            var cacheKey = GetCacheKeyFromType(type);
+            var cached = await cache.GetAsync(cacheKey);
+
+            if (cached != null)
+            {
+                return BsonSerializer.Deserialize<SquadDto>(cached);
+            }
+
+            var stored = await Collection.Find(squad => squad.Type == type).FirstOrDefaultAsync() ?? throw EntityNotFoundException.CreateSquad(type);
+            await cache.SetAsync(cacheKey, stored.ToBson(), cacheOptions.Value);
+            return stored;
         }
 
-        private SearchParams CreateSearchParamsFromSquadType(string squadType) => new SearchParams
-        {
-            EntityId = squadType,
-            CacheKey = GetCacheKeyFromType(squadType),
-            CollectionName = "squads"
-        };
+        private IMongoCollection<SquadDto> Collection => database.GetCollection<SquadDto>("squads");
 
         private string GetCacheKeyFromType(string type) => $"squad:type:{type}";
     }

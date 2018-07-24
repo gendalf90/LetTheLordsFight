@@ -1,7 +1,10 @@
 ﻿using ArmiesDomain.Exceptions;
 using ArmiesDomain.Repositories.Armors;
-using ArmiesService.Common;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
 using System.Threading.Tasks;
 
 
@@ -27,25 +30,35 @@ namespace ArmiesService.Domain.Repositories
             });
         }
 
-        private readonly IGetFromDatabaseWithCachingStrategy getEntityStrategy;
+        private readonly IDistributedCache cache;
+        private readonly IMongoDatabase database;
+        private readonly IOptions<DistributedCacheEntryOptions> cacheOptions;
 
-        public Armors(IGetFromDatabaseWithCachingStrategy getEntityStrategy)
+        public Armors(IDistributedCache cache,
+                      IMongoDatabase database,
+                      IOptions<DistributedCacheEntryOptions> cacheOptions)
         {
-            this.getEntityStrategy = getEntityStrategy;
+            this.cache = cache;
+            this.database = database;
+            this.cacheOptions = cacheOptions;
         }
 
         public async Task<ArmorDto> GetByNameAsync(string name)
         {
-            var searchParams = CreateSearchParamsFromArmorName(name);
-            return await getEntityStrategy.GetAsync<ArmorDto>(searchParams) ?? throw EntityNotFoundException.CreateArmor(name);
+            var cacheKey = GetCacheKeyFromName(name);
+            var cached = await cache.GetAsync(cacheKey);
+
+            if (cached != null)
+            {
+                return BsonSerializer.Deserialize<ArmorDto>(cached);
+            }
+
+            var stored = await Collection.Find(armor => armor.Name == name).FirstOrDefaultAsync() ?? throw EntityNotFoundException.CreateArmor(name);
+            await cache.SetAsync(cacheKey, stored.ToBson(), cacheOptions.Value);
+            return stored;
         }
 
-        private SearchParams CreateSearchParamsFromArmorName(string armorName) => new SearchParams
-        {
-            EntityId = armorName,
-            CacheKey = GetCacheKeyFromName(armorName),
-            CollectionName = "armors"
-        };
+        private IMongoCollection<ArmorDto> Collection => database.GetCollection<ArmorDto>("armors");
 
         private string GetCacheKeyFromName(string name) => $"armor:name:{name}";
     }
