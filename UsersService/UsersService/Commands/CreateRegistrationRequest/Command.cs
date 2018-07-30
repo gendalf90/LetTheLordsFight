@@ -12,7 +12,7 @@ namespace UsersService.Commands.CreateRegistrationRequest
 {
     public class Command : ICommand
     {
-        private readonly IConfirmationLink confirmationLink;
+        private readonly IGetConfirmationLinkStrategy confirmationLink;
         private readonly IRequests requestsRepository;
         private readonly IEmail emailService;
         private readonly ILog log;
@@ -21,7 +21,7 @@ namespace UsersService.Commands.CreateRegistrationRequest
         private Request registrationRequest;
         private Email registrationEmail;
 
-        public Command(IConfirmationLink confirmationLink, 
+        public Command(IGetConfirmationLinkStrategy confirmationLink, 
                        IRequests requestsRepository, 
                        IEmail emailService,
                        ILog log,

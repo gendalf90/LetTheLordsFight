@@ -329,7 +329,7 @@ namespace Tests.Unit
 
         private void MockConfirmationLink(IServiceCollection services)
         {
-            var service = new Mock<IConfirmationLink>();
+            var service = new Mock<IGetConfirmationLinkStrategy>();
             service.Setup(mock => mock.GetForRequestId(It.IsAny<Guid>())).Returns(TestConfirmationLink);
             services.AddSingleton(service.Object)
                     .AddSingleton(service);

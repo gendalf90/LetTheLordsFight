@@ -4,11 +4,11 @@ using UsersService.Options;
 
 namespace UsersService.Commands.CreateRegistrationRequest
 {
-    public class ConfirmationLink : IConfirmationLink
+    public class GetConfirmationLinkStrategy : IGetConfirmationLinkStrategy
     {
         private readonly IOptions<ConfirmationOptions> options;
 
-        public ConfirmationLink(IOptions<ConfirmationOptions> options)
+        public GetConfirmationLinkStrategy(IOptions<ConfirmationOptions> options)
         {
             this.options = options;
         }

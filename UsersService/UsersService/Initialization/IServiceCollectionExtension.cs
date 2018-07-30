@@ -43,7 +43,7 @@ namespace UsersService.Initialization
                                options.Link = configuration["CONFIRMATION_LINK"];
                            })
                            .AddTransient<ICommandFactory, CommandFactory>()
-                           .AddTransient<IConfirmationLink, ConfirmationLink>();
+                           .AddTransient<IGetConfirmationLinkStrategy, GetConfirmationLinkStrategy>();
         }
 
         public static IServiceCollection AddDomain(this IServiceCollection services, IConfiguration configuration)

@@ -12,7 +12,7 @@ namespace UsersService.Commands
 {
     class Factory : IFactory
     {
-        private readonly IConfirmationLink confirmationLink;
+        private readonly IGetConfirmationLinkStrategy confirmationLink;
         private readonly IUsers users;
         private readonly IRequests requests;
         private readonly IEmail email;
@@ -21,7 +21,7 @@ namespace UsersService.Commands
         public Factory(IUsers users, 
                        IRequests requests, 
                        IEmail email, 
-                       IConfirmationLink confirmationLink,
+                       IGetConfirmationLinkStrategy confirmationLink,
                        ILog log)
         {
             this.users = users;

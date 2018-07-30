@@ -2,7 +2,7 @@
 
 namespace UsersService.Commands.CreateRegistrationRequest
 {
-    public interface IConfirmationLink
+    public interface IGetConfirmationLinkStrategy
     {
         string GetForRequestId(Guid requestId);
     }

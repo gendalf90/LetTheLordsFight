@@ -9,9 +9,7 @@ namespace UsersService.Database
 
         public static void ThrowIfDublicateEntry(this Exception current, Exception toThrow)
         {
-            var inner = current.InnerException as MySqlException;
-
-            if (inner?.Number == MySqlDublicateEntryErrorNumber)
+            if(current.InnerException is MySqlException inner && inner.Number is MySqlDublicateEntryErrorNumber)
             {
                 throw toThrow;
             }
