@@ -14,6 +14,7 @@ using System.Text;
 using Extensions.Caching.Disabled;
 using ArmiesService.Consumers;
 using RabbitMQ.Client;
+using MongoDB.Driver;
 
 namespace ArmiesService.Initialization
 {
@@ -21,7 +22,7 @@ namespace ArmiesService.Initialization
     {
         public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            var tokenSigningKey = GetTokenSigningKey(configuration);
+            var sign = configuration["TOKEN_SIGNING_KEY"];
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
@@ -33,17 +34,16 @@ namespace ArmiesService.Initialization
                             ValidateLifetime = false,
                             RequireExpirationTime = false,
                             ValidateIssuerSigningKey = true,
-                            IssuerSigningKey = tokenSigningKey
+                            IssuerSigningKey = CreateTokenSigningKey(sign)
                         };
                     });
 
             return services;
         }
 
-        public static IServiceCollection AddRedisCache(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddCache(this IServiceCollection services, IConfiguration configuration)
         {
             var connectionString = configuration["REDIS_CONNECTION_STRING"];
-
             var expirationSeconds = configuration.GetValue<double?>("DistributedCache:ExpirationSeconds");
 
             services.Configure<DistributedCacheEntryOptions>(options =>
@@ -66,14 +66,25 @@ namespace ArmiesService.Initialization
             }
         }
 
-        public static IServiceCollection AddConsumers(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddQueue(this IServiceCollection services, IConfiguration configuration)
         {
             var connectionString = configuration["RABBITMQ_CONNECTION_STRING"];
             var factory = new ConnectionFactory { Uri = new Uri(connectionString) };
             var connection = factory.CreateConnection();
+            return services.AddSingleton(connection);
+        }
 
-            return services.AddSingleton(connection)
-                           .AddHostedService<UserCreatedEvent>();
+        public static IServiceCollection AddConsumers(this IServiceCollection services)
+        {
+            return services.AddHostedService<UserCreatedEvent>();
+        }
+
+        public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
+        {
+            var connectionSring = configuration["MONGODB_CONNECTION_STRING"];
+            var client = new MongoClient(connectionSring);
+            var database = client.GetDatabase("armies");
+            return services.AddSingleton(database);
         }
 
         public static IServiceCollection AddDomain(this IServiceCollection services)
@@ -85,10 +96,9 @@ namespace ArmiesService.Initialization
                            .AddTransient<ISquads, Squads>();
         }
 
-        private static SecurityKey GetTokenSigningKey(IConfiguration configuration)
+        private static SecurityKey CreateTokenSigningKey(string key)
         {
-            var sign = configuration["TOKEN_SIGNING_KEY"];
-            var bytes = Encoding.ASCII.GetBytes(sign);
+            var bytes = Encoding.ASCII.GetBytes(key);
             return new SymmetricSecurityKey(bytes);
         }
     }

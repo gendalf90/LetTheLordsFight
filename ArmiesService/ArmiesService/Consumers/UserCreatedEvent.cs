@@ -78,7 +78,8 @@ namespace ArmiesService.Consumers
 
         private UserDto DeserializeUserData(byte[] bytes)
         {
-            return JsonConvert.DeserializeObject<UserDto>(Encoding.UTF8.GetString(bytes));
+            var json = Encoding.UTF8.GetString(bytes);
+            return JsonConvert.DeserializeObject<UserDto>(json);
         }
 
         private async Task CreateUserAsync(UserDto data)
