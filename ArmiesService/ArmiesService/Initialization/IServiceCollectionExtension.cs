@@ -11,6 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
+using Extensions.Caching.Disabled;
+using ArmiesService.Consumers;
+using RabbitMQ.Client;
 
 namespace ArmiesService.Initialization
 {
@@ -39,19 +42,38 @@ namespace ArmiesService.Initialization
 
         public static IServiceCollection AddRedisCache(this IServiceCollection services, IConfiguration configuration)
         {
-            var connection = configuration["REDIS_CONNECTION_STRING"];
+            var connectionString = configuration["REDIS_CONNECTION_STRING"];
+
             var expirationSeconds = configuration.GetValue<double?>("DistributedCache:ExpirationSeconds");
-            return services.Configure<DistributedCacheEntryOptions>(options =>
-                           {
-                               if(expirationSeconds.HasValue)
-                               {
-                                   options.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(expirationSeconds.Value);
-                               }
-                           })
-                           .AddDistributedRedisCache(options =>
-                           {
-                               options.Configuration = connection;
-                           });
+
+            services.Configure<DistributedCacheEntryOptions>(options =>
+            {
+                if(expirationSeconds.HasValue)
+                {
+                    options.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(expirationSeconds.Value);
+                }
+            });
+
+            var isDisabled = configuration.GetValue<bool?>("DistributedCache:Disabled");
+
+            if (isDisabled == true)
+            {
+                return services.AddDisabledDistributedCache();
+            }
+            else
+            {
+                return services.AddDistributedRedisCache(options => options.Configuration = connectionString);
+            }
+        }
+
+        public static IServiceCollection AddConsumers(this IServiceCollection services, IConfiguration configuration)
+        {
+            var connectionString = configuration["RABBITMQ_CONNECTION_STRING"];
+            var factory = new ConnectionFactory { Uri = new Uri(connectionString) };
+            var connection = factory.CreateConnection();
+
+            return services.AddSingleton(connection)
+                           .AddHostedService<UserCreatedEvent>();
         }
 
         public static IServiceCollection AddDomain(this IServiceCollection services)

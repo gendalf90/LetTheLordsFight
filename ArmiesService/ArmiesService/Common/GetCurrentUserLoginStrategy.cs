@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System;
 
 namespace ArmiesService.Common
 {
@@ -13,10 +14,10 @@ namespace ArmiesService.Common
 
         public string Get()
         {
-            return contextAccessor.HttpContext
-                                  .User
-                                  .Identity
-                                  .Name;
+            return contextAccessor.HttpContext?
+                                  .User?
+                                  .Identity?
+                                  .Name ?? throw new ArgumentNullException("login");
         }
     }
 }

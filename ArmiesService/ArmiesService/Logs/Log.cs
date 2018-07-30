@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System;
 
 namespace ArmiesService.Logs
 {
@@ -19,6 +20,11 @@ namespace ArmiesService.Logs
         public void Warning(string message)
         {
             logger.LogWarning(message);
+        }
+
+        public void Error(Exception e, string message)
+        {
+            logger.LogError(e, message);
         }
     }
 }

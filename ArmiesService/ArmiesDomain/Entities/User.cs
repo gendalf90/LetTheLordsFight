@@ -1,4 +1,5 @@
-﻿using ArmiesDomain.Repositories.Users;
+﻿using ArmiesDomain.Exceptions;
+using ArmiesDomain.Repositories.Users;
 using ArmiesDomain.ValueObjects;
 using System.Threading.Tasks;
 
@@ -6,10 +7,13 @@ namespace ArmiesDomain.Entities
 {
     public class User
     {
+        private static readonly Cost defaultArmyLimit = new Cost(50);
+
         private Cost armyLimit;
 
-        private User()
+        private User(string login)
         {
+            Login = login;
         }
 
         public bool IsArmyCostLimitExceeded(Cost armyCost)
@@ -31,10 +35,17 @@ namespace ArmiesDomain.Entities
         {
             var data = await repository.GetByLoginAsync(login);
 
-            return new User
+            return new User(data.Login)
             {
-                Login = data.Login,
                 armyLimit = new Cost(data.ArmyCostLimit)
+            };
+        }
+
+        public static User CreateWithLogin(string login)
+        {
+            return new User(login)
+            {
+                armyLimit = defaultArmyLimit
             };
         }
     }
