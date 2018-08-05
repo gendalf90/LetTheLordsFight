@@ -4,6 +4,6 @@ namespace ArmiesDomain.Repositories.Squads
 {
     public interface ISquads
     {
-        Task<SquadDto> GetByTypeAsync(string type);
+        Task<SquadRepositoryDto> GetByTypeAsync(string type);
     }
 }

@@ -13,7 +13,7 @@ namespace ArmiesService.Domain.Repositories
     {
         static Users()
         {
-            BsonClassMap.RegisterClassMap<UserDto>(cm =>
+            BsonClassMap.RegisterClassMap<UserRepositoryDto>(cm =>
             {
                 cm.MapIdProperty(e => e.Login);
                 cm.MapProperty(e => e.ArmyCostLimit).SetElementName("army_cost_limit");
@@ -33,14 +33,14 @@ namespace ArmiesService.Domain.Repositories
             this.cacheOptions = cacheOptions;
         }
 
-        public async Task<UserDto> GetByLoginAsync(string login)
+        public async Task<UserRepositoryDto> GetByLoginAsync(string login)
         {
             var cacheKey = GetCacheKeyFromLogin(login);
             var cached = await cache.GetAsync(cacheKey);
 
             if (cached != null)
             {
-                return BsonSerializer.Deserialize<UserDto>(cached);
+                return BsonSerializer.Deserialize<UserRepositoryDto>(cached);
             }
 
             var stored = await Collection.Find(user => user.Login == login).FirstOrDefaultAsync() ?? throw EntityNotFoundException.CreateUser(login);
@@ -48,12 +48,12 @@ namespace ArmiesService.Domain.Repositories
             return stored;
         }
 
-        public async Task SaveAsync(UserDto data)
+        public async Task SaveAsync(UserRepositoryDto data)
         {
             await Collection.ReplaceOneAsync(user => user.Login == data.Login, data, new UpdateOptions { IsUpsert = true });
         }
 
-        private IMongoCollection<UserDto> Collection => database.GetCollection<UserDto>("users");
+        private IMongoCollection<UserRepositoryDto> Collection => database.GetCollection<UserRepositoryDto>("users");
 
         private string GetCacheKeyFromLogin(string login) => $"user:login:{login}";
         

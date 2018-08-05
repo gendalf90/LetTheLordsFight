@@ -1,5 +1,6 @@
 ﻿using ArmiesDomain.Exceptions;
 using ArmiesDomain.Repositories.Armies;
+using ArmiesDomain.Services.ArmyNotifications;
 
 namespace ArmiesDomain.ValueObjects
 {
@@ -26,7 +27,12 @@ namespace ArmiesDomain.ValueObjects
             return cost.Multiply(value);
         }
 
-        public void FillSquadData(SquadDto data)
+        public void FillSquadData(SquadNotificationDto data)
+        {
+            data.Quantity = value;
+        }
+
+        public void FillSquadData(SquadRepositoryDto data)
         {
             data.Quantity = value;
         }

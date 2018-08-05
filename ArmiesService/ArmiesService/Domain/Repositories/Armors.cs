@@ -14,7 +14,7 @@ namespace ArmiesService.Domain.Repositories
     {
         static Armors()
         {
-            BsonClassMap.RegisterClassMap<ArmorDto>(cm =>
+            BsonClassMap.RegisterClassMap<ArmorRepositoryDto>(cm =>
             {
                 cm.MapIdProperty(e => e.Name);
                 cm.MapProperty(e => e.Cost).SetElementName("cost");
@@ -22,7 +22,7 @@ namespace ArmiesService.Domain.Repositories
                 cm.MapProperty(e => e.Defence).SetElementName("defence");
             });
 
-            BsonClassMap.RegisterClassMap<DefenceDto>(cm =>
+            BsonClassMap.RegisterClassMap<DefenceRepositoryDto>(cm =>
             {
                 cm.MapProperty(e => e.Max).SetElementName("max");
                 cm.MapProperty(e => e.Min).SetElementName("min");
@@ -43,14 +43,14 @@ namespace ArmiesService.Domain.Repositories
             this.cacheOptions = cacheOptions;
         }
 
-        public async Task<ArmorDto> GetByNameAsync(string name)
+        public async Task<ArmorRepositoryDto> GetByNameAsync(string name)
         {
             var cacheKey = GetCacheKeyFromName(name);
             var cached = await cache.GetAsync(cacheKey);
 
             if (cached != null)
             {
-                return BsonSerializer.Deserialize<ArmorDto>(cached);
+                return BsonSerializer.Deserialize<ArmorRepositoryDto>(cached);
             }
 
             var stored = await Collection.Find(armor => armor.Name == name).FirstOrDefaultAsync() ?? throw EntityNotFoundException.CreateArmor(name);
@@ -58,7 +58,7 @@ namespace ArmiesService.Domain.Repositories
             return stored;
         }
 
-        private IMongoCollection<ArmorDto> Collection => database.GetCollection<ArmorDto>("armors");
+        private IMongoCollection<ArmorRepositoryDto> Collection => database.GetCollection<ArmorRepositoryDto>("armors");
 
         private string GetCacheKeyFromName(string name) => $"armor:name:{name}";
     }

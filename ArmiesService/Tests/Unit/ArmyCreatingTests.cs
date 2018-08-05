@@ -8,11 +8,7 @@ using Moq;
 using System;
 using System.Threading.Tasks;
 using Xunit;
-using IArmiesRepository = ArmiesDomain.Repositories.Armies.IArmies;
-using ArmyDtoOfController = ArmiesService.Controllers.Data.ArmyDto;
-using SquadDtoOfController = ArmiesService.Controllers.Data.SquadDto;
-using ArmyDtoOfRepository = ArmiesDomain.Repositories.Armies.ArmyDto;
-using SquadDtoOfRepository = ArmiesDomain.Repositories.Squads.SquadDto;
+using SquadDtoOfSquadsRepository = ArmiesDomain.Repositories.Squads.SquadRepositoryDto;
 using Microsoft.AspNetCore.Mvc;
 using ArmiesDomain.Repositories.Weapons;
 using FluentAssertions;
@@ -20,6 +16,12 @@ using ArmiesDomain.Repositories.Armors;
 using ArmiesDomain.Repositories.Squads;
 using ArmiesDomain.Exceptions;
 using ArmiesService.Common;
+using ArmiesDomain.Services.ArmyNotifications;
+using ArmiesDomain.Repositories.Armies;
+using ArmiesService.Controllers.Data;
+using ArmiesService.Initialization;
+using MongoDB.Driver;
+using RabbitMQ.Client;
 
 namespace Tests.Unit
 {
@@ -30,16 +32,16 @@ namespace Tests.Unit
         {
             var services = CreateServiceProvider();
             var controller = services.GetService<ArmiesController>();
-            var mockOfArmiesRepository = services.GetService<Mock<IArmiesRepository>>();
-            mockOfArmiesRepository.Setup(repository => repository.SaveAsync(It.IsAny<ArmyDtoOfRepository>()))
-                                  .Callback<ArmyDtoOfRepository>(ValidateResult)
+            var mockOfArmiesRepository = services.GetService<Mock<IArmies>>();
+            mockOfArmiesRepository.Setup(repository => repository.SaveAsync(It.IsAny<ArmyRepositoryDto>()))
+                                  .Callback<ArmyRepositoryDto>(ValidateResult)
                                   .Returns(Task.CompletedTask);
                 
-            await controller.CreateAsync(new ArmyDtoOfController
+            await controller.CreateAsync(new ArmyControllerDto
             {
                 Squads = new[]
                 {
-                    new SquadDtoOfController
+                    new SquadContollerDto
                     {
                         Type = "SquadOne",
                         Quantity = 1,
@@ -49,8 +51,11 @@ namespace Tests.Unit
                 }
             });
 
-            void ValidateResult(ArmyDtoOfRepository dto)
+            void ValidateResult(ArmyRepositoryDto dto)
             {
+                dto.OwnerLogin.Should()
+                              .BeSameAs("UserOne");
+
                 dto.Squads.Should()
                           .ContainSingle()
                           .Which
@@ -71,11 +76,11 @@ namespace Tests.Unit
             var services = CreateServiceProvider();
             var controller = services.GetService<ArmiesController>();
 
-            var result = await controller.CreateAsync(new ArmyDtoOfController
+            var result = await controller.CreateAsync(new ArmyControllerDto
             {
                 Squads = new[]
                 {
-                    new SquadDtoOfController
+                    new SquadContollerDto
                     {
                         Type = "SquadOne",
                         Quantity = 2,
@@ -85,7 +90,7 @@ namespace Tests.Unit
                 }
             });
 
-            Assert.IsAssignableFrom<BadRequestResult>(result);
+            Assert.IsAssignableFrom<BadRequestObjectResult>(result);
         }
 
         [Theory]
@@ -97,11 +102,11 @@ namespace Tests.Unit
             var services = CreateServiceProvider();
             var controller = services.GetService<ArmiesController>();
 
-            var result = await controller.CreateAsync(new ArmyDtoOfController
+            var result = await controller.CreateAsync(new ArmyControllerDto
             {
                 Squads = new[]
                 {
-                    new SquadDtoOfController
+                    new SquadContollerDto
                     {
                         Type = "SquadOne",
                         Quantity = quantity,
@@ -111,7 +116,7 @@ namespace Tests.Unit
                 }
             });
 
-            Assert.IsAssignableFrom<BadRequestResult>(result);
+            Assert.IsAssignableFrom<BadRequestObjectResult>(result);
         }
 
         [Fact]
@@ -123,11 +128,11 @@ namespace Tests.Unit
             mockOfSquadsRepository.Setup(mock => mock.GetByTypeAsync(It.IsAny<string>()))
                                   .ThrowsAsync(new EntityNotFoundException());
 
-            var result = await controller.CreateAsync(new ArmyDtoOfController
+            var result = await controller.CreateAsync(new ArmyControllerDto
             {
                 Squads = new[]
                 {
-                    new SquadDtoOfController
+                    new SquadContollerDto
                     {
                         Type = "SquadOne",
                         Quantity = 1,
@@ -137,7 +142,7 @@ namespace Tests.Unit
                 }
             });
 
-            Assert.IsAssignableFrom<BadRequestResult>(result);
+            Assert.IsAssignableFrom<BadRequestObjectResult>(result);
         }
 
         [Fact]
@@ -149,11 +154,11 @@ namespace Tests.Unit
             mockOfWeaponsRepository.Setup(mock => mock.GetByNameAsync(It.IsAny<string>()))
                                    .ThrowsAsync(new EntityNotFoundException());
 
-            var result = await controller.CreateAsync(new ArmyDtoOfController
+            var result = await controller.CreateAsync(new ArmyControllerDto
             {
                 Squads = new[]
                 {
-                    new SquadDtoOfController
+                    new SquadContollerDto
                     {
                         Type = "SquadOne",
                         Quantity = 1,
@@ -163,7 +168,7 @@ namespace Tests.Unit
                 }
             });
 
-            Assert.IsAssignableFrom<BadRequestResult>(result);
+            Assert.IsAssignableFrom<BadRequestObjectResult>(result);
         }
 
         [Fact]
@@ -175,11 +180,11 @@ namespace Tests.Unit
             mockOfArmorsRepository.Setup(mock => mock.GetByNameAsync(It.IsAny<string>()))
                                   .ThrowsAsync(new EntityNotFoundException());
 
-            var result = await controller.CreateAsync(new ArmyDtoOfController
+            var result = await controller.CreateAsync(new ArmyControllerDto
             {
                 Squads = new[]
                 {
-                    new SquadDtoOfController
+                    new SquadContollerDto
                     {
                         Type = "SquadOne",
                         Quantity = 1,
@@ -189,7 +194,7 @@ namespace Tests.Unit
                 }
             });
 
-            Assert.IsAssignableFrom<BadRequestResult>(result);
+            Assert.IsAssignableFrom<BadRequestObjectResult>(result);
         }
 
         [Fact]
@@ -197,14 +202,86 @@ namespace Tests.Unit
         {
             var services = CreateServiceProvider();
             var controller = services.GetService<ArmiesController>();
-            var data = new ArmyDtoOfController();
+            var data = new ArmyControllerDto();
 
             var nullArrayResult = await controller.CreateAsync(data);
-            data.Squads = new SquadDtoOfController[0];
+            data.Squads = new SquadContollerDto[0];
             var emptyArrayResult = await controller.CreateAsync(data);
 
-            Assert.IsAssignableFrom<BadRequestResult>(nullArrayResult);
-            Assert.IsAssignableFrom<BadRequestResult>(emptyArrayResult);
+            Assert.IsAssignableFrom<BadRequestObjectResult>(nullArrayResult);
+            Assert.IsAssignableFrom<BadRequestObjectResult>(emptyArrayResult);
+        }
+
+        [Fact]
+        public async Task CreateArmy_FromControllerData_NotificationIsSentWithExpectedFields()
+        {
+            var services = CreateServiceProvider();
+            var controller = services.GetService<ArmiesController>();
+            var data = new ArmyControllerDto();
+            var mockOfArmyNotificationsService = services.GetService<Mock<IArmyNotificationService>>();
+            mockOfArmyNotificationsService.Setup(service => service.NotifyThatCreatedAsync(It.IsAny<ArmyNotificationDto>()))
+                                          .Callback<ArmyNotificationDto>(ValidateResult)
+                                          .Returns(Task.CompletedTask);
+
+            await controller.CreateAsync(new ArmyControllerDto
+            {
+                Squads = new[]
+                {
+                    new SquadContollerDto
+                    {
+                        Type = "SquadOne",
+                        Quantity = 1,
+                        Weapons = new[] { "WeaponOne" },
+                        Armors = new[] { "ArmorOne" }
+                    }
+                }
+            });
+
+            void ValidateResult(ArmyNotificationDto dto)
+            {
+                dto.OwnerLogin.Should()
+                              .BeSameAs("UserOne");
+
+                dto.Squads.Should()
+                          .ContainSingle()
+                          .Which
+                          .Should()
+                          .BeEquivalentTo(new
+                          {
+                              Type = "SquadOne",
+                              Quantity = 1,
+                              Weapons = new
+                              {
+                                  Name = "WeaponOne",
+                                  Offence = new[]
+                                  {
+                                      new
+                                      {
+                                          Max = 10,
+                                          Min = 1,
+                                          Tags = new[] { "TagOne" }
+                                      }
+                                  },
+                                  Tags = new[] { "TagTwo" }
+                              },
+                              Armors = new
+                              {
+                                  Name = "ArmorOne",
+                                  Cost = 2,
+                                  Defence = new[]
+                                  {
+                                      new
+                                      {
+                                          Max = 6,
+                                          Min = 4,
+                                          Tags = new[] { "TagOne" }
+                                      }
+                                  },
+                                  Tags = new[] { "TagTwo" }
+                              },
+                              Tags = new[] { "TagOne" }
+                          }, options => options.ExcludingMissingMembers());
+            }
         }
 
         [Fact]
@@ -213,11 +290,11 @@ namespace Tests.Unit
             var services = CreateServiceProvider();
             var controller = services.GetService<ArmiesController>();
 
-            var result = await controller.CreateAsync(new ArmyDtoOfController
+            var result = await controller.CreateAsync(new ArmyControllerDto
             {
-                Squads = new SquadDtoOfController[]
+                Squads = new SquadContollerDto[]
                 {
-                    new SquadDtoOfController
+                    new SquadContollerDto
                     {
                         Type = "SquadOne",
                         Quantity = 1,
@@ -232,19 +309,26 @@ namespace Tests.Unit
 
         private IServiceProvider CreateServiceProvider()
         {
-            var configuration = new Mock<IConfiguration>();
-            var services = new ServiceCollection();
-            var startup = new Startup(configuration.Object);
-            startup.ConfigureServices(services);
+            var configuration = GetConfiguration();
+            var services = new ServiceCollection().AddCommands()
+                                                  .AddDomain();
             ConfigureController(services);
             MockArmiesRepository(services);
             MockSquadsRepository(services);
             MockWeaponsRepository(services);
             MockArmorsRepository(services);
             MockUsersRepository(services);
+            MockArmyNotificationsService(services);
             MockLogs(services);
-            MockUsers(services);
+            MockCommons(services);
             return services.BuildServiceProvider();
+        }
+
+        private IConfiguration GetConfiguration()
+        {
+            var section = new Mock<IConfigurationSection>();
+            section.SetReturnsDefault(section.Object);
+            return section.Object;
         }
 
         private void ConfigureController(IServiceCollection services)
@@ -254,8 +338,8 @@ namespace Tests.Unit
 
         private void MockArmiesRepository(IServiceCollection services)
         {
-            var repository = new Mock<IArmiesRepository>();
-            repository.Setup(mock => mock.SaveAsync(It.IsAny<ArmyDtoOfRepository>()))
+            var repository = new Mock<IArmies>();
+            repository.Setup(mock => mock.SaveAsync(It.IsAny<ArmyRepositoryDto>()))
                       .Returns(Task.CompletedTask);
             services.AddSingleton(repository.Object)
                     .AddSingleton(repository);
@@ -264,7 +348,7 @@ namespace Tests.Unit
         private void MockSquadsRepository(IServiceCollection services)
         {
             var repository = new Mock<ISquads>();
-            var someSquad = new SquadDtoOfRepository
+            var someSquad = new SquadDtoOfSquadsRepository
             {
                 Type = "SquadOne",
                 Cost = 5,
@@ -279,13 +363,13 @@ namespace Tests.Unit
         private void MockWeaponsRepository(IServiceCollection services)
         {
             var repository = new Mock<IWeapons>();
-            var someWeapon = new WeaponDto
+            var someWeapon = new WeaponRepositoryDto
             {
                 Name = "WeaponOne",
                 Cost = 3,
                 Offence = new[]
                 {
-                    new OffenceDto
+                    new OffenceRepositoryDto
                     {
                         Max = 10,
                         Min = 1,
@@ -303,16 +387,16 @@ namespace Tests.Unit
         private void MockArmorsRepository(IServiceCollection services)
         {
             var repository = new Mock<IArmors>();
-            var someArmor = new ArmorDto
+            var someArmor = new ArmorRepositoryDto
             {
                 Name = "ArmorOne",
                 Cost = 2,
                 Defence = new[]
                 {
-                    new DefenceDto
+                    new DefenceRepositoryDto
                     {
-                        Max = 4,
-                        Min = 6,
+                        Max = 6,
+                        Min = 4,
                         Tags = new[] { "TagOne" }
                     }
                 },
@@ -327,7 +411,7 @@ namespace Tests.Unit
         private void MockUsersRepository(IServiceCollection services)
         {
             var repository = new Mock<IUsers>();
-            var someUser = new UserDto
+            var someUser = new UserRepositoryDto
             {
                 Login = "UserOne",
                 ArmyCostLimit = 10
@@ -344,12 +428,19 @@ namespace Tests.Unit
             services.AddSingleton(log.Object);
         }
 
-        private void MockUsers(IServiceCollection services)
+        private void MockCommons(IServiceCollection services)
         {
             var getCurrentUserLoginStrategy = new Mock<IGetCurrentUserLoginStrategy>();
             getCurrentUserLoginStrategy.SetReturnsDefault("UserOne");
             services.AddSingleton(getCurrentUserLoginStrategy.Object)
                     .AddSingleton(getCurrentUserLoginStrategy);
+        }
+
+        private void MockArmyNotificationsService(IServiceCollection services)
+        {
+            var service = new Mock<IArmyNotificationService>();
+            services.AddSingleton(service.Object)
+                    .AddSingleton(service);
         }
     }
 }

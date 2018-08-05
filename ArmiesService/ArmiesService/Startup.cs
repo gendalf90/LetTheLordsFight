@@ -19,6 +19,15 @@ namespace ArmiesService
         {
             services.AddAuthentication(configuration)
                     .AddHttpContextAccessor()
+                    .AddQueries()
+                    .AddCommands()
+                    .AddCache(configuration)
+                    .AddQueue(configuration)
+                    .AddConsumers()
+                    .AddDatabase(configuration)
+                    .AddDomain()
+                    .AddLog()
+                    .AddCommon()
                     .AddMvc();
         }
 

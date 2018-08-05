@@ -4,8 +4,8 @@ namespace ArmiesDomain.Repositories.Users
 {
     public interface IUsers
     {
-        Task<UserDto> GetByLoginAsync(string login);
+        Task<UserRepositoryDto> GetByLoginAsync(string login);
 
-        Task SaveAsync(UserDto data);
+        Task SaveAsync(UserRepositoryDto data);
     }
 }

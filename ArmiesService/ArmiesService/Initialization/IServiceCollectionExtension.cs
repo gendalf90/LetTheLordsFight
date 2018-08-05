@@ -15,6 +15,14 @@ using Extensions.Caching.Disabled;
 using ArmiesService.Consumers;
 using RabbitMQ.Client;
 using MongoDB.Driver;
+using ArmiesService.Logs;
+using ArmiesDomain.Services.ArmyNotifications;
+using ArmiesService.Domain.Services;
+using ArmiesDomain.Services;
+using ArmiesService.Common;
+using ArmiesService.Queries;
+using ArmiesService.Commands;
+using ArmiesDomain.Factories.Armies;
 
 namespace ArmiesService.Initialization
 {
@@ -39,6 +47,16 @@ namespace ArmiesService.Initialization
                     });
 
             return services;
+        }
+
+        public static IServiceCollection AddQueries(this IServiceCollection services)
+        {
+            return services.AddTransient<IQueriesFactory, QueriesFactory>();
+        }
+
+        public static IServiceCollection AddCommands(this IServiceCollection services)
+        {
+            return services.AddTransient<ICommandsFactory, CommandsFactory>();
         }
 
         public static IServiceCollection AddCache(this IServiceCollection services, IConfiguration configuration)
@@ -69,14 +87,14 @@ namespace ArmiesService.Initialization
         public static IServiceCollection AddQueue(this IServiceCollection services, IConfiguration configuration)
         {
             var connectionString = configuration["RABBITMQ_CONNECTION_STRING"];
-            var factory = new ConnectionFactory { Uri = new Uri(connectionString) };
+            var factory = new ConnectionFactory { Uri = new Uri(connectionString), DispatchConsumersAsync = true };
             var connection = factory.CreateConnection();
             return services.AddSingleton(connection);
         }
 
         public static IServiceCollection AddConsumers(this IServiceCollection services)
         {
-            return services.AddHostedService<UserCreatedEvent>();
+            return services.AddHostedService<UserCreatedEventConsumer>();
         }
 
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
@@ -89,11 +107,24 @@ namespace ArmiesService.Initialization
 
         public static IServiceCollection AddDomain(this IServiceCollection services)
         {
-            return services.AddTransient<IArmies, Armies>()
+            return services.AddTransient<IArmyFactory, ArmyFactory>()
+                           .AddTransient<IArmyCostLimitService, ArmyCostLimitService>()
+                           .AddTransient<IArmyNotificationService, ArmyNotificationsService>()
+                           .AddTransient<IArmies, Armies>()
                            .AddTransient<IUsers, Users>()
                            .AddTransient<IWeapons, Weapons>()
                            .AddTransient<IArmors, Armors>()
                            .AddTransient<ISquads, Squads>();
+        }
+
+        public static IServiceCollection AddLog(this IServiceCollection services)
+        {
+            return services.AddTransient<ILog, Log>();
+        }
+
+        public static IServiceCollection AddCommon(this IServiceCollection services)
+        {
+            return services.AddTransient<IGetCurrentUserLoginStrategy, GetCurrentUserLoginStrategy>();
         }
 
         private static SecurityKey CreateTokenSigningKey(string key)

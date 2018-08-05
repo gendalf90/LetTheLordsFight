@@ -25,7 +25,7 @@ namespace ArmiesDomain.Entities
 
         public async Task SaveAsync(IUsers repository)
         {
-            var data = new UserDto();
+            var data = new UserRepositoryDto();
             data.Login = Login;
             armyLimit.FillUserData(data);
             await repository.SaveAsync(data);

@@ -13,7 +13,7 @@ namespace ArmiesService.Domain.Repositories
     {
         static Weapons()
         {
-            BsonClassMap.RegisterClassMap<WeaponDto>(cm =>
+            BsonClassMap.RegisterClassMap<WeaponRepositoryDto>(cm =>
             {
                 cm.MapIdProperty(e => e.Name);
                 cm.MapProperty(e => e.Cost).SetElementName("cost");
@@ -21,7 +21,7 @@ namespace ArmiesService.Domain.Repositories
                 cm.MapProperty(e => e.Offence).SetElementName("offence");
             });
 
-            BsonClassMap.RegisterClassMap<OffenceDto>(cm =>
+            BsonClassMap.RegisterClassMap<OffenceRepositoryDto>(cm =>
             {
                 cm.MapProperty(e => e.Max).SetElementName("max");
                 cm.MapProperty(e => e.Min).SetElementName("min");
@@ -42,14 +42,14 @@ namespace ArmiesService.Domain.Repositories
             this.cacheOptions = cacheOptions;
         }
 
-        public async Task<WeaponDto> GetByNameAsync(string name)
+        public async Task<WeaponRepositoryDto> GetByNameAsync(string name)
         {
             var cacheKey = GetCacheKeyFromName(name);
             var cached = await cache.GetAsync(cacheKey);
 
             if (cached != null)
             {
-                return BsonSerializer.Deserialize<WeaponDto>(cached);
+                return BsonSerializer.Deserialize<WeaponRepositoryDto>(cached);
             }
 
             var stored = await Collection.Find(weapon => weapon.Name == name).FirstOrDefaultAsync() ?? throw EntityNotFoundException.CreateWeapon(name);
@@ -57,7 +57,7 @@ namespace ArmiesService.Domain.Repositories
             return stored;
         }
 
-        private IMongoCollection<WeaponDto> Collection => database.GetCollection<WeaponDto>("weapons");
+        private IMongoCollection<WeaponRepositoryDto> Collection => database.GetCollection<WeaponRepositoryDto>("weapons");
 
         private string GetCacheKeyFromName(string name) => $"weapon:name:{name}";
     }

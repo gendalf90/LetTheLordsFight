@@ -4,6 +4,6 @@ namespace ArmiesDomain.Repositories.Armies
 {
     public interface IArmies
     {
-        Task SaveAsync(ArmyDto data);
+        Task SaveAsync(ArmyRepositoryDto data);
     }
 }

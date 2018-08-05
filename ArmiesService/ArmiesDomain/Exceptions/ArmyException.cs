@@ -19,7 +19,7 @@ namespace ArmiesDomain.Exceptions
 
         public bool IsOwner { get; private set; }
 
-        public static ArmyException CreateCost()
+        public static ArmyException CreateCostLimitExceeded()
         {
             return new ArmyException("The army is too expensive")
             {
@@ -27,7 +27,7 @@ namespace ArmiesDomain.Exceptions
             };
         }
 
-        public static ArmyException CreateSquads()
+        public static ArmyException CreateNoSquads()
         {
             return new ArmyException("Squads list is empty")
             {
@@ -35,7 +35,7 @@ namespace ArmiesDomain.Exceptions
             };
         }
 
-        public static ArmyException CreateOwner()
+        public static ArmyException CreateEmptyOwner()
         {
             return new ArmyException("Owner must be set")
             {

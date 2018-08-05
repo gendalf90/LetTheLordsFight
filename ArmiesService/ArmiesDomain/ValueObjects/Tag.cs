@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ArmiesDomain.Services.ArmyNotifications;
+using System;
 
 namespace ArmiesDomain.ValueObjects
 {
@@ -14,6 +15,31 @@ namespace ArmiesDomain.ValueObjects
             }
 
             this.value = value;
+        }
+
+        public void FillDefenceData(DefenceNotificationDto data)
+        {
+            data.Tags.Add(value);
+        }
+
+        public void FillOffenceData(OffenceNotificationDto data)
+        {
+            data.Tags.Add(value);
+        }
+
+        public void FillWeaponData(WeaponNotificationDto data)
+        {
+            data.Tags.Add(value);
+        }
+
+        public void FillArmorData(ArmorNotificationDto data)
+        {
+            data.Tags.Add(value);
+        }
+
+        public void FillSquadData(SquadNotificationDto data)
+        {
+            data.Tags.Add(value);
         }
     }
 }

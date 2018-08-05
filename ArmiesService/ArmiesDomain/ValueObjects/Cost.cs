@@ -37,14 +37,9 @@ namespace ArmiesDomain.ValueObjects
             return value > cost.value;
         }
 
-        public void FillUserData(UserDto data)
+        public void FillUserData(UserRepositoryDto data)
         {
             data.ArmyCostLimit = value;
-        }
-
-        public void FillSquadData(SquadDto data)
-        {
-            data.Quantity = value;
         }
     }
 }

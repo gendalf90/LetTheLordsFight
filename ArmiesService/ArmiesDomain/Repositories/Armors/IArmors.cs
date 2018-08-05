@@ -4,6 +4,6 @@ namespace ArmiesDomain.Repositories.Armors
 {
     public interface IArmors
     {
-        Task<ArmorDto> GetByNameAsync(string name);
+        Task<ArmorRepositoryDto> GetByNameAsync(string name);
     }
 }

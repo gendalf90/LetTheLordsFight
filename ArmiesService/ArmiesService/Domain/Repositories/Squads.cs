@@ -13,7 +13,7 @@ namespace ArmiesService.Domain.Repositories
     {
         static Squads()
         {
-            BsonClassMap.RegisterClassMap<SquadDto>(cm =>
+            BsonClassMap.RegisterClassMap<SquadRepositoryDto>(cm =>
             {
                 cm.MapIdProperty(e => e.Type);
                 cm.MapProperty(e => e.Cost).SetElementName("cost");
@@ -34,14 +34,14 @@ namespace ArmiesService.Domain.Repositories
             this.cacheOptions = cacheOptions;
         }
 
-        public async Task<SquadDto> GetByTypeAsync(string type)
+        public async Task<SquadRepositoryDto> GetByTypeAsync(string type)
         {
             var cacheKey = GetCacheKeyFromType(type);
             var cached = await cache.GetAsync(cacheKey);
 
             if (cached != null)
             {
-                return BsonSerializer.Deserialize<SquadDto>(cached);
+                return BsonSerializer.Deserialize<SquadRepositoryDto>(cached);
             }
 
             var stored = await Collection.Find(squad => squad.Type == type).FirstOrDefaultAsync() ?? throw EntityNotFoundException.CreateSquad(type);
@@ -49,7 +49,7 @@ namespace ArmiesService.Domain.Repositories
             return stored;
         }
 
-        private IMongoCollection<SquadDto> Collection => database.GetCollection<SquadDto>("squads");
+        private IMongoCollection<SquadRepositoryDto> Collection => database.GetCollection<SquadRepositoryDto>("squads");
 
         private string GetCacheKeyFromType(string type) => $"squad:type:{type}";
     }

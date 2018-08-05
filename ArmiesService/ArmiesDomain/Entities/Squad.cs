@@ -2,11 +2,12 @@
 using ArmiesDomain.Repositories.Armies;
 using ArmiesDomain.Repositories.Squads;
 using ArmiesDomain.Services;
+using ArmiesDomain.Services.ArmyNotifications;
 using ArmiesDomain.ValueObjects;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SquadDtoOfArmyRepository = ArmiesDomain.Repositories.Armies.SquadDto;
+using SquadDtoOfArmyRepository = ArmiesDomain.Repositories.Armies.SquadRepositoryDto;
 
 namespace ArmiesDomain.Entities
 {
@@ -35,16 +36,16 @@ namespace ArmiesDomain.Entities
 
         public string Type { get; private set; }
 
-        public void ApplyService(IArmyCostLimit service)
+        public void CheckCostLimit(IArmyCostLimitService service)
         {
             foreach(var weapon in weapons)
             {
-                weapon.ApplyService(service);
+                weapon.CheckCostLimit(service);
             }
 
             foreach(var armor in armors)
             {
-                armor.ApplyService(service);
+                armor.CheckCostLimit(service);
             }
 
             var costRelatedOnQuantity = quantity.Multiply(cost);
@@ -71,7 +72,7 @@ namespace ArmiesDomain.Entities
             this.quantity = quantity;
         }
 
-        public void FillArmyData(ArmyDto armyData)
+        public void FillArmyData(ArmyRepositoryDto armyData)
         {
             var squadData = new SquadDtoOfArmyRepository();
             squadData.Type = Type;
@@ -80,7 +81,23 @@ namespace ArmiesDomain.Entities
             squadData.Armors = armors.Select(armor => armor.Name)
                                      .ToList();
             quantity.FillSquadData(squadData);
-            cost.FillSquadData(squadData);
+            armyData.Squads.Add(squadData);
+        }
+
+        public void FillArmyData(ArmyNotificationDto armyData)
+        {
+            var squadData = new SquadNotificationDto
+            {
+                Weapons = new List<WeaponNotificationDto>(),
+                Armors = new List<ArmorNotificationDto>(),
+                Tags = new List<string>()
+            };
+
+            squadData.Type = Type;
+            weapons.ForEach(weapon => weapon.FillSquadData(squadData));
+            armors.ForEach(armor => armor.FillSquadData(squadData));
+            quantity.FillSquadData(squadData);
+            tags.ForEach(tag => tag.FillSquadData(squadData));
             armyData.Squads.Add(squadData);
         }
 

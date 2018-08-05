@@ -3,9 +3,7 @@ using ArmiesService.Controllers.Data;
 using ArmiesService.Logs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading.Tasks;
-using AggregateExceptionExtensions.Handler;
 using ArmiesDomain.Exceptions;
 
 namespace ArmiesService.Controllers
@@ -14,17 +12,17 @@ namespace ArmiesService.Controllers
     [Route("api/v1/armies")]
     public class ArmiesController : Controller
     {
-        private readonly IFactory commands;
+        private readonly ICommandsFactory commands;
         private readonly ILog log;
 
-        public ArmiesController(IFactory commands, ILog log)
+        public ArmiesController(ICommandsFactory commands, ILog log)
         {
             this.commands = commands;
             this.log = log;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] ArmyDto data)
+        public async Task<IActionResult> CreateAsync([FromBody] ArmyControllerDto data)
         {
             if (!ModelState.IsValid)
             {
@@ -41,61 +39,39 @@ namespace ArmiesService.Controllers
             return Ok();
         }
 
-        private async Task TryCreateArmyAsync(ArmyDto data)
+        private async Task TryCreateArmyAsync(ArmyControllerDto data)
         {
             try
             {
                 var command = commands.GetCreateArmyCommand(data);
                 await command.ExecuteAsync();
             }
-            catch (AggregateException ae)
+            catch(EntityNotFoundException e)
             {
-                ae.Flatten()
-                  .AddHandlers()
-                  .Action<EntityNotFoundException>(HandleEntityNotFoundException)
-                  .Action<QuantityException>(HandleQuantityException)
-                  .Condition<SquadException>(TryHandleSquadException)
-                  .Condition<ArmyException>(TryHandleArmyException)
-                  .Handle();
+                ModelState.AddModelError("validation", e.Message);
             }
-        }
-
-        private void HandleEntityNotFoundException(EntityNotFoundException e)
-        {
-            HandleValidationError(e.Message);
-        }
-
-        private void HandleQuantityException(QuantityException e)
-        {
-            HandleValidationError(e.Message);
-        }
-
-        private bool TryHandleSquadException(SquadException e)
-        {
-            if(!e.IsQuantity)
+            catch(QuantityException e)
             {
-                return false;
+                ModelState.AddModelError("validation", e.Message);
             }
-
-            HandleValidationError(e.Message);
-            return true;
-        }
-
-        private bool TryHandleArmyException(ArmyException e)
-        {
-            if(!e.IsSquads || !e.IsCost)
+            catch(SquadException e)
             {
-                return false;
+                if(!e.IsQuantity)
+                {
+                    throw;
+                }
+
+                ModelState.AddModelError("validation", e.Message);
             }
+            catch(ArmyException e)
+            {
+                if (!e.IsSquads && !e.IsCost)
+                {
+                    throw;
+                }
 
-            HandleValidationError(e.Message);
-            return true;
-        }
-
-        private void HandleValidationError(string message)
-        {
-            ModelState.AddModelError("validation", message);
-            log.Warning($"Validation error '{message}' from user's '{User.Identity.Name}' request");
+                ModelState.AddModelError("validation", e.Message);
+            }
         }
     }
 }

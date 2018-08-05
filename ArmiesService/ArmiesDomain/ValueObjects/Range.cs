@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ArmiesDomain.Services.ArmyNotifications;
+using System;
 
 namespace ArmiesDomain.ValueObjects
 {
@@ -25,6 +26,18 @@ namespace ArmiesDomain.ValueObjects
 
             this.min = min;
             this.max = max;
+        }
+
+        public void FillOffenceData(OffenceNotificationDto data)
+        {
+            data.Max = max;
+            data.Min = min;
+        }
+
+        public void FillDefenceData(DefenceNotificationDto data)
+        {
+            data.Max = max;
+            data.Min = min;
         }
     }
 }

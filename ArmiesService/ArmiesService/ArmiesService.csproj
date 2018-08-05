@@ -9,7 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AggregateException.Extensions.Handler" Version="1.2.0" />
     <PackageReference Include="Extensions.Caching.Disabled" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.2" />
     <PackageReference Include="MongoDB.Driver" Version="2.7.0" />

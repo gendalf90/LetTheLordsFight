@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ArmiesDomain.Services.ArmyNotifications;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,7 +8,7 @@ namespace ArmiesDomain.ValueObjects
     public class Offence
     {
         private Range range;
-        private Tag[] tags;
+        private List<Tag> tags;
 
         public Offence() : this(new Range(), new Tag[0])
         {
@@ -21,7 +22,19 @@ namespace ArmiesDomain.ValueObjects
             }
 
             this.range = range;
-            this.tags = tags.ToArray();
+            this.tags = tags.ToList();
+        }
+
+        public void FillWeaponData(WeaponNotificationDto data)
+        {
+            var offenceDto = new OffenceNotificationDto
+            {
+                Tags = new List<string>()
+            };
+
+            range.FillOffenceData(offenceDto);
+            tags.ForEach(tag => tag.FillOffenceData(offenceDto));
+            data.Offence.Add(offenceDto);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ArmiesDomain.Repositories.Armors;
 using ArmiesDomain.Services;
+using ArmiesDomain.Services.ArmyNotifications;
 using ArmiesDomain.ValueObjects;
 using System;
 using System.Collections.Generic;
@@ -29,9 +30,23 @@ namespace ArmiesDomain.Entities
 
         public string Name { get; private set; }
 
-        public void ApplyService(IArmyCostLimit service)
+        public void CheckCostLimit(IArmyCostLimitService service)
         {
             service.AccumulateCost(cost);
+        }
+
+        public void FillSquadData(SquadNotificationDto data)
+        {
+            var armorDto = new ArmorNotificationDto
+            {
+                Defence = new List<DefenceNotificationDto>(),
+                Tags = new List<string>()
+            };
+
+            armorDto.Name = Name;
+            defense.ForEach(offence => offence.FillArmorData(armorDto));
+            tags.ForEach(tag => tag.FillArmorData(armorDto));
+            data.Armors.Add(armorDto);
         }
 
         public static async Task<Armor> LoadAsync(IArmors repository, string name)
@@ -49,7 +64,7 @@ namespace ArmiesDomain.Entities
             return armor;
         }
 
-        private static Defense LoadDefence(DefenceDto data)
+        private static Defense LoadDefence(DefenceRepositoryDto data)
         {
             var range = new Range(data.Min, data.Max);
             var tags = data.Tags
