@@ -31,7 +31,7 @@ namespace Tests.Unit
         public async Task CreateArmy_FromControllerData_ArmyIsSavedToRepositoryWithExpectedFields()
         {
             var services = CreateServiceProvider();
-            var controller = services.GetService<ArmiesController>();
+            var controller = services.GetService<CreateArmyController>();
             var mockOfArmiesRepository = services.GetService<Mock<IArmies>>();
             mockOfArmiesRepository.Setup(repository => repository.SaveAsync(It.IsAny<ArmyRepositoryDto>()))
                                   .Callback<ArmyRepositoryDto>(ValidateResult)
@@ -74,7 +74,7 @@ namespace Tests.Unit
         public async Task CreateArmy_CostForUserIsExceeded_BadRequest()
         {
             var services = CreateServiceProvider();
-            var controller = services.GetService<ArmiesController>();
+            var controller = services.GetService<CreateArmyController>();
 
             var result = await controller.CreateAsync(new ArmyControllerDto
             {
@@ -100,7 +100,7 @@ namespace Tests.Unit
         public async Task CreateArmy_SquadCreatingWithNonPositiveQuantity_BadRequest(int? quantity)
         {
             var services = CreateServiceProvider();
-            var controller = services.GetService<ArmiesController>();
+            var controller = services.GetService<CreateArmyController>();
 
             var result = await controller.CreateAsync(new ArmyControllerDto
             {
@@ -123,7 +123,7 @@ namespace Tests.Unit
         public async Task CreateArmy_SquadCreatingWithUnknownType_BadRequest()
         {
             var services = CreateServiceProvider();
-            var controller = services.GetService<ArmiesController>();
+            var controller = services.GetService<CreateArmyController>();
             var mockOfSquadsRepository = services.GetService<Mock<ISquads>>();
             mockOfSquadsRepository.Setup(mock => mock.GetByTypeAsync(It.IsAny<string>()))
                                   .ThrowsAsync(new EntityNotFoundException());
@@ -149,7 +149,7 @@ namespace Tests.Unit
         public async Task CreateArmy_SquadCreatingWithUnknownWeaponName_BadRequest()
         {
             var services = CreateServiceProvider();
-            var controller = services.GetService<ArmiesController>();
+            var controller = services.GetService<CreateArmyController>();
             var mockOfWeaponsRepository = services.GetService<Mock<IWeapons>>();
             mockOfWeaponsRepository.Setup(mock => mock.GetByNameAsync(It.IsAny<string>()))
                                    .ThrowsAsync(new EntityNotFoundException());
@@ -175,7 +175,7 @@ namespace Tests.Unit
         public async Task CreateArmy_SquadCreatingWithUnknownArmorName_BadRequest()
         {
             var services = CreateServiceProvider();
-            var controller = services.GetService<ArmiesController>();
+            var controller = services.GetService<CreateArmyController>();
             var mockOfArmorsRepository = services.GetService<Mock<IArmors>>();
             mockOfArmorsRepository.Setup(mock => mock.GetByNameAsync(It.IsAny<string>()))
                                   .ThrowsAsync(new EntityNotFoundException());
@@ -201,7 +201,7 @@ namespace Tests.Unit
         public async Task CreateArmy_WithoutSquads_BadRequest()
         {
             var services = CreateServiceProvider();
-            var controller = services.GetService<ArmiesController>();
+            var controller = services.GetService<CreateArmyController>();
             var data = new ArmyControllerDto();
 
             var nullArrayResult = await controller.CreateAsync(data);
@@ -216,7 +216,7 @@ namespace Tests.Unit
         public async Task CreateArmy_FromControllerData_NotificationIsSentWithExpectedFields()
         {
             var services = CreateServiceProvider();
-            var controller = services.GetService<ArmiesController>();
+            var controller = services.GetService<CreateArmyController>();
             var data = new ArmyControllerDto();
             var mockOfArmyNotificationsService = services.GetService<Mock<IArmyNotificationService>>();
             mockOfArmyNotificationsService.Setup(service => service.NotifyThatCreatedAsync(It.IsAny<ArmyNotificationDto>()))
@@ -288,7 +288,7 @@ namespace Tests.Unit
         public async Task CreateArmy_FromValidControllerData_ResultIsOk()
         {
             var services = CreateServiceProvider();
-            var controller = services.GetService<ArmiesController>();
+            var controller = services.GetService<CreateArmyController>();
 
             var result = await controller.CreateAsync(new ArmyControllerDto
             {
@@ -333,7 +333,7 @@ namespace Tests.Unit
 
         private void ConfigureController(IServiceCollection services)
         {
-            services.AddTransient<ArmiesController>();
+            services.AddTransient<CreateArmyController>();
         }
 
         private void MockArmiesRepository(IServiceCollection services)

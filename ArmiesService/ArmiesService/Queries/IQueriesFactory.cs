@@ -1,8 +1,9 @@
 ﻿using ArmiesService.Queries.Army;
-using SquadDescriptionDto = ArmiesService.Queries.AllSquads.SquadQueryDto;
-using WeaponDescriptionDto = ArmiesService.Queries.AllWeapons.WeaponQueryDto;
-using ArmorDescriptionDto = ArmiesService.Queries.AllArmors.ArmorQueryDto;
 using System.Collections.Generic;
+using SquadDictionaryQueryDto = ArmiesService.Queries.AllSquads.SquadQueryDto;
+using ArmiesService.Queries.AllWeapons;
+using ArmiesService.Queries.AllArmors;
+using ArmiesService.Queries.User;
 
 namespace ArmiesService.Queries
 {
@@ -10,10 +11,12 @@ namespace ArmiesService.Queries
     {
         IQuery<ArmyQueryDto> CreateArmyQuery();
 
-        IQuery<IEnumerable<SquadDescriptionDto>> CreateAllSquadsQuery();
+        IQuery<UserQueryDto> CreateUserQuery();
 
-        IQuery<IEnumerable<WeaponDescriptionDto>> CreateAllWeaponsQuery();
+        IQuery<IEnumerable<SquadDictionaryQueryDto>> CreateAllSquadsQuery();
 
-        IQuery<IEnumerable<ArmorDescriptionDto>> CreateAllArmorsQuery();
+        IQuery<IEnumerable<WeaponQueryDto>> CreateAllWeaponsQuery();
+
+        IQuery<IEnumerable<ArmorQueryDto>> CreateAllArmorsQuery();
     }
 }

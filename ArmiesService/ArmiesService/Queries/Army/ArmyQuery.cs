@@ -37,7 +37,7 @@ namespace ArmiesService.Queries.Army
         {
             var login = currentUserLogin.Get();
             var collection = database.GetCollection<ArmyQueryDto>("armies");
-            return await collection.Find(army => army.OwnerLogin == login).FirstOrDefaultAsync() ?? throw new ArmyNotFoundException(login);
+            return await collection.Find(army => army.OwnerLogin == login).FirstOrDefaultAsync();
         }
     }
 }

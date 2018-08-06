@@ -10,12 +10,12 @@ namespace ArmiesService.Controllers
 {
     [Authorize]
     [Route("api/v1/armies")]
-    public class ArmiesController : Controller
+    public class CreateArmyController : Controller
     {
         private readonly ICommandsFactory commands;
         private readonly ILog log;
 
-        public ArmiesController(ICommandsFactory commands, ILog log)
+        public CreateArmyController(ICommandsFactory commands, ILog log)
         {
             this.commands = commands;
             this.log = log;
