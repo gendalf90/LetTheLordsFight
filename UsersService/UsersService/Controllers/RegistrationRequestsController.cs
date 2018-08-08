@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using UsersDomain.Exceptions;
 using UsersDomain.Exceptions.Registration;
 using UsersService.Commands;
-using UsersService.Common;
+using UsersService.Controllers.Data;
 using UsersService.Logs;
 
 namespace UsersService.Controllers

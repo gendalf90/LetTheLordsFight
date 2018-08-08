@@ -11,6 +11,7 @@ using System;
 using UsersService.Queries.GetCurrentToken;
 using System.Linq;
 using UsersService.Initialization;
+using UsersService.Controllers.Data;
 
 namespace Tests.Unit
 {
@@ -92,15 +93,9 @@ namespace Tests.Unit
         private JwtSecurityToken GetTokenFromResult(IActionResult result)
         {
             var okResult = result as OkObjectResult;
-
-            if(okResult == null || okResult.Value == null)
-            {
-                return null;
-            }
-            
-            var token = okResult.Value.ToString();
+            var dto = okResult.Value as TokenDto;
             var handler = new JwtSecurityTokenHandler();
-            return handler.ReadJwtToken(token);
+            return handler.ReadJwtToken(dto.Token);
         }
     }
 }

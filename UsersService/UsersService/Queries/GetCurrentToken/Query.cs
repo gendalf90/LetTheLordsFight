@@ -4,17 +4,18 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using UsersService.Controllers.Data;
 
 namespace UsersService.Queries.GetCurrentToken
 {
-    public class Query : IQuery<string>
+    public class Query : IQuery<TokenDto>
     {
         private readonly IGetCurrentUserStrategy currentUser;
         private readonly IGetTokenSigningKeyStrategy signingKey;
 
         private IEnumerable<Claim> claims;
         private SigningCredentials signingCredentials;
-        private string tokenString;
+        private TokenDto token;
 
         public Query(IGetCurrentUserStrategy currentUser, IGetTokenSigningKeyStrategy signingKey)
         {
@@ -22,12 +23,12 @@ namespace UsersService.Queries.GetCurrentToken
             this.signingKey = signingKey;
         }
 
-        public Task<string> AskAsync()
+        public Task<TokenDto> AskAsync()
         {
             CreateClaims();
             CreateCredentials();
             CreateToken();
-            return Task.FromResult(tokenString);
+            return Task.FromResult(token);
         }
 
         private void CreateClaims()
@@ -58,7 +59,10 @@ namespace UsersService.Queries.GetCurrentToken
         {
             var jwtToken = new JwtSecurityToken(signingCredentials: signingCredentials, claims: claims);
             var jwtTokenHandler = new JwtSecurityTokenHandler();
-            tokenString = jwtTokenHandler.WriteToken(jwtToken);
+            token = new TokenDto
+            {
+                Token = jwtTokenHandler.WriteToken(jwtToken)
+            };
         }
     }
 }

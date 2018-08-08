@@ -23,6 +23,7 @@ namespace UsersService
                     .AddQueries()
                     .AddDomain(configuration)
                     .AddLog()
+                    .AddQueue(configuration)
                     .AddMvc();
         }
 

@@ -5,7 +5,7 @@ using UsersDomain.Services.Registration;
 using UsersDomain.ValueTypes;
 using UsersDomain.ValueTypes.Confirmation;
 using UsersDomain.ValueTypes.Registration;
-using UsersService.Common;
+using UsersService.Controllers.Data;
 using UsersService.Logs;
 
 namespace UsersService.Commands.CreateRegistrationRequest
@@ -36,18 +36,12 @@ namespace UsersService.Commands.CreateRegistrationRequest
 
         public async Task ExecuteAsync()
         {
-            LogStart();
             CreateRegistrationRequest();
             await SaveRegistrationRequestAsync();
-            LogRequestSave();
+            LogThatRequestIsSaved();
             CreateRegistrationEmail();
             await SendRegistrationEmailAsync();
-            LogEmailSend();
-        }
-
-        private void LogStart()
-        {
-            log.Information($"Start registration request creating for login: {registrationData.Login}");
+            LogThatEmailIsSent();
         }
 
         private void CreateRegistrationRequest()
@@ -62,7 +56,7 @@ namespace UsersService.Commands.CreateRegistrationRequest
             await registrationRequest.SaveAsync(requestsRepository);
         }
 
-        private void LogRequestSave()
+        private void LogThatRequestIsSaved()
         {
             log.Information($"Registration request with id {registrationRequest.Id} has saved for login {registrationData.Login}");
         }
@@ -79,7 +73,7 @@ namespace UsersService.Commands.CreateRegistrationRequest
             await registrationEmail.SendAsync(emailService);
         }
 
-        private void LogEmailSend()
+        private void LogThatEmailIsSent()
         {
             log.Information($"Email for login {registrationData.Login} has sent");
         }

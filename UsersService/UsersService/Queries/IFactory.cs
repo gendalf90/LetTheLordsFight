@@ -1,7 +1,9 @@
-﻿namespace UsersService.Queries
+﻿using UsersService.Controllers.Data;
+
+namespace UsersService.Queries
 {
     public interface IFactory
     {
-        IQuery<string> CreateGetTokenQuery();
+        IQuery<TokenDto> CreateGetTokenQuery();
     }
 }

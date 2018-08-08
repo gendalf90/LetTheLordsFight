@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UsersDomain.Repositories;
+using UsersDomain.Services.Registration;
 using UsersDomain.ValueTypes;
+using UserRepositoryDto = UsersDomain.Repositories.UserDto;
+using UserNotificationDto = UsersDomain.Services.Registration.UserDto;
 
 namespace UsersDomain.Entities
 {
@@ -22,7 +25,7 @@ namespace UsersDomain.Entities
             this.roles = roles;
         }
 
-        public Guid Id { get => id; }
+        public Guid Id { get; private set; }
 
         public async Task SaveAsync(IUsers repository)
         {
@@ -30,9 +33,23 @@ namespace UsersDomain.Entities
             await repository.SaveAsync(dto);
         }
 
-        private UserDto CreateDtoToSave()
+        public async Task NotifyThatRegisteredAsync(INotification service)
         {
-            return new UserDto
+            var dto = CreateDtoToNotify();
+            await service.NotifyAsync(dto);
+        }
+
+        private UserNotificationDto CreateDtoToNotify()
+        {
+            return new UserNotificationDto
+            {
+                Login = login.ToString()
+            };
+        }
+
+        private UserRepositoryDto CreateDtoToSave()
+        {
+            return new UserRepositoryDto
             {
                 Id = id,
                 Login = login.ToString(),

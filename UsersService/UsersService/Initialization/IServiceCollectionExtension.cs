@@ -17,6 +17,8 @@ using UsersService.Queries.GetCurrentToken;
 using Microsoft.EntityFrameworkCore;
 using UsersService.Database;
 using UsersDomain.Repositories.Registration;
+using RabbitMQ.Client;
+using System;
 
 namespace UsersService.Initialization
 {
@@ -57,7 +59,16 @@ namespace UsersService.Initialization
                            })
                            .AddTransient<IRequests, RequestsRepository>()
                            .AddTransient<IUsers, UsersRepository>()
-                           .AddTransient<IEmail, EmailService>();
+                           .AddTransient<IEmail, EmailService>()
+                           .AddTransient<INotification, NotificationService>();
+        }
+
+        public static IServiceCollection AddQueue(this IServiceCollection services, IConfiguration configuration)
+        {
+            var connectionString = configuration["RABBITMQ_CONNECTION_STRING"];
+            var factory = new ConnectionFactory { Uri = new Uri(connectionString) };
+            var connection = factory.CreateConnection();
+            return services.AddSingleton(connection);
         }
 
         public static IServiceCollection AddLog(this IServiceCollection services)

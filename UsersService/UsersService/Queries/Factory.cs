@@ -1,4 +1,5 @@
-﻿using UsersService.Queries.GetCurrentToken;
+﻿using UsersService.Controllers.Data;
+using UsersService.Queries.GetCurrentToken;
 using TokenQuery = UsersService.Queries.GetCurrentToken.Query;
 
 namespace UsersService.Queries
@@ -14,7 +15,7 @@ namespace UsersService.Queries
             this.signingKey = signingKey;
         }
 
-        public IQuery<string> CreateGetTokenQuery()
+        public IQuery<TokenDto> CreateGetTokenQuery()
         {
             return new TokenQuery(currentUser, signingKey);
         }

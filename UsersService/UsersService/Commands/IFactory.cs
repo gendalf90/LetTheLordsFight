@@ -1,5 +1,5 @@
 ﻿using System;
-using UsersService.Common;
+using UsersService.Controllers.Data;
 
 namespace UsersService.Commands
 {

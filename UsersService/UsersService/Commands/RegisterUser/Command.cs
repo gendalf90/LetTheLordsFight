@@ -4,6 +4,7 @@ using UsersDomain.Entities;
 using UsersDomain.Entities.Registration;
 using UsersDomain.Repositories;
 using UsersDomain.Repositories.Registration;
+using UsersDomain.Services.Registration;
 using UsersService.Logs;
 
 namespace UsersService.Commands.RegisterUser
@@ -12,33 +13,33 @@ namespace UsersService.Commands.RegisterUser
     {
         private readonly IRequests requestRepository;
         private readonly IUsers userRepository;
+        private readonly INotification notificationService;
         private readonly ILog log;
 
         private Guid requestId;
         private Request registrationRequest;
         private User user;
 
-        public Command(IRequests requestRepository, IUsers userRepository, ILog log, Guid requestId)
+        public Command(IRequests requestRepository, 
+                       IUsers userRepository, 
+                       INotification notificationService, 
+                       ILog log, 
+                       Guid requestId)
         {
             this.requestRepository = requestRepository;
             this.userRepository = userRepository;
             this.log = log;
             this.requestId = requestId;
+            this.notificationService = notificationService;
         }
 
         public async Task ExecuteAsync()
         {
-            LogStart();
             await LoadRequestAsync();
             CreateUser();
-            LogCreateUser();
             await SaveUserAsync();
-            LogSaveUser();
-        }
-
-        private void LogStart()
-        {
-            log.Information($"Start user registration by request id {requestId}");
+            await NotifyThatCreatedAsync();
+            LogThatUserIsSaved();
         }
 
         private async Task LoadRequestAsync()
@@ -51,19 +52,19 @@ namespace UsersService.Commands.RegisterUser
             user = registrationRequest.CreateSimpleUser();
         }
 
-        private void LogCreateUser()
-        {
-            log.Information($"User with id {user.Id} has created from request with id {registrationRequest.Id}");
-        }
-
         private async Task SaveUserAsync()
         {
             await user.SaveAsync(userRepository);
         }
 
-        private void LogSaveUser()
+        private async Task NotifyThatCreatedAsync()
         {
-            log.Information($"User with id {user.Id} has saved");
+            await user.NotifyThatRegisteredAsync(notificationService);
+        }
+
+        private void LogThatUserIsSaved()
+        {
+            log.Information($"User with id {user.Id} has created from request with id {registrationRequest.Id} and saved");
         }
     }
 }
