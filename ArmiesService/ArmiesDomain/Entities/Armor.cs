@@ -45,7 +45,7 @@ namespace ArmiesDomain.Entities
 
             armorDto.Name = Name;
             defense.ForEach(offence => offence.FillArmorData(armorDto));
-            tags.ForEach(tag => tag.FillArmorData(armorDto));
+            armorDto.Tags = tags.Select(tag => tag.ToString()).ToList();
             data.Armors.Add(armorDto);
         }
 

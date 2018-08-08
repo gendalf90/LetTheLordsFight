@@ -97,7 +97,7 @@ namespace ArmiesDomain.Entities
             weapons.ForEach(weapon => weapon.FillSquadData(squadData));
             armors.ForEach(armor => armor.FillSquadData(squadData));
             quantity.FillSquadData(squadData);
-            tags.ForEach(tag => tag.FillSquadData(squadData));
+            squadData.Tags = tags.Select(tag => tag.ToString()).ToList();
             armyData.Squads.Add(squadData);
         }
 

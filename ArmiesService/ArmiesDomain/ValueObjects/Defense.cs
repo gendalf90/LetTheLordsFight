@@ -33,7 +33,7 @@ namespace ArmiesDomain.ValueObjects
             };
 
             range.FillDefenceData(defenceDto);
-            tags.ForEach(tag => tag.FillDefenceData(defenceDto));
+            defenceDto.Tags = tags.Select(tag => tag.ToString()).ToList();
             data.Defence.Add(defenceDto);
         }
     }

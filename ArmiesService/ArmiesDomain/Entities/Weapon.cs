@@ -45,7 +45,7 @@ namespace ArmiesDomain.Entities
 
             weaponDto.Name = Name;
             offence.ForEach(offence => offence.FillWeaponData(weaponDto));
-            tags.ForEach(tag => tag.FillWeaponData(weaponDto));
+            weaponDto.Tags = tags.Select(tag => tag.ToString()).ToList();
             data.Weapons.Add(weaponDto);
         }
 
