@@ -1,15 +1,16 @@
-﻿using MongoDB.Bson.Serialization;
+﻿using ArmiesService.Controllers.Data;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ArmiesService.Queries.AllWeapons
 {
-    class AllWeaponsQuery : IQuery<IEnumerable<WeaponQueryDto>>
+    class AllWeaponsQuery : IQuery<IEnumerable<WeaponDictionaryDto>>
     {
         static AllWeaponsQuery()
         {
-            BsonClassMap.RegisterClassMap<WeaponQueryDto>(cm =>
+            BsonClassMap.RegisterClassMap<WeaponDictionaryDto>(cm =>
             {
                 cm.MapIdProperty(e => e.Name);
                 cm.MapProperty(e => e.Cost).SetElementName("cost");
@@ -17,7 +18,7 @@ namespace ArmiesService.Queries.AllWeapons
                 cm.MapProperty(e => e.Offence).SetElementName("offence");
             });
 
-            BsonClassMap.RegisterClassMap<OffenceQueryDto>(cm =>
+            BsonClassMap.RegisterClassMap<OffenceDictionaryDto>(cm =>
             {
                 cm.MapProperty(e => e.Max).SetElementName("max");
                 cm.MapProperty(e => e.Min).SetElementName("min");
@@ -32,9 +33,9 @@ namespace ArmiesService.Queries.AllWeapons
             this.database = database;
         }
 
-        public async Task<IEnumerable<WeaponQueryDto>> AskAsync()
+        public async Task<IEnumerable<WeaponDictionaryDto>> AskAsync()
         {
-            return await database.GetCollection<WeaponQueryDto>("weapons")
+            return await database.GetCollection<WeaponDictionaryDto>("weapons")
                                  .AsQueryable()
                                  .ToListAsync();
         }

@@ -1,5 +1,4 @@
-﻿using ArmiesDomain.Repositories.Armies;
-using ArmiesDomain.Repositories.Users;
+﻿using ArmiesDomain.Repositories.Users;
 using System;
 
 namespace ArmiesDomain.ValueObjects

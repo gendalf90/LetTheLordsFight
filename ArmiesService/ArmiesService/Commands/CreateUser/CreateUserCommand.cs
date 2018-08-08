@@ -11,11 +11,11 @@ namespace ArmiesService.Commands.CreateUser
     {
         private readonly IUsers users;
         private readonly ILog logger;
-        private readonly UserConsumerDto data;
+        private readonly UserCreatedEventDto data;
 
         private User user;
 
-        public CreateUserCommand(IUsers users, ILog logger, UserConsumerDto data)
+        public CreateUserCommand(IUsers users, ILog logger, UserCreatedEventDto data)
         {
             this.users = users;
             this.logger = logger;

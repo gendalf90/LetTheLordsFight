@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using ArmiesService.Common;
+using ArmiesService.Controllers.Data;
 using ArmiesService.Queries.AllArmors;
 using ArmiesService.Queries.AllSquads;
 using ArmiesService.Queries.AllWeapons;
 using ArmiesService.Queries.Army;
 using ArmiesService.Queries.User;
 using MongoDB.Driver;
-using SquadDictionaryQueryDto = ArmiesService.Queries.AllSquads.SquadQueryDto;
 
 namespace ArmiesService.Queries
 {
@@ -21,27 +21,27 @@ namespace ArmiesService.Queries
             this.currentUserLogin = currentUserLogin;
         }
 
-        public IQuery<UserQueryDto> CreateUserQuery()
+        public IQuery<UserGetDto> CreateUserQuery()
         {
             return new UserQuery(database, currentUserLogin);
         }
 
-        public IQuery<IEnumerable<ArmorQueryDto>> CreateAllArmorsQuery()
+        public IQuery<IEnumerable<ArmorDictionaryDto>> CreateAllArmorsQuery()
         {
             return new AllArmorsQuery(database);
         }
 
-        public IQuery<IEnumerable<SquadDictionaryQueryDto>> CreateAllSquadsQuery()
+        public IQuery<IEnumerable<SquadDictionaryDto>> CreateAllSquadsQuery()
         {
             return new AllSquadsQuery(database);
         }
 
-        public IQuery<IEnumerable<WeaponQueryDto>> CreateAllWeaponsQuery()
+        public IQuery<IEnumerable<WeaponDictionaryDto>> CreateAllWeaponsQuery()
         {
             return new AllWeaponsQuery(database);
         }
 
-        public IQuery<ArmyQueryDto> CreateArmyQuery()
+        public IQuery<ArmyGetDto> CreateArmyQuery()
         {
             return new ArmyQuery(database, currentUserLogin);
         }

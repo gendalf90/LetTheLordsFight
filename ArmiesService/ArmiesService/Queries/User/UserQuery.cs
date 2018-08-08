@@ -1,15 +1,16 @@
 ﻿using ArmiesService.Common;
+using ArmiesService.Controllers.Data;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using System.Threading.Tasks;
 
 namespace ArmiesService.Queries.User
 {
-    public class UserQuery : IQuery<UserQueryDto>
+    public class UserQuery : IQuery<UserGetDto>
     {
         static UserQuery()
         {
-            BsonClassMap.RegisterClassMap<UserQueryDto>(cm =>
+            BsonClassMap.RegisterClassMap<UserGetDto>(cm =>
             {
                 cm.MapIdProperty(e => e.Login);
                 cm.MapProperty(e => e.ArmyCostLimit).SetElementName("army_cost_limit");
@@ -25,10 +26,10 @@ namespace ArmiesService.Queries.User
             this.currentUserLogin = currentUserLogin;
         }
 
-        public async Task<UserQueryDto> AskAsync()
+        public async Task<UserGetDto> AskAsync()
         {
             var login = currentUserLogin.Get();
-            var collection = database.GetCollection<UserQueryDto>("users");
+            var collection = database.GetCollection<UserGetDto>("users");
             return await collection.Find(army => army.Login == login).FirstOrDefaultAsync();
         }
     }

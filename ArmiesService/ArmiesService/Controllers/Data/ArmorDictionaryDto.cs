@@ -1,12 +1,12 @@
-﻿namespace ArmiesService.Queries.AllArmors
+﻿namespace ArmiesService.Controllers.Data
 {
-    public class ArmorQueryDto
+    public class ArmorDictionaryDto
     {
         public string Name { get; set; }
 
         public int Cost { get; set; }
 
-        public DefenceQueryDto[] Defence { get; set; }
+        public DefenceDictionaryDto[] Defence { get; set; }
 
         public string[] Tags { get; set; }
     }

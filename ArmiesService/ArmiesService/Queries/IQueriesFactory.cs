@@ -1,22 +1,18 @@
-﻿using ArmiesService.Queries.Army;
+﻿using ArmiesService.Controllers.Data;
 using System.Collections.Generic;
-using SquadDictionaryQueryDto = ArmiesService.Queries.AllSquads.SquadQueryDto;
-using ArmiesService.Queries.AllWeapons;
-using ArmiesService.Queries.AllArmors;
-using ArmiesService.Queries.User;
 
 namespace ArmiesService.Queries
 {
     public interface IQueriesFactory
     {
-        IQuery<ArmyQueryDto> CreateArmyQuery();
+        IQuery<ArmyGetDto> CreateArmyQuery();
 
-        IQuery<UserQueryDto> CreateUserQuery();
+        IQuery<UserGetDto> CreateUserQuery();
 
-        IQuery<IEnumerable<SquadDictionaryQueryDto>> CreateAllSquadsQuery();
+        IQuery<IEnumerable<SquadDictionaryDto>> CreateAllSquadsQuery();
 
-        IQuery<IEnumerable<WeaponQueryDto>> CreateAllWeaponsQuery();
+        IQuery<IEnumerable<WeaponDictionaryDto>> CreateAllWeaponsQuery();
 
-        IQuery<IEnumerable<ArmorQueryDto>> CreateAllArmorsQuery();
+        IQuery<IEnumerable<ArmorDictionaryDto>> CreateAllArmorsQuery();
     }
 }

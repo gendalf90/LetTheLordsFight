@@ -2,9 +2,9 @@
 
 namespace ArmiesService.Controllers.Data
 {
-    public class ArmyControllerDto
+    public class ArmyPostDto
     {
         [Required(ErrorMessage = "Squads must be set")]
-        public SquadContollerDto[] Squads { get; set; }
+        public SquadPostDto[] Squads { get; set; }
     }
 }

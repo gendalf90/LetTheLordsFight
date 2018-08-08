@@ -1,6 +1,6 @@
-﻿namespace ArmiesService.Queries.AllWeapons
+﻿namespace ArmiesService.Controllers.Data
 {
-    public class OffenceQueryDto
+    public class OffenceDictionaryDto
     {
         public int Min { get; set; }
 

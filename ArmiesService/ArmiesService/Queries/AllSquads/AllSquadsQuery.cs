@@ -1,15 +1,16 @@
-﻿using MongoDB.Bson.Serialization;
+﻿using ArmiesService.Controllers.Data;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ArmiesService.Queries.AllSquads
 {
-    class AllSquadsQuery : IQuery<IEnumerable<SquadQueryDto>>
+    class AllSquadsQuery : IQuery<IEnumerable<SquadDictionaryDto>>
     {
         static AllSquadsQuery()
         {
-            BsonClassMap.RegisterClassMap<SquadQueryDto>(cm =>
+            BsonClassMap.RegisterClassMap<SquadDictionaryDto>(cm =>
             {
                 cm.MapIdProperty(e => e.Type);
                 cm.MapProperty(e => e.Cost).SetElementName("cost");
@@ -24,9 +25,9 @@ namespace ArmiesService.Queries.AllSquads
             this.database = database;
         }
 
-        public async Task<IEnumerable<SquadQueryDto>> AskAsync()
+        public async Task<IEnumerable<SquadDictionaryDto>> AskAsync()
         {
-            return await database.GetCollection<SquadQueryDto>("squads")
+            return await database.GetCollection<SquadDictionaryDto>("squads")
                                  .AsQueryable()
                                  .ToListAsync();
         }

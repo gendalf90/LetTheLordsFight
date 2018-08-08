@@ -35,12 +35,12 @@ namespace ArmiesService.Commands
             this.logger = logger;
         }
 
-        public ICommand GetCreateArmyCommand(ArmyControllerDto data)
+        public ICommand GetCreateArmyCommand(ArmyPostDto data)
         {
             return new CreateArmyCommand(armyFactory, armyRepository, currentUserLogin, armyNotificationsService, logger, data);
         }
 
-        public ICommand GetCreateUserCommand(UserConsumerDto data)
+        public ICommand GetCreateUserCommand(UserCreatedEventDto data)
         {
             return new CreateUserCommand(usersRepository, logger, data);
         }

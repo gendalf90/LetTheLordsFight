@@ -1,6 +1,6 @@
 ﻿namespace ArmiesService.Consumers.Data
 {
-    public class UserConsumerDto
+    public class UserCreatedEventDto
     {
         public string Login { get; set; }
     }

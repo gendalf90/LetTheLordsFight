@@ -1,6 +1,6 @@
-﻿namespace ArmiesService.Queries.User
+﻿namespace ArmiesService.Controllers.Data
 {
-    public class UserQueryDto
+    public class UserGetDto
     {
         public string Login { get; set; }
 

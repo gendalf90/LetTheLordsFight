@@ -1,6 +1,6 @@
-﻿namespace ArmiesService.Queries.AllSquads
+﻿namespace ArmiesService.Controllers.Data
 {
-    public class SquadQueryDto
+    public class SquadDictionaryDto
     {
         public string Type { get; set; }
 

@@ -1,5 +1,4 @@
 ﻿using ArmiesDomain.Repositories.Users;
-using ArmiesService;
 using ArmiesService.Controllers;
 using ArmiesService.Logs;
 using Microsoft.Extensions.Configuration;
@@ -20,8 +19,6 @@ using ArmiesDomain.Services.ArmyNotifications;
 using ArmiesDomain.Repositories.Armies;
 using ArmiesService.Controllers.Data;
 using ArmiesService.Initialization;
-using MongoDB.Driver;
-using RabbitMQ.Client;
 
 namespace Tests.Unit
 {
@@ -37,11 +34,11 @@ namespace Tests.Unit
                                   .Callback<ArmyRepositoryDto>(ValidateResult)
                                   .Returns(Task.CompletedTask);
                 
-            await controller.CreateAsync(new ArmyControllerDto
+            await controller.CreateAsync(new ArmyPostDto
             {
                 Squads = new[]
                 {
-                    new SquadContollerDto
+                    new SquadPostDto
                     {
                         Type = "SquadOne",
                         Quantity = 1,
@@ -76,11 +73,11 @@ namespace Tests.Unit
             var services = CreateServiceProvider();
             var controller = services.GetService<CreateArmyController>();
 
-            var result = await controller.CreateAsync(new ArmyControllerDto
+            var result = await controller.CreateAsync(new ArmyPostDto
             {
                 Squads = new[]
                 {
-                    new SquadContollerDto
+                    new SquadPostDto
                     {
                         Type = "SquadOne",
                         Quantity = 2,
@@ -102,11 +99,11 @@ namespace Tests.Unit
             var services = CreateServiceProvider();
             var controller = services.GetService<CreateArmyController>();
 
-            var result = await controller.CreateAsync(new ArmyControllerDto
+            var result = await controller.CreateAsync(new ArmyPostDto
             {
                 Squads = new[]
                 {
-                    new SquadContollerDto
+                    new SquadPostDto
                     {
                         Type = "SquadOne",
                         Quantity = quantity,
@@ -128,11 +125,11 @@ namespace Tests.Unit
             mockOfSquadsRepository.Setup(mock => mock.GetByTypeAsync(It.IsAny<string>()))
                                   .ThrowsAsync(new EntityNotFoundException());
 
-            var result = await controller.CreateAsync(new ArmyControllerDto
+            var result = await controller.CreateAsync(new ArmyPostDto
             {
                 Squads = new[]
                 {
-                    new SquadContollerDto
+                    new SquadPostDto
                     {
                         Type = "SquadOne",
                         Quantity = 1,
@@ -154,11 +151,11 @@ namespace Tests.Unit
             mockOfWeaponsRepository.Setup(mock => mock.GetByNameAsync(It.IsAny<string>()))
                                    .ThrowsAsync(new EntityNotFoundException());
 
-            var result = await controller.CreateAsync(new ArmyControllerDto
+            var result = await controller.CreateAsync(new ArmyPostDto
             {
                 Squads = new[]
                 {
-                    new SquadContollerDto
+                    new SquadPostDto
                     {
                         Type = "SquadOne",
                         Quantity = 1,
@@ -180,11 +177,11 @@ namespace Tests.Unit
             mockOfArmorsRepository.Setup(mock => mock.GetByNameAsync(It.IsAny<string>()))
                                   .ThrowsAsync(new EntityNotFoundException());
 
-            var result = await controller.CreateAsync(new ArmyControllerDto
+            var result = await controller.CreateAsync(new ArmyPostDto
             {
                 Squads = new[]
                 {
-                    new SquadContollerDto
+                    new SquadPostDto
                     {
                         Type = "SquadOne",
                         Quantity = 1,
@@ -202,10 +199,10 @@ namespace Tests.Unit
         {
             var services = CreateServiceProvider();
             var controller = services.GetService<CreateArmyController>();
-            var data = new ArmyControllerDto();
+            var data = new ArmyPostDto();
 
             var nullArrayResult = await controller.CreateAsync(data);
-            data.Squads = new SquadContollerDto[0];
+            data.Squads = new SquadPostDto[0];
             var emptyArrayResult = await controller.CreateAsync(data);
 
             Assert.IsAssignableFrom<BadRequestObjectResult>(nullArrayResult);
@@ -217,17 +214,17 @@ namespace Tests.Unit
         {
             var services = CreateServiceProvider();
             var controller = services.GetService<CreateArmyController>();
-            var data = new ArmyControllerDto();
+            var data = new ArmyPostDto();
             var mockOfArmyNotificationsService = services.GetService<Mock<IArmyNotificationService>>();
             mockOfArmyNotificationsService.Setup(service => service.NotifyThatCreatedAsync(It.IsAny<ArmyNotificationDto>()))
                                           .Callback<ArmyNotificationDto>(ValidateResult)
                                           .Returns(Task.CompletedTask);
 
-            await controller.CreateAsync(new ArmyControllerDto
+            await controller.CreateAsync(new ArmyPostDto
             {
                 Squads = new[]
                 {
-                    new SquadContollerDto
+                    new SquadPostDto
                     {
                         Type = "SquadOne",
                         Quantity = 1,
@@ -290,11 +287,11 @@ namespace Tests.Unit
             var services = CreateServiceProvider();
             var controller = services.GetService<CreateArmyController>();
 
-            var result = await controller.CreateAsync(new ArmyControllerDto
+            var result = await controller.CreateAsync(new ArmyPostDto
             {
-                Squads = new SquadContollerDto[]
+                Squads = new SquadPostDto[]
                 {
-                    new SquadContollerDto
+                    new SquadPostDto
                     {
                         Type = "SquadOne",
                         Quantity = 1,

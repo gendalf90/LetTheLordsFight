@@ -17,7 +17,7 @@ namespace ArmiesService.Commands.CreateArmy
         private readonly IGetCurrentUserLoginStrategy currentUserLogin;
         private readonly IArmyNotificationService armyNotificationsService;
         private readonly ILog logger;
-        private readonly ArmyControllerDto data;
+        private readonly ArmyPostDto data;
 
         private ArmyFactoryDto factoryData;
         private Army army;
@@ -27,7 +27,7 @@ namespace ArmiesService.Commands.CreateArmy
                        IGetCurrentUserLoginStrategy currentUserLogin,
                        IArmyNotificationService armyNotificationsService,
                        ILog logger,
-                       ArmyControllerDto data)
+                       ArmyPostDto data)
         {
             this.armyFactory = armyFactory;
             this.armyRepository = armyRepository;
@@ -55,7 +55,7 @@ namespace ArmiesService.Commands.CreateArmy
                                      .ToList();
         }
 
-        private SquadFactoryDto Map(SquadContollerDto dto)
+        private SquadFactoryDto Map(SquadPostDto dto)
         {
             return new SquadFactoryDto
             {

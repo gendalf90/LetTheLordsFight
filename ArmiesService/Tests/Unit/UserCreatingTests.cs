@@ -28,7 +28,7 @@ namespace Tests.Unit
                                  .Callback<UserRepositoryDto>(ValidateResult)
                                  .Returns(Task.CompletedTask);
 
-            var command = commandFactory.GetCreateUserCommand(new UserConsumerDto
+            var command = commandFactory.GetCreateUserCommand(new UserCreatedEventDto
             {
                 Login = "TestLogin"
             });

@@ -5,8 +5,8 @@ namespace ArmiesService.Commands
 {
     public interface ICommandsFactory
     {
-        ICommand GetCreateArmyCommand(ArmyControllerDto data);
+        ICommand GetCreateArmyCommand(ArmyPostDto data);
 
-        ICommand GetCreateUserCommand(UserConsumerDto data);
+        ICommand GetCreateUserCommand(UserCreatedEventDto data);
     }
 }

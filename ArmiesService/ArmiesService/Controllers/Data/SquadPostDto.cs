@@ -2,7 +2,7 @@
 
 namespace ArmiesService.Controllers.Data
 {
-    public class SquadContollerDto
+    public class SquadPostDto
     {
         [Required(AllowEmptyStrings = false, ErrorMessage = "Squad type must be set")]
         public string Type { get; set; }

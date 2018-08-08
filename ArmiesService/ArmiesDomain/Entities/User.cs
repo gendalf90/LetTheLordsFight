@@ -1,5 +1,4 @@
-﻿using ArmiesDomain.Exceptions;
-using ArmiesDomain.Repositories.Users;
+﻿using ArmiesDomain.Repositories.Users;
 using ArmiesDomain.ValueObjects;
 using System.Threading.Tasks;
 

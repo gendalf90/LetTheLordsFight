@@ -1,15 +1,16 @@
-﻿using MongoDB.Bson.Serialization;
+﻿using ArmiesService.Controllers.Data;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ArmiesService.Queries.AllArmors
 {
-    class AllArmorsQuery : IQuery<IEnumerable<ArmorQueryDto>>
+    class AllArmorsQuery : IQuery<IEnumerable<ArmorDictionaryDto>>
     {
         static AllArmorsQuery()
         {
-            BsonClassMap.RegisterClassMap<ArmorQueryDto>(cm =>
+            BsonClassMap.RegisterClassMap<ArmorDictionaryDto>(cm =>
             {
                 cm.MapIdProperty(e => e.Name);
                 cm.MapProperty(e => e.Cost).SetElementName("cost");
@@ -17,7 +18,7 @@ namespace ArmiesService.Queries.AllArmors
                 cm.MapProperty(e => e.Defence).SetElementName("defence");
             });
 
-            BsonClassMap.RegisterClassMap<DefenceQueryDto>(cm =>
+            BsonClassMap.RegisterClassMap<DefenceDictionaryDto>(cm =>
             {
                 cm.MapProperty(e => e.Max).SetElementName("max");
                 cm.MapProperty(e => e.Min).SetElementName("min");
@@ -32,9 +33,9 @@ namespace ArmiesService.Queries.AllArmors
             this.database = database;
         }
 
-        public async Task<IEnumerable<ArmorQueryDto>> AskAsync()
+        public async Task<IEnumerable<ArmorDictionaryDto>> AskAsync()
         {
-            return await database.GetCollection<ArmorQueryDto>("armors")
+            return await database.GetCollection<ArmorDictionaryDto>("armors")
                                  .AsQueryable()
                                  .ToListAsync();
         }

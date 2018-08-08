@@ -76,13 +76,13 @@ namespace ArmiesService.Consumers
             channel.BasicConsume(QueueName, true, consumer);
         }
 
-        private UserConsumerDto DeserializeUserData(byte[] bytes)
+        private UserCreatedEventDto DeserializeUserData(byte[] bytes)
         {
             var json = Encoding.UTF8.GetString(bytes);
-            return JsonConvert.DeserializeObject<UserConsumerDto>(json);
+            return JsonConvert.DeserializeObject<UserCreatedEventDto>(json);
         }
 
-        private async Task CreateUserAsync(UserConsumerDto data)
+        private async Task CreateUserAsync(UserCreatedEventDto data)
         {
             var command = commands.GetCreateUserCommand(data);
             await command.ExecuteAsync();

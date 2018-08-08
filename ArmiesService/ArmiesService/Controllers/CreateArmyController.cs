@@ -22,7 +22,7 @@ namespace ArmiesService.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] ArmyControllerDto data)
+        public async Task<IActionResult> CreateAsync([FromBody] ArmyPostDto data)
         {
             if (!ModelState.IsValid)
             {
@@ -39,7 +39,7 @@ namespace ArmiesService.Controllers
             return Ok();
         }
 
-        private async Task TryCreateArmyAsync(ArmyControllerDto data)
+        private async Task TryCreateArmyAsync(ArmyPostDto data)
         {
             try
             {
