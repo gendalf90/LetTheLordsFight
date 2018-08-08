@@ -24,8 +24,9 @@ server.post('/api/v1/users/confirmation/request/:id', (req, res) => {
 });
 
 server.get('/api/v1/users/current/token', (req, res) => {
-    res.send('test_123');
-
+    res.sendStatus(200).json({
+        token: 'test_123'
+    });
     //res.sendStatus(401);
 });
 

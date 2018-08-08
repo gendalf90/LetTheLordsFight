@@ -17,7 +17,7 @@ export default function signIn(login, password) {
 var getToken = async function (login, password) {
     let request = createRequest(login, password);
     let response = await axios.request(request);
-    return response.data;
+    return response.data.token;
 };
 
 var setTokenToLocalStorage = function (token) {
